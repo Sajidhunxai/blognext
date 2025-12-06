@@ -12,7 +12,13 @@ export async function getSettings() {
       throw new Error("Settings model not available. Please restart the dev server.");
     }
 
-    let settings = await prisma.settings.findFirst();
+    // Add timeout to prevent hanging during build
+    const settingsPromise = prisma.settings.findFirst();
+    const timeoutPromise = new Promise<any>((resolve) => 
+      setTimeout(() => resolve(null), 10000)
+    );
+    
+    let settings = await Promise.race([settingsPromise, timeoutPromise]);
 
     if (!settings) {
       settings = await prisma.settings.create({

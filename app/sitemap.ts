@@ -2,14 +2,26 @@ import { MetadataRoute } from 'next';
 import { prisma } from '@/lib/prisma';
 import { getSettings } from '@/lib/settings';
 
+// Mark as dynamic to prevent build-time execution
+export const dynamic = 'force-dynamic';
+export const revalidate = 3600; // Revalidate every hour
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-  const settings = await getSettings();
+  
+  // Get settings with error handling
+  let settings;
+  try {
+    settings = await getSettings();
+  } catch (error) {
+    console.error('Error fetching settings for sitemap:', error);
+    settings = { siteName: 'Blog CMS' };
+  }
 
-  // Get all published posts
+  // Get all published posts with timeout and error handling
   let posts: any[] = [];
   try {
-    posts = await prisma.post.findMany({
+    const postsPromise = prisma.post.findMany({
       where: { published: true },
       select: {
         slug: true,
@@ -18,15 +30,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       },
       orderBy: { updatedAt: 'desc' },
     });
+    
+    // Add timeout to prevent hanging
+    posts = await Promise.race([
+      postsPromise,
+      new Promise<any[]>((resolve) => setTimeout(() => resolve([]), 5000))
+    ]);
   } catch (error) {
     console.error('Error fetching posts for sitemap:', error);
+    posts = [];
   }
 
-  // Get all published pages
+  // Get all published pages with timeout and error handling
   let pages: any[] = [];
   try {
     if (prisma && 'page' in prisma) {
-      pages = await (prisma as any).page.findMany({
+      const pagesPromise = (prisma as any).page.findMany({
         where: { published: true },
         select: {
           slug: true,
@@ -35,23 +54,35 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         },
         orderBy: { updatedAt: 'desc' },
       });
+      
+      pages = await Promise.race([
+        pagesPromise,
+        new Promise<any[]>((resolve) => setTimeout(() => resolve([]), 5000))
+      ]);
     }
   } catch (error) {
     console.error('Error fetching pages for sitemap:', error);
+    pages = [];
   }
 
-  // Get all categories
+  // Get all categories with timeout and error handling
   let categories: any[] = [];
   try {
     if (prisma && 'category' in prisma) {
-      categories = await (prisma as any).category.findMany({
+      const categoriesPromise = (prisma as any).category.findMany({
         select: {
           slug: true,
         },
       });
+      
+      categories = await Promise.race([
+        categoriesPromise,
+        new Promise<any[]>((resolve) => setTimeout(() => resolve([]), 5000))
+      ]);
     }
   } catch (error) {
     console.error('Error fetching categories for sitemap:', error);
+    categories = [];
   }
 
   // Static routes
