@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
+    "postinstall": "prisma generate",
     "create-admin": "node scripts/create-admin.js",
     "seed": "node scripts/seed.js",
     "ngrok": "ngrok http 3000"

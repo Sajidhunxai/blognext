@@ -5,3 +5,6 @@ const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };
 
+// Mark this route as dynamic to prevent build-time execution
+export const dynamic = 'force-dynamic';
+
