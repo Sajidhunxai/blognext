@@ -1,0 +1,44 @@
+{
+  "name": "blog-cms",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "create-admin": "node scripts/create-admin.js",
+    "seed": "node scripts/seed.js",
+    "ngrok": "ngrok http 3000"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.7.1",
+    "@tiptap/extension-image": "^3.12.1",
+    "@tiptap/extension-link": "^3.12.1",
+    "@tiptap/extension-underline": "^3.12.1",
+    "@tiptap/react": "^3.12.1",
+    "@tiptap/starter-kit": "^3.12.1",
+    "bcryptjs": "^2.4.3",
+    "cloudinary": "^2.8.0",
+    "next": "^14.0.0",
+    "next-auth": "^4.24.5",
+    "next-cloudinary": "^6.17.5",
+    "quill": "^2.0.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-quill": "^2.0.0"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "autoprefixer": "^10.0.1",
+    "eslint": "^8",
+    "eslint-config-next": "^14.0.0",
+    "postcss": "^8",
+    "prisma": "^5.7.1",
+    "tailwindcss": "^3.3.0",
+    "typescript": "^5"
+  }
+}

@@ -1,0 +1,141 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  email     String   @unique
+  password  String
+  name      String?
+  role      String   @default("admin")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  posts     Post[]
+}
+
+model Category {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  posts       Post[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Post {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  title           String
+  content         String
+  slug            String   @unique
+  published       Boolean  @default(false)
+  authorId        String   @db.ObjectId
+  author          User     @relation(fields: [authorId], references: [id])
+  categoryId      String?  @db.ObjectId
+  category        Category? @relation(fields: [categoryId], references: [id])
+  allowComments   Boolean  @default(true)
+  
+  // SEO Fields
+  metaTitle       String?
+  metaDescription String?
+  keywords        String[]
+  ogImage         String?
+  ogImageAlt      String?
+  featuredImage   String?
+  featuredImageAlt String?
+  downloadLink    String?
+  
+  // App Details
+  developer       String?
+  appSize         String?
+  appVersion      String?
+  requirements    String?
+  downloads       String?
+  googlePlayLink  String?
+  
+  comments        Comment[]
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Page {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  title           String
+  content         String
+  slug            String   @unique
+  published       Boolean  @default(true)
+  
+  // SEO Fields
+  metaTitle       String?
+  metaDescription String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Comment {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  postId      String   @db.ObjectId
+  post        Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorName  String
+  authorEmail String
+  authorWebsite String?
+  content     String
+  approved    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Settings {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  siteName        String   @default("Blog CMS")
+  logo            String?
+  favicon         String?
+  
+  // Header Navigation
+  headerMenu      String[] // Array of menu items: ["Home", "Apps", "Games", "Casinos"]
+  
+  // Footer Links
+  footerLinks     String[] // Array of footer link items
+  
+  // Social Media Links
+  socialMedia     Json?    // { facebook: "", twitter: "", instagram: "", youtube: "", pinterest: "", telegram: "" }
+  
+  // Hero Section
+  heroTitle       String?
+  heroSubtitle    String?
+  heroBackground  String?
+  
+  // Comments
+  enableComments  Boolean  @default(true)
+  
+  // Theme Colors
+  primaryColor       String?  @default("#dc2626") // Red
+  secondaryColor     String?  @default("#16a34a") // Green
+  backgroundColor    String?  @default("#111827") // Dark gray
+  textColor          String?  @default("#ffffff") // White
+  buttonColor        String?  @default("#dc2626") // Primary button
+  linkColor          String?  @default("#3b82f6") // Blue links
+  successColor       String?  @default("#16a34a") // Green success
+  errorColor         String?  @default("#dc2626") // Red error
+  warningColor       String?  @default("#f59e0b") // Orange warning
+  infoColor          String?  @default("#3b82f6") // Blue info
+  
+  // Custom Scripts and CSS
+  headerScript       String?  // Scripts to add in <head>
+  footerScript       String?  // Scripts to add before </body>
+  headerCSS          String?  // CSS to add in <head>
+  footerCSS          String?  // CSS to add before </body>
+  
+  updatedAt       DateTime @updatedAt
+}
+

@@ -1,0 +1,1 @@
+"use strict";exports.id=5663,exports.ids=[5663],exports.modules={75663:(e,t,s)=>{s.r(t),s.d(t,{default:()=>r});let r=(0,s(68570).createProxy)(String.raw`/Users/hunxai/apkapp/components/CommentsSection.tsx#default`)}};
