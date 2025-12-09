@@ -7,6 +7,10 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import dynamic from "next/dynamic";
 
+const NavigationLoader = dynamic(() => import("@/components/NavigationLoader"), {
+  ssr: false,
+});
+
 const NavLink = dynamic(() => import("@/components/NavLink"), {
   ssr: false,
 });
@@ -43,6 +47,7 @@ export default async function FrontendLayout({ children }: FrontendLayoutProps) 
 
   return (
     <div className="min-h-screen bg-white">
+      <NavigationLoader />
       {/* Header */}
       <header style={{ backgroundColor: colors.background, borderColor: colors.primary }} className="border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
 import RichTextEditor from "./RichTextEditor";
+import ImageUpload from "./ImageUpload";
 
 interface Page {
   id: string;
@@ -13,6 +14,8 @@ interface Page {
   published: boolean;
   metaTitle?: string | null;
   metaDescription?: string | null;
+  featuredImage?: string | null;
+  featuredImageAlt?: string | null;
 }
 
 export default function EditPageForm({ page }: { page: Page }) {
@@ -23,6 +26,8 @@ export default function EditPageForm({ page }: { page: Page }) {
   const [published, setPublished] = useState(page.published);
   const [metaTitle, setMetaTitle] = useState(page.metaTitle || "");
   const [metaDescription, setMetaDescription] = useState(page.metaDescription || "");
+  const [featuredImage, setFeaturedImage] = useState(page.featuredImage || "");
+  const [featuredImageAlt, setFeaturedImageAlt] = useState(page.featuredImageAlt || "");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -44,6 +49,8 @@ export default function EditPageForm({ page }: { page: Page }) {
           published,
           metaTitle: metaTitle || title,
           metaDescription,
+          featuredImage,
+          featuredImageAlt,
         }),
       });
 
@@ -145,6 +152,33 @@ export default function EditPageForm({ page }: { page: Page }) {
             </div>
 
             <div className="border-t border-gray-200 pt-6 mt-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Featured Image</h2>
+              
+              <div className="space-y-4">
+                <ImageUpload
+                  label="Featured Image URL"
+                  value={featuredImage}
+                  onChange={setFeaturedImage}
+                  placeholder="https://example.com/image.jpg"
+                />
+                
+                <div>
+                  <label htmlFor="featuredImageAlt" className="block text-sm font-medium text-gray-700 mb-2">
+                    Featured Image Alt Text
+                  </label>
+                  <input
+                    id="featuredImageAlt"
+                    type="text"
+                    value={featuredImageAlt}
+                    onChange={(e) => setFeaturedImageAlt(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                    placeholder="Description of the image for accessibility"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t border-gray-200 pt-6 mt-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">SEO Settings</h2>
               
               <div className="space-y-4">
@@ -197,14 +231,14 @@ export default function EditPageForm({ page }: { page: Page }) {
               <button
                 type="submit"
                 disabled={loading}
-                className="bg-gray-900 text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-button text-button hover:bg-secondary px-6 py-3 rounded-lg font-medium transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? "Updating..." : "Update Page"}
               </button>
               <button
                 type="button"
                 onClick={handleDelete}
-                className="bg-red-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-red-700 transition"
+                className="bg-red-600 text-theme-text px-6 py-3 rounded-lg font-medium hover:bg-red-700 transition"
               >
                 Delete
               </button>

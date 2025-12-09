@@ -83,7 +83,7 @@ export default function ImageUpload({
         />
         <label
           htmlFor={`file-upload-${label.replace(/\s+/g, "-").toLowerCase()}`}
-          className={`px-4 py-3 text-white rounded-lg font-medium hover:opacity-90 transition cursor-pointer ${
+          className={`px-4 py-3 text-theme-text rounded-lg font-medium hover:opacity-90 transition cursor-pointer ${
             uploading ? "opacity-50 cursor-not-allowed" : ""
           }`}
           style={{ backgroundColor: colors.button }}

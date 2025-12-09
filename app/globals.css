@@ -69,6 +69,108 @@ textarea::placeholder {
   .text-balance {
     text-wrap: balance;
   }
+
+  /* Theme color utilities using CSS variables */
+  .text-primary {
+    color: var(--color-primary, #dc2626);
+  }
+
+  .text-secondary {
+    color: var(--color-secondary, #16a34a);
+  }
+
+  .text-theme-text {
+    color: var(--color-text, #ffffff);
+  }
+
+  .text-link {
+    color: var(--color-link, #3b82f6);
+  }
+
+  .text-success {
+    color: var(--color-success, #16a34a);
+  }
+
+  .text-error {
+    color: var(--color-error, #dc2626);
+  }
+
+  .text-warning {
+    color: var(--color-warning, #f59e0b);
+  }
+
+  .text-info {
+    color: var(--color-info, #3b82f6);
+  }
+
+  .bg-primary {
+    background-color: var(--color-primary, #dc2626);
+  }
+
+  .bg-secondary {
+    background-color: var(--color-secondary, #16a34a);
+  }
+
+  .bg-theme-background {
+    background-color: var(--color-background, #111827);
+  }
+
+  .bg-button {
+    background-color: var(--color-button, #dc2626);
+  }
+
+  .text-button {
+    color: var(--color-button-text, #ffffff);
+  }
+
+  .bg-success {
+    background-color: var(--color-success, #16a34a);
+  }
+
+  .bg-error {
+    background-color: var(--color-error, #dc2626);
+  }
+
+  .bg-warning {
+    background-color: var(--color-warning, #f59e0b);
+  }
+
+  .bg-info {
+    background-color: var(--color-info, #3b82f6);
+  }
+
+  .bg-gradient-primary-error {
+    background: linear-gradient(to bottom right, var(--color-primary, #dc2626), var(--color-error, #dc2626));
+  }
+
+  .bg-gradient-secondary {
+    background: linear-gradient(to bottom right, var(--color-secondary, #16a34a), var(--color-secondary, #16a34a)dd);
+  }
+
+  .border-primary {
+    border-color: var(--color-primary, #dc2626);
+  }
+
+  .border-secondary {
+    border-color: var(--color-secondary, #16a34a);
+  }
+
+  .border-link {
+    border-color: var(--color-link, #3b82f6);
+  }
+
+  /* Loading animations */
+  @keyframes loading-bar {
+    0% {
+      transform: translateX(-100%);
+    }
+    50% {
+      transform: translateX(300%);
+    }
+    100% {
+      transform: translateX(500%);
+    }
+  }
 }
 
 /* Quill Editor Styles */

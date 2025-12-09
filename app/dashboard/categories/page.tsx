@@ -9,6 +9,7 @@ interface Category {
   name: string;
   slug: string;
   description?: string;
+  featured?: boolean;
   _count?: {
     posts: number;
   };
@@ -23,6 +24,7 @@ export default function CategoriesPage() {
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [description, setDescription] = useState("");
+  const [featured, setFeatured] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState("");
@@ -73,8 +75,8 @@ export default function CategoriesPage() {
       const url = editingCategory ? "/api/categories" : "/api/categories";
       const method = editingCategory ? "PUT" : "POST";
       const body = editingCategory
-        ? { id: editingCategory.id, name, slug: slug || generateSlug(name), description }
-        : { name, slug: slug || generateSlug(name), description };
+        ? { id: editingCategory.id, name, slug: slug || generateSlug(name), description, featured }
+        : { name, slug: slug || generateSlug(name), description, featured };
 
       const response = await fetch(url, {
         method,
@@ -92,6 +94,7 @@ export default function CategoriesPage() {
       setName("");
       setSlug("");
       setDescription("");
+      setFeatured(false);
       setShowForm(false);
       setEditingCategory(null);
       setSuccess(`Category ${editingCategory ? "updated" : "created"} successfully!`);
@@ -111,6 +114,7 @@ export default function CategoriesPage() {
     setName(category.name);
     setSlug(category.slug);
     setDescription(category.description || "");
+    setFeatured(category.featured || false);
     setShowForm(true);
     setError("");
     setSuccess("");
@@ -124,6 +128,7 @@ export default function CategoriesPage() {
     setName("");
     setSlug("");
     setDescription("");
+    setFeatured(false);
     setError("");
     setSuccess("");
   };
@@ -193,11 +198,12 @@ export default function CategoriesPage() {
                 setName("");
                 setSlug("");
                 setDescription("");
+                setFeatured(false);
                 setError("");
                 setSuccess("");
               }
             }}
-            className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition"
+            className="px-4 py-2 bg-button text-button rounded-lg hover:bg-secondary transition"
           >
             {showForm ? "Cancel" : "New Category"}
           </button>
@@ -264,11 +270,23 @@ export default function CategoriesPage() {
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
                 />
               </div>
+              <div className="flex items-center">
+                <input
+                  id="featured"
+                  type="checkbox"
+                  checked={featured}
+                  onChange={(e) => setFeatured(e.target.checked)}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label htmlFor="featured" className="ml-2 block text-sm text-gray-700">
+                  Featured Category (show on homepage)
+                </label>
+              </div>
               <div className="flex gap-3">
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition disabled:opacity-50"
+                  className="px-6 py-3 bg-button text-button hover:bg-secondary rounded-lg transition disabled:opacity-50"
                 >
                   {submitting
                     ? editingCategory
@@ -318,7 +336,14 @@ export default function CategoriesPage() {
                 {categories.map((category) => (
                   <tr key={category.id} className="hover:bg-gray-50 transition">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{category.name}</div>
+                      <div className="flex items-center gap-2">
+                        <div className="text-sm font-medium text-gray-900">{category.name}</div>
+                        {category.featured && (
+                          <span className="px-2 py-1 text-xs font-semibold bg-yellow-100 text-yellow-800 rounded">
+                            Featured
+                          </span>
+                        )}
+                      </div>
                       {category.description && (
                         <div className="text-sm text-gray-500">{category.description}</div>
                       )}

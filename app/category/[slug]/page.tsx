@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { getSettings } from "@/lib/settings";
 import FrontendLayout from "@/components/FrontendLayout";
 import Image from "next/image";
+import StarRating from "@/components/StarRating";
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
 import Breadcrumbs from "@/components/Breadcrumbs";
@@ -200,14 +201,13 @@ export default async function CategoryPage({ params }: Props) {
         siteName={settings.siteName}
       />
       <FrontendLayout>
-        <div style={{ backgroundColor: colors.background }}>
+        <div className="bg-theme-background">
           {/* Hero Section */}
           <section
-            className="relative py-12 sm:py-16 px-4 sm:px-6 lg:px-8"
-            style={{ backgroundColor: colors.primary }}
+            className="relative py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-primary"
           >
             <div className="max-w-7xl mx-auto text-center">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-theme-text mb-4">
                 {category.name}
               </h1>
               {category.description && (
@@ -239,13 +239,12 @@ export default async function CategoryPage({ params }: Props) {
 
           {/* Content Section */}
           <main
-            className="min-h-screen"
-            style={{ backgroundColor: colors.background }}
+            className="min-h-screen bg-theme-background"
           >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
               <div className="flex items-center justify-between mb-8">
                 <div>
-                  <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+                  <h2 className="text-2xl sm:text-3xl font-bold text-theme-text mb-2">
                     {category.name} Apps
                   </h2>
                   <p className="text-gray-400 text-sm sm:text-base">
@@ -262,8 +261,7 @@ export default async function CategoryPage({ params }: Props) {
                   </p>
                   <Link
                     href="/"
-                    className="mt-4 inline-block px-6 py-3 text-white rounded-lg font-medium hover:opacity-90 transition"
-                    style={{ backgroundColor: colors.primary }}
+                    className="mt-4 inline-block px-6 py-3 text-theme-text rounded-lg font-medium hover:opacity-90 transition bg-primary"
                   >
                     Browse All Apps
                   </Link>
@@ -274,8 +272,7 @@ export default async function CategoryPage({ params }: Props) {
                     <Link
                       key={post.id}
                       href={`/posts/${post.slug}`}
-                      className="bg-white rounded-lg border-2 p-4 hover:shadow-lg transition-shadow"
-                      style={{ borderColor: colors.primary }}
+                      className="bg-white rounded-lg border-2 p-4 hover:shadow-lg transition-shadow "
                     >
                       <div className="relative mb-3">
                         {post.featuredImage ? (
@@ -286,7 +283,7 @@ export default async function CategoryPage({ params }: Props) {
                           />
                         ) : (
                           <div
-                            className="w-full h-32 rounded flex items-center justify-center text-white text-2xl font-bold"
+                            className="w-full h-32 rounded flex items-center justify-center text-theme-text text-2xl font-bold"
                             style={{
                               background: `linear-gradient(to bottom right, ${colors.secondary}, ${colors.secondary}dd)`,
                             }}
@@ -296,8 +293,7 @@ export default async function CategoryPage({ params }: Props) {
                         )}
                         {index < 2 && (
                           <span
-                            className="absolute top-2 left-2 text-white text-xs px-2 py-1 rounded"
-                            style={{ backgroundColor: colors.primary }}
+                            className="absolute top-2 left-2 text-theme-text text-xs px-2 py-1 rounded bg-primary"
                           >
                             {index === 0 ? "UPDATED" : "NEW"}
                           </span>
@@ -314,15 +310,14 @@ export default async function CategoryPage({ params }: Props) {
                       <p className="text-xs text-gray-500 mb-2">
                         {settings.siteName}
                       </p>
-                      <div className="flex items-center gap-1">
-                        {[...Array(4)].map((_, i) => (
-                          <span key={i} className="text-yellow-400 text-xs">
-                            ★
-                          </span>
-                        ))}
-                        <span className="text-gray-400 text-xs">★</span>
-                        <span className="text-xs text-gray-600 ml-1">4.0</span>
-                      </div>
+                      {post.rating && (
+                        <StarRating 
+                          rating={post.rating} 
+                          showNumber 
+                          size="xs" 
+                          ratingCount={post.ratingCount || 0}
+                        />
+                      )}
                     </Link>
                   ))}
                 </div>

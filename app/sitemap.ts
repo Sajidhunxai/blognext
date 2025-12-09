@@ -7,7 +7,9 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 3600; // Revalidate every hour
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const siteUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+  // Normalize siteUrl to remove trailing slash
+  const rawSiteUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+  const siteUrl = rawSiteUrl.replace(/\/+$/, ''); // Remove trailing slashes
   
   // Get settings with error handling
   let settings;

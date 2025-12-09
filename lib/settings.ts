@@ -68,6 +68,7 @@ export async function getSettings() {
       backgroundColor: "#111827",
       textColor: "#ffffff",
       buttonColor: "#dc2626",
+      buttonTextColor: "#ffffff",
       linkColor: "#3b82f6",
       successColor: "#16a34a",
       errorColor: "#dc2626",

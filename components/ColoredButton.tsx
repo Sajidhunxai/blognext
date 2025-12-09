@@ -34,10 +34,36 @@ export default function ColoredButton({
     info: colors.info,
   };
 
-  const baseClasses = "text-white px-6 py-3 rounded-lg font-medium hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed";
+  const baseClasses = "px-6 py-3 rounded-lg font-medium transition disabled:opacity-50 disabled:cursor-not-allowed";
+  
+  // Use CSS classes for primary buttons, inline styles for other colors
+  if (color === "button" || color === "primary") {
+    return (
+      <>
+        {href ? (
+          <a
+            href={href}
+            className={`bg-button text-button hover:bg-secondary ${baseClasses} ${className}`}
+          >
+            {children}
+          </a>
+        ) : (
+          <button
+            type={type}
+            onClick={onClick}
+            disabled={disabled}
+            className={`bg-button text-button hover:bg-secondary ${baseClasses} ${className}`}
+          >
+            {children}
+          </button>
+        )}
+      </>
+    );
+  }
   
   const style = {
     backgroundColor: colorMap[color],
+    color: colors.buttonText,
   };
 
   if (href) {

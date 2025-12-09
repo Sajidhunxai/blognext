@@ -201,8 +201,7 @@ export default function CommentsSection({ postId, allowComments, enableComments 
         <button
           type="submit"
           disabled={submitting}
-          className="px-8 py-3 text-white font-medium rounded-lg hover:opacity-90 transition disabled:opacity-50"
-          style={{ backgroundColor: colors.button }}
+          className="px-8 py-3 bg-button text-button hover:bg-secondary font-medium rounded-lg transition disabled:opacity-50"
         >
           {submitting ? "Submitting..." : "Post Comment"}
         </button>

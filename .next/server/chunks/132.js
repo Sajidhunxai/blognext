@@ -1,1 +1,0 @@
-"use strict";exports.id=132,exports.ids=[132],exports.modules={80132:(e,r,t)=>{t.r(r),t.d(r,{default:()=>s});let s=(0,t(68570).createProxy)(String.raw`/Users/hunxai/apkapp/components/ColoredAnchor.tsx#default`)}};

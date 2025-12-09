@@ -49,6 +49,7 @@ export default async function SettingsPage() {
     backgroundColor: settingsData.backgroundColor || "#111827",
     textColor: settingsData.textColor || "#ffffff",
     buttonColor: settingsData.buttonColor || "#dc2626",
+    buttonTextColor: settingsData.buttonTextColor || "#ffffff",
     linkColor: settingsData.linkColor || "#3b82f6",
     successColor: settingsData.successColor || "#16a34a",
     errorColor: settingsData.errorColor || "#dc2626",

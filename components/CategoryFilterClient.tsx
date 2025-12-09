@@ -74,14 +74,9 @@ export default function CategoryFilterClient({ categories }: CategoryFilterProps
             onClick={() => handleCategoryClick(null)}
             className={`px-4 sm:px-6 py-2 sm:py-3 rounded-full font-medium flex items-center gap-2 transition text-sm sm:text-base ${
               !selectedCategory
-                ? "text-white"
+                ? "bg-button text-button hover:bg-secondary"
                 : "bg-gray-800 text-gray-300 hover:bg-gray-700"
             }`}
-            style={
-              !selectedCategory
-                ? { backgroundColor: colors.primary }
-                : {}
-            }
           >
             <span>▶</span> All
           </button>
@@ -93,14 +88,9 @@ export default function CategoryFilterClient({ categories }: CategoryFilterProps
                 onClick={() => handleCategoryClick(category.slug)}
                 className={`px-4 sm:px-6 py-2 sm:py-3 rounded-full font-medium flex items-center gap-2 transition text-sm sm:text-base ${
                   isActive
-                    ? "text-white"
+                    ? "bg-button text-button hover:bg-secondary"
                     : "bg-gray-800 text-gray-300 hover:bg-gray-700"
                 }`}
-                style={
-                  isActive
-                    ? { backgroundColor: colors.primary }
-                    : {}
-                }
               >
                 <span>▶</span> {category.name}
               </button>

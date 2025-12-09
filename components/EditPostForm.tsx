@@ -28,6 +28,8 @@ interface Post {
   requirements?: string | null;
   downloads?: string | null;
   googlePlayLink?: string | null;
+  rating?: number | null;
+  ratingCount?: number | null;
 }
 
 interface Category {
@@ -57,6 +59,8 @@ export default function EditPostForm({ post }: { post: Post }) {
   const [requirements, setRequirements] = useState(post.requirements || "");
   const [downloads, setDownloads] = useState(post.downloads || "");
   const [googlePlayLink, setGooglePlayLink] = useState(post.googlePlayLink || "");
+  const [rating, setRating] = useState(post.rating?.toString() || "");
+  const [ratingCount, setRatingCount] = useState(post.ratingCount?.toString() || "0");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -106,6 +110,8 @@ export default function EditPostForm({ post }: { post: Post }) {
           requirements,
           downloads,
           googlePlayLink,
+          rating: rating ? parseFloat(rating) : null,
+          ratingCount: ratingCount ? parseInt(ratingCount) : 0,
         }),
       });
 
@@ -308,6 +314,40 @@ export default function EditPostForm({ post }: { post: Post }) {
                     placeholder="https://play.google.com/store/apps/..."
                   />
                 </div>
+
+                <div>
+                  <label htmlFor="rating" className="block text-sm font-medium text-gray-700 mb-2">
+                    Rating (0.0 - 5.0)
+                  </label>
+                  <input
+                    id="rating"
+                    type="number"
+                    min="0"
+                    max="5"
+                    step="0.1"
+                    value={rating}
+                    onChange={(e) => setRating(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                    placeholder="e.g., 4.5"
+                  />
+                  <p className="mt-1 text-xs text-gray-500">Rating from 0.0 to 5.0 (leave empty for no rating)</p>
+                </div>
+
+                <div>
+                  <label htmlFor="ratingCount" className="block text-sm font-medium text-gray-700 mb-2">
+                    Rating Count
+                  </label>
+                  <input
+                    id="ratingCount"
+                    type="number"
+                    min="0"
+                    value={ratingCount}
+                    onChange={(e) => setRatingCount(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                    placeholder="e.g., 1250"
+                  />
+                  <p className="mt-1 text-xs text-gray-500">Number of reviews/ratings</p>
+                </div>
               </div>
             </div>
 
@@ -440,14 +480,14 @@ export default function EditPostForm({ post }: { post: Post }) {
               <button
                 type="submit"
                 disabled={loading}
-                className="bg-gray-900 text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-button text-button hover:bg-secondary px-6 py-3 rounded-lg font-medium transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? "Updating..." : "Update Post"}
               </button>
               <button
                 type="button"
                 onClick={handleDelete}
-                className="bg-red-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-red-700 transition"
+                className="bg-red-600 text-theme-text px-6 py-3 rounded-lg font-medium hover:bg-red-700 transition"
               >
                 Delete
               </button>

@@ -10,36 +10,31 @@ export default function DashboardButtons() {
     <div className="flex gap-4">
       <Link
         href="/dashboard/settings"
-        className="text-white px-6 py-3 rounded-lg font-medium hover:opacity-90 transition"
-        style={{ backgroundColor: colors.warning }}
+        className="bg-button text-button hover:bg-secondary px-6 py-3 rounded-lg font-medium transition"
       >
         Settings
       </Link>
       <Link
         href="/dashboard/pages"
-        className="text-white px-6 py-3 rounded-lg font-medium hover:opacity-90 transition"
-        style={{ backgroundColor: colors.primary }}
+        className="bg-button text-button hover:bg-secondary px-6 py-3 rounded-lg font-medium transition"
       >
         Pages
       </Link>
       <Link
         href="/dashboard/posts/new"
-        className="text-white px-6 py-3 rounded-lg font-medium hover:opacity-90 transition"
-        style={{ backgroundColor: colors.primary }}
+        className="bg-button text-button hover:bg-secondary px-6 py-3 rounded-lg font-medium transition"
       >
         New Post
       </Link>
       <Link
         href="/dashboard/comments"
-        className="text-white px-6 py-3 rounded-lg font-medium hover:opacity-90 transition"
-        style={{ backgroundColor: colors.primary }}
+        className="bg-button text-button hover:bg-secondary px-6 py-3 rounded-lg font-medium transition"
       >
         Comments
       </Link>
       <Link
         href="/dashboard/categories"
-        className="text-white px-6 py-3 rounded-lg font-medium hover:opacity-90 transition"
-        style={{ backgroundColor: colors.primary }}
+        className="bg-button text-button hover:bg-secondary px-6 py-3 rounded-lg font-medium transition"
       >
         Categories
       </Link>

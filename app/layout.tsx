@@ -2,6 +2,11 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { getSettings } from "@/lib/settings";
 import ClientThemeProvider from "@/components/ClientThemeProvider";
+import dynamic from "next/dynamic";
+
+const NavigationLoader = dynamic(() => import("@/components/NavigationLoader"), {
+  ssr: false,
+});
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettings();
@@ -67,6 +72,7 @@ export default async function RootLayout({
     background: settings.backgroundColor || undefined,
     text: settings.textColor || undefined,
     button: settings.buttonColor || undefined,
+    buttonText: settings.buttonTextColor || undefined,
     link: settings.linkColor || undefined,
     success: settings.successColor || undefined,
     error: settings.errorColor || undefined,
@@ -96,6 +102,7 @@ export default async function RootLayout({
       </head>
       <body>
         <ClientThemeProvider initialColors={initialColors}>
+          <NavigationLoader />
           {children}
         </ClientThemeProvider>
         {footerCSS && (

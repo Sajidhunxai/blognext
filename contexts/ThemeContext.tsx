@@ -8,6 +8,7 @@ interface ThemeColors {
   background: string;
   text: string;
   button: string;
+  buttonText: string;
   link: string;
   success: string;
   error: string;
@@ -27,6 +28,7 @@ const defaultColors: ThemeColors = {
   background: "#111827",
   text: "#ffffff",
   button: "#dc2626",
+  buttonText: "#ffffff",
   link: "#3b82f6",
   success: "#16a34a",
   error: "#dc2626",
@@ -64,6 +66,7 @@ export function ThemeProvider({ children, initialColors }: { children: ReactNode
           --color-background: ${colors.background};
           --color-text: ${colors.text};
           --color-button: ${colors.button};
+          --color-button-text: ${colors.buttonText};
           --color-link: ${colors.link};
           --color-success: ${colors.success};
           --color-error: ${colors.error};

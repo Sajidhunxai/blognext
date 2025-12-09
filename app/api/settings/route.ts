@@ -47,6 +47,7 @@ export async function GET(req: NextRequest) {
           backgroundColor: "#111827",
           textColor: "#ffffff",
           buttonColor: "#dc2626",
+          buttonTextColor: "#ffffff",
           linkColor: "#3b82f6",
           successColor: "#16a34a",
           errorColor: "#dc2626",
@@ -117,6 +118,7 @@ export async function PUT(req: NextRequest) {
     if (data.backgroundColor !== undefined) updateData.backgroundColor = data.backgroundColor;
     if (data.textColor !== undefined) updateData.textColor = data.textColor;
     if (data.buttonColor !== undefined) updateData.buttonColor = data.buttonColor;
+    if (data.buttonTextColor !== undefined) updateData.buttonTextColor = data.buttonTextColor;
     if (data.linkColor !== undefined) updateData.linkColor = data.linkColor;
     if (data.successColor !== undefined) updateData.successColor = data.successColor;
     if (data.errorColor !== undefined) updateData.errorColor = data.errorColor;
@@ -150,6 +152,7 @@ export async function PUT(req: NextRequest) {
           backgroundColor: data.backgroundColor || "#111827",
           textColor: data.textColor || "#ffffff",
           buttonColor: data.buttonColor || "#dc2626",
+          buttonTextColor: data.buttonTextColor || "#ffffff",
           linkColor: data.linkColor || "#3b82f6",
           successColor: data.successColor || "#16a34a",
           errorColor: data.errorColor || "#dc2626",

@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { title, content, slug, published, metaTitle, metaDescription } = await req.json();
+    const { title, content, slug, published, metaTitle, metaDescription, featuredImage, featuredImageAlt } = await req.json();
 
     if (!title || !content || !slug) {
       return NextResponse.json(
@@ -62,6 +62,8 @@ export async function POST(req: NextRequest) {
         published: published !== undefined ? published : true,
         metaTitle: metaTitle || title,
         metaDescription,
+        featuredImage,
+        featuredImageAlt,
       },
     });
 

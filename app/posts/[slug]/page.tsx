@@ -4,7 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { getSettings } from "@/lib/settings";
 import Link from "next/link";
 import StructuredData from "@/components/StructuredData";
-import Image from "next/image";
+import SmartImage from "@/components/SmartImage";
+import StarRating from "@/components/StarRating";
 import dynamic from "next/dynamic";
 import FrontendLayout from "@/components/FrontendLayout";
 
@@ -59,12 +60,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const metaDescription = post.metaDescription || post.content.substring(0, 160);
   const ogImage = post.ogImage || post.featuredImage || `${siteUrl}/og-default.jpg`;
 
+  // Preload LCP image for better performance
+  const featuredImageUrl = post.featuredImage || ogImage;
+  
   return {
     metadataBase: new URL(siteUrl),
     title: metaTitle,
     description: metaDescription,
     keywords: post.keywords?.join(", ") || undefined,
     authors: [{ name: post.author.name || post.author.email }],
+    other: featuredImageUrl ? {
+      'preload-image': featuredImageUrl,
+    } : {},
     openGraph: {
       title: metaTitle,
       description: metaDescription,
@@ -176,7 +183,7 @@ export default async function PostPage({ params }: Props) {
               Home
             </ColoredLink>
             <span className="mx-2">/</span>
-            <span>App</span>
+            <span>{post.metaTitle}</span>
           </nav>
 
           <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
@@ -186,25 +193,29 @@ export default async function PostPage({ params }: Props) {
                 {/* App Icon */}
                 <div className="relative mb-4 sm:mb-6">
                   {post.featuredImage ? (
-                    <img
+                    <SmartImage
                       src={post.featuredImage}
                       alt={post.title}
+                      width={320}
+                      height={320}
                       className="w-full rounded-lg"
+                      priority
+                      quality={90}
+                      sizes="(max-width: 768px) 100vw, 320px"
                     />
                   ) : (
-                    <div className="w-full aspect-square rounded-lg flex items-center justify-center text-white text-2xl sm:text-4xl font-bold" style={{ background: `linear-gradient(to bottom right, ${colors.primary}, ${colors.error})` }}>
+                    <div className="w-full aspect-square rounded-lg flex items-center justify-center text-theme-text text-2xl sm:text-4xl font-bold bg-gradient-primary-error">
                       {post.title.charAt(0)}
                     </div>
                   )}
-                  <span className="absolute top-2 left-2 text-white text-xs px-2 py-1 rounded font-bold" style={{ backgroundColor: colors.primary }}>NEW</span>
+                  <span className="absolute top-2 left-2 text-theme-text text-xs px-2 py-1 rounded font-bold bg-primary">NEW</span>
                 </div>
 
                 {/* Download Button */}
                 {post.downloadLink && (
                   <Link
                     href={`/download/${post.slug}`}
-                    className="w-full flex items-center justify-center gap-2 px-4 sm:px-6 py-3 sm:py-4 text-white text-sm sm:text-base font-bold rounded-lg hover:opacity-90 transition mb-4"
-                    style={{ backgroundColor: colors.button }}
+                    className="w-full flex items-center justify-center gap-2 px-4 sm:px-6 py-3 sm:py-4 text-button text-sm sm:text-base font-bold rounded-lg hover:bg-secondary transition mb-4 bg-button"
                   >
                     <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -214,12 +225,16 @@ export default async function PostPage({ params }: Props) {
                 )}
 
                 {/* Rating */}
-                <div className="mb-4">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-yellow-400 text-lg sm:text-xl">★★★★★</span>
-                    <span className="text-gray-900 font-semibold text-sm sm:text-base">4.5+</span>
+                {post.rating && (
+                  <div className="mb-4">
+                    <StarRating 
+                      rating={post.rating} 
+                      showNumber 
+                      size="lg" 
+                      ratingCount={post.ratingCount || 0}
+                    />
                   </div>
-                </div>
+                )}
 
                 {/* Get it on Google Play Button */}
                 {post.googlePlayLink && (
@@ -227,8 +242,7 @@ export default async function PostPage({ params }: Props) {
                     href={post.googlePlayLink}
                     target="_blank"
                     rel="nofollow noopener noreferrer"
-                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 rounded-lg hover:opacity-90 transition mb-6"
-                    style={{ borderColor: colors.primary }}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 rounded-lg hover:opacity-90 transition mb-6 border-primary"
                   >
                     <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.53,12.9 20.18,13.18L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z"/>
@@ -305,7 +319,7 @@ export default async function PostPage({ params }: Props) {
                   {post.keywords.map((keyword, index) => (
                     <span
                       key={index}
-                      className="px-3 py-1 rounded-full text-xs sm:text-sm font-medium text-white"
+                      className="px-3 py-1 bg-button rounded-full text-xs sm:text-sm font-medium text-button hover:bg-secondary"
                       style={{ 
                         backgroundColor: colors.primary,
                         opacity: 0.9
@@ -353,14 +367,16 @@ export default async function PostPage({ params }: Props) {
                         className="bg-white rounded-lg p-4 hover:shadow-lg transition shadow-sm"
                       >
                         {relatedPost.featuredImage ? (
-                          <img
+                          <SmartImage
                             src={relatedPost.featuredImage}
                             alt={relatedPost.title}
+                            width={200}
+                            height={96}
                             className="w-full h-24 object-cover rounded mb-2"
+                            quality={75}
                           />
                         ) : (
-                          <div className="w-full h-24 rounded mb-2 flex items-center justify-center text-white font-bold"
-                        style={{ background: `linear-gradient(to bottom right, ${colors.primary}, ${colors.error})` }}
+                          <div className="w-full h-24 rounded mb-2 flex items-center justify-center text-theme-text font-bold bg-gradient-primary-error"
                       >
                             {relatedPost.title.charAt(0)}
                           </div>
@@ -368,10 +384,12 @@ export default async function PostPage({ params }: Props) {
                         <h3 className="text-sm font-semibold text-gray-900 mb-1 line-clamp-1">
                           {relatedPost.title}
                         </h3>
-                        <div className="flex items-center gap-1">
-                          <span className="text-yellow-400 text-xs">★★★★</span>
-                          <span className="text-gray-400 text-xs">★</span>
-                        </div>
+                        {relatedPost.rating && (
+                          <StarRating 
+                            rating={relatedPost.rating} 
+                            size="xs"
+                          />
+                        )}
             </Link>
                     ))}
                   </div>

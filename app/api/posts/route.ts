@@ -30,6 +30,8 @@ export async function POST(req: NextRequest) {
       requirements,
       downloads,
       googlePlayLink,
+      rating,
+      ratingCount,
     } = await req.json();
 
     if (!title || !content || !slug) {
@@ -73,6 +75,8 @@ export async function POST(req: NextRequest) {
         requirements,
         downloads,
         googlePlayLink,
+        rating: rating !== undefined && rating !== null ? parseFloat(rating) : null,
+        ratingCount: ratingCount !== undefined ? parseInt(ratingCount) : 0,
       },
     });
 

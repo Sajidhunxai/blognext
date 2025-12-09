@@ -114,7 +114,7 @@ export default function CommentsPage() {
                 onClick={() => setFilter("all")}
                 className={`px-4 py-2 rounded-lg font-medium transition ${
                   filter === "all"
-                    ? "bg-gray-900 text-white"
+                    ? "bg-button text-button hover:bg-secondary"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
@@ -124,7 +124,7 @@ export default function CommentsPage() {
                 onClick={() => setFilter("pending")}
                 className={`px-4 py-2 rounded-lg font-medium transition ${
                   filter === "pending"
-                    ? "bg-gray-900 text-white"
+                    ? "bg-button text-button hover:bg-secondary"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
@@ -134,7 +134,7 @@ export default function CommentsPage() {
                 onClick={() => setFilter("approved")}
                 className={`px-4 py-2 rounded-lg font-medium transition ${
                   filter === "approved"
-                    ? "bg-gray-900 text-white"
+                    ? "bg-button text-button hover:bg-secondary"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
@@ -185,7 +185,7 @@ export default function CommentsPage() {
                       {!comment.approved && (
                         <button
                           onClick={() => handleApprove(comment.id, true)}
-                          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm"
+                          className="px-4 py-2 bg-green-600 text-theme-text rounded-lg hover:bg-green-700 transition text-sm"
                         >
                           Approve
                         </button>
@@ -193,14 +193,14 @@ export default function CommentsPage() {
                       {comment.approved && (
                         <button
                           onClick={() => handleApprove(comment.id, false)}
-                          className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition text-sm"
+                          className="px-4 py-2 bg-yellow-600 text-theme-text rounded-lg hover:bg-yellow-700 transition text-sm"
                         >
                           Unapprove
                         </button>
                       )}
                       <button
                         onClick={() => handleDelete(comment.id)}
-                        className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm"
+                        className="px-4 py-2 bg-red-600 text-theme-text rounded-lg hover:bg-red-700 transition text-sm"
                       >
                         Delete
                       </button>

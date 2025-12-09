@@ -22,6 +22,8 @@ export async function PUT(
       published,
       metaTitle,
       metaDescription,
+      featuredImage,
+      featuredImageAlt,
     } = await req.json();
 
     if (!title || !content || !slug) {
@@ -52,6 +54,8 @@ export async function PUT(
         published: published || false,
         metaTitle: metaTitle || title,
         metaDescription,
+        featuredImage,
+        featuredImageAlt,
       },
     });
 

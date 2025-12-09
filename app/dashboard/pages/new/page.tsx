@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
 import RichTextEditor from "@/components/RichTextEditor";
+import ImageUpload from "@/components/ImageUpload";
 
 export default function NewPagePage() {
   const router = useRouter();
@@ -13,6 +14,8 @@ export default function NewPagePage() {
   const [published, setPublished] = useState(true);
   const [metaTitle, setMetaTitle] = useState("");
   const [metaDescription, setMetaDescription] = useState("");
+  const [featuredImage, setFeaturedImage] = useState("");
+  const [featuredImageAlt, setFeaturedImageAlt] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -51,6 +54,8 @@ export default function NewPagePage() {
           published,
           metaTitle: metaTitle || title,
           metaDescription,
+          featuredImage,
+          featuredImageAlt,
         }),
       });
 
@@ -133,6 +138,33 @@ export default function NewPagePage() {
             </div>
 
             <div className="border-t border-gray-200 pt-6 mt-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Featured Image</h2>
+              
+              <div className="space-y-4">
+                <ImageUpload
+                  label="Featured Image URL"
+                  value={featuredImage}
+                  onChange={setFeaturedImage}
+                  placeholder="https://example.com/image.jpg"
+                />
+                
+                <div>
+                  <label htmlFor="featuredImageAlt" className="block text-sm font-medium text-gray-700 mb-2">
+                    Featured Image Alt Text
+                  </label>
+                  <input
+                    id="featuredImageAlt"
+                    type="text"
+                    value={featuredImageAlt}
+                    onChange={(e) => setFeaturedImageAlt(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                    placeholder="Description of the image for accessibility"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t border-gray-200 pt-6 mt-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">SEO Settings</h2>
               
               <div className="space-y-4">
@@ -185,7 +217,7 @@ export default function NewPagePage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="bg-gray-900 text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-button text-button hover:bg-secondary px-6 py-3 rounded-lg font-medium transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? "Creating..." : "Create Page"}
               </button>

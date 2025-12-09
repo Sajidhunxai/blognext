@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { name, slug, description } = await req.json();
+    const { name, slug, description, featured } = await req.json();
 
     if (!name || !slug) {
       return NextResponse.json(
@@ -80,6 +80,7 @@ export async function POST(req: NextRequest) {
         name,
         slug,
         description,
+        featured: featured || false,
       },
     });
 
@@ -114,7 +115,7 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    const { id, name, slug, description } = await req.json();
+    const { id, name, slug, description, featured } = await req.json();
 
     if (!id || !name || !slug) {
       return NextResponse.json(
@@ -129,6 +130,7 @@ export async function PUT(req: NextRequest) {
         name,
         slug,
         description,
+        featured: featured !== undefined ? featured : false,
       },
     });
 

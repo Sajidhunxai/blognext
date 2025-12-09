@@ -40,8 +40,7 @@ export default function DownloadClient({ post: initialPost }: DownloadClientProp
         {/* Back Button */}
         <Link
           href={`/posts/${initialPost.slug}`}
-          className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-lg text-white font-medium transition hover:opacity-90"
-          style={{ backgroundColor: colors.error }}
+          className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-lg text-theme-text font-medium transition hover:opacity-90 bg-error"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -57,8 +56,7 @@ export default function DownloadClient({ post: initialPost }: DownloadClientProp
         {/* Verified Badge */}
         <div className="flex items-center gap-2 mb-8">
           <div
-            className="w-8 h-8 rounded-full flex items-center justify-center text-white"
-            style={{ backgroundColor: colors.success }}
+            className="w-8 h-8 rounded-full flex items-center justify-center text-theme-text bg-success"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -107,8 +105,7 @@ export default function DownloadClient({ post: initialPost }: DownloadClientProp
               handleDownload();
             }}
             rel="nofollow noopener noreferrer"
-            className="w-full flex items-center justify-center gap-3 px-6 py-4 rounded-lg text-white font-bold text-lg transition hover:opacity-90 disabled:opacity-50"
-            style={{ backgroundColor: colors.button }}
+            className="w-full flex items-center justify-center gap-3 px-6 py-4 rounded-lg text-button font-bold text-lg transition hover:bg-secondary disabled:opacity-50 bg-button"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -124,8 +121,7 @@ export default function DownloadClient({ post: initialPost }: DownloadClientProp
 
           <div className="flex items-center gap-2 mt-4 justify-center">
             <div
-              className="w-6 h-6 rounded-full flex items-center justify-center text-white"
-              style={{ backgroundColor: colors.success }}
+              className="w-6 h-6 rounded-full flex items-center justify-center text-theme-text bg-success"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -158,8 +154,7 @@ export default function DownloadClient({ post: initialPost }: DownloadClientProp
                 handleDownload();
               }}
               rel="nofollow noopener noreferrer"
-              className="underline font-medium"
-              style={{ color: colors.link }}
+              className="underline font-medium text-link"
             >
               click here to download
             </a>

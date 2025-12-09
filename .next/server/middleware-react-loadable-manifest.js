@@ -1,1 +1,1 @@
-self.__REACT_LOADABLE_MANIFEST='{"components/CategoryFilter.tsx -> ./CategoryFilterClient":{"id":9331,"files":["static/chunks/331.431cc8df266dc6cc.js"]}}';
+self.__REACT_LOADABLE_MANIFEST="{\"components/CategoryFilter.tsx -> ./CategoryFilterClient\":{\"id\":\"components/CategoryFilter.tsx -> ./CategoryFilterClient\",\"files\":[\"static/chunks/_app-pages-browser_components_CategoryFilterClient_tsx.js\"]}}"

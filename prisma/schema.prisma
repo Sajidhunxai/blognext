@@ -26,6 +26,7 @@ model Category {
   name        String   @unique
   slug        String   @unique
   description String?
+  featured    Boolean  @default(false) // Featured categories for homepage
   posts       Post[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -61,6 +62,10 @@ model Post {
   downloads       String?
   googlePlayLink  String?
   
+  // Rating
+  rating          Float?   // Rating from 0.0 to 5.0
+  ratingCount     Int      @default(0) // Number of ratings/reviews
+  
   comments        Comment[]
   
   createdAt       DateTime @default(now())
@@ -77,6 +82,8 @@ model Page {
   // SEO Fields
   metaTitle       String?
   metaDescription String?
+  featuredImage   String?
+  featuredImageAlt String?
   
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -124,6 +131,7 @@ model Settings {
   backgroundColor    String?  @default("#111827") // Dark gray
   textColor          String?  @default("#ffffff") // White
   buttonColor        String?  @default("#dc2626") // Primary button
+  buttonTextColor    String?  @default("#ffffff") // Button text color
   linkColor          String?  @default("#3b82f6") // Blue links
   successColor       String?  @default("#16a34a") // Green success
   errorColor         String?  @default("#dc2626") // Red error

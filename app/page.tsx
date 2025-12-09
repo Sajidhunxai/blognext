@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { getSettings } from "@/lib/settings";
 import Image from "next/image";
 import FrontendLayout from "@/components/FrontendLayout";
+import StarRating from "@/components/StarRating";
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
 
@@ -89,6 +90,35 @@ export default async function Home({
     console.error("Error fetching categories:", error);
   }
 
+  // Fetch featured categories
+  const featuredCategories = categories.filter(cat => cat.featured && cat._count.posts > 0);
+
+  // Fetch posts for each featured category
+  const featuredCategoriesWithPosts = await Promise.all(
+    featuredCategories.map(async (category) => {
+      const posts = await prisma.post.findMany({
+        where: {
+          published: true,
+          categoryId: category.id,
+        },
+        orderBy: { createdAt: "desc" },
+        take: 6,
+        include: {
+          category: {
+            select: {
+              name: true,
+              slug: true,
+            },
+          },
+        },
+      });
+      return {
+        category,
+        posts,
+      };
+    })
+  );
+
   // Build where clause for posts
   const whereClause: any = { published: true };
   if (resolvedSearchParams?.category) {
@@ -129,7 +159,7 @@ export default async function Home({
 
   return (
     <FrontendLayout>
-      <div style={{ backgroundColor: colors.background }}>
+      <div className="bg-theme-background">
 
       {/* Hero Section */}
       <section
@@ -158,7 +188,7 @@ export default async function Home({
                 href={socialMedia.facebook}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white hover:bg-blue-700 transition"
+                className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-theme-text hover:bg-blue-700 transition"
               >
                 <span className="font-bold">f</span>
               </a>
@@ -168,7 +198,7 @@ export default async function Home({
                 href={socialMedia.twitter}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-12 h-12 rounded-full bg-sky-500 flex items-center justify-center text-white hover:bg-sky-600 transition"
+                className="w-12 h-12 rounded-full bg-sky-500 flex items-center justify-center text-theme-text hover:bg-sky-600 transition"
               >
                 <span className="font-bold">X</span>
               </a>
@@ -178,7 +208,7 @@ export default async function Home({
                 href={socialMedia.instagram}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white hover:opacity-90 transition"
+                className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-theme-text hover:opacity-90 transition"
               >
                 <span className="text-xl">📷</span>
               </a>
@@ -188,7 +218,7 @@ export default async function Home({
                 href={socialMedia.youtube}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-12 h-12 rounded-full bg-red-600 flex items-center justify-center text-white hover:bg-red-700 transition"
+                className="w-12 h-12 rounded-full bg-red-600 flex items-center justify-center text-theme-text hover:bg-red-700 transition"
               >
                 <span className="text-xl">▶</span>
               </a>
@@ -198,7 +228,7 @@ export default async function Home({
                 href={socialMedia.pinterest}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-12 h-12 rounded-full bg-red-600 flex items-center justify-center text-white hover:bg-red-700 transition"
+                className="w-12 h-12 rounded-full bg-red-600 flex items-center justify-center text-theme-text hover:bg-red-700 transition"
               >
                 <span className="font-bold">P</span>
               </a>
@@ -208,7 +238,7 @@ export default async function Home({
                 href={socialMedia.telegram}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-12 h-12 rounded-full bg-sky-500 flex items-center justify-center text-white hover:bg-sky-600 transition"
+                className="w-12 h-12 rounded-full bg-sky-500 flex items-center justify-center text-theme-text hover:bg-sky-600 transition"
               >
                 <span className="text-xl">✈</span>
               </a>
@@ -223,9 +253,76 @@ export default async function Home({
       </Suspense>
 
       {/* Content Section */}
-      <main className="min-h-screen" style={{ backgroundColor: colors.background }}>
+      <main className="min-h-screen bg-theme-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <h2 className="text-2xl font-bold text-white mb-8">Latest Apps</h2>
+          
+      
+
+          {/* Featured Categories Sections - Dynamic */}
+          {featuredCategoriesWithPosts.map(({ category, posts }) => {
+            if (posts.length === 0) return null;
+            
+            return (
+              <section key={category.id} className="mb-12">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold text-primary">{category.name} Apps</h2>
+                  <Link
+                    href={`/category/${category.slug}`}
+                    className="text-sm font-medium text-link hover:underline"
+                  >
+                    View All →
+                  </Link>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+                  {posts.map((post, index) => (
+                    <Link
+                      key={post.id}
+                      href={`/posts/${post.slug}`}
+                      className="bg-white rounded-lg border-2 p-4 hover:shadow-lg transition-shadow "
+                    >
+                      <div className="relative mb-3">
+                        {post.featuredImage ? (
+                          <img
+                            src={post.featuredImage}
+                            alt={post.title}
+                            className="w-full h-32 object-cover rounded"
+                          />
+                        ) : (
+                          <div className="w-full h-32 rounded flex items-center justify-center text-theme-text text-2xl font-bold bg-gradient-secondary">
+                            {post.title.charAt(0)}
+                          </div>
+                        )}
+                        {index < 2 && (
+                          <span className="absolute top-2 left-2 text-theme-text text-xs px-2 py-1 rounded bg-primary">
+                            {index === 0 ? "UPDATED" : "NEW"}
+                          </span>
+                        )}
+                      </div>
+                      <h3 className="font-semibold text-gray-900 mb-1 line-clamp-1">
+                        {post.title}
+                      </h3>
+                      <p className="text-xs text-gray-600 mb-2">
+                        Version: {post.appVersion || (post.downloadLink ? "V1.0" : "N/A")}
+                      </p>
+                      <p className="text-xs text-gray-500 mb-2">{settings.siteName}</p>
+                      {post.rating && (
+                        <StarRating 
+                          rating={post.rating} 
+                          showNumber 
+                          size="xs" 
+                          ratingCount={post.ratingCount || 0}
+                        />
+                      )}
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            );
+          })}
+
+          {/* Latest Apps Section */}
+          <section>
+            <h2 className="text-2xl font-bold text-center mb-8 text-primary">Latest Apps</h2>
 
           {posts.length === 0 ? (
             <div className="text-center py-12">
@@ -237,8 +334,7 @@ export default async function Home({
               <Link
                 key={post.id}
                 href={`/posts/${post.slug}`}
-                  className="bg-white rounded-lg border-2 p-4 hover:shadow-lg transition-shadow"
-                  style={{ borderColor: colors.primary }}
+                  className="bg-white rounded-lg border-2 p-4 hover:shadow-lg transition-shadow "
               >
                   <div className="relative mb-3">
                     {post.featuredImage ? (
@@ -248,15 +344,13 @@ export default async function Home({
                         className="w-full h-32 object-cover rounded"
                       />
                     ) : (
-                      <div className="w-full h-32 rounded flex items-center justify-center text-white text-2xl font-bold"
-                        style={{ background: `linear-gradient(to bottom right, ${colors.secondary}, ${colors.secondary}dd)` }}
+                      <div className="w-full h-32 rounded flex items-center justify-center text-theme-text text-2xl font-bold bg-gradient-secondary"
                       >
                         {post.title.charAt(0)}
                       </div>
                     )}
                     {index < 2 && (
-                      <span className="absolute top-2 left-2 text-white text-xs px-2 py-1 rounded"
-                        style={{ backgroundColor: colors.primary }}
+                      <span className="absolute top-2 left-2 text-theme-text text-xs px-2 py-1 rounded bg-primary"
                       >
                         {index === 0 ? "UPDATED" : "NEW"}
                       </span>
@@ -269,17 +363,19 @@ export default async function Home({
                     Version: {post.appVersion || (post.downloadLink ? "V1.0" : "N/A")}
                   </p>
                   <p className="text-xs text-gray-500 mb-2">{settings.siteName}</p>
-                  <div className="flex items-center gap-1">
-                    {[...Array(4)].map((_, i) => (
-                      <span key={i} className="text-yellow-400 text-xs">★</span>
-                    ))}
-                    <span className="text-gray-400 text-xs">★</span>
-                    <span className="text-xs text-gray-600 ml-1">4.0</span>
-                  </div>
+                  {post.rating && (
+                    <StarRating 
+                      rating={post.rating} 
+                      showNumber 
+                      size="xs" 
+                      ratingCount={post.ratingCount || 0}
+                    />
+                  )}
                 </Link>
               ))}
                 </div>
           )}
+          </section>
         </div>
       </main>
 

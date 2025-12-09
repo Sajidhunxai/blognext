@@ -32,6 +32,7 @@ interface SettingsState {
   backgroundColor: string;
   textColor: string;
   buttonColor: string;
+  buttonTextColor: string;
   linkColor: string;
   successColor: string;
   errorColor: string;
@@ -91,6 +92,7 @@ export default function SettingsClient({ initialSettings, pages: initialPages }:
         background: settings.backgroundColor,
         text: settings.textColor,
         button: settings.buttonColor,
+        buttonText: settings.buttonTextColor,
         link: settings.linkColor,
         success: settings.successColor,
         error: settings.errorColor,
@@ -279,7 +281,7 @@ export default function SettingsClient({ initialSettings, pages: initialPages }:
                     <button
                       type="button"
                       onClick={() => removeHeaderMenuItem(index)}
-                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+                      className="px-4 py-2 bg-red-600 text-theme-text rounded-lg hover:bg-red-700 transition"
                     >
                       Remove
                     </button>
@@ -359,7 +361,7 @@ export default function SettingsClient({ initialSettings, pages: initialPages }:
                       <button
                         type="button"
                         onClick={() => removeFooterLink(index)}
-                        className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+                        className="px-4 py-2 bg-red-600 text-theme-text rounded-lg hover:bg-red-700 transition"
                       >
                         Remove
                       </button>
@@ -477,6 +479,7 @@ export default function SettingsClient({ initialSettings, pages: initialPages }:
                   { key: 'backgroundColor', label: 'Background Color', placeholder: '#111827' },
                   { key: 'textColor', label: 'Text Color', placeholder: '#ffffff' },
                   { key: 'buttonColor', label: 'Button Color', placeholder: '#dc2626' },
+                  { key: 'buttonTextColor', label: 'Button Text Color', placeholder: '#ffffff' },
                   { key: 'linkColor', label: 'Link Color', placeholder: '#3b82f6' },
                   { key: 'successColor', label: 'Success Color', placeholder: '#16a34a' },
                   { key: 'errorColor', label: 'Error Color', placeholder: '#dc2626' },

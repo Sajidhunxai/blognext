@@ -51,7 +51,7 @@ export default async function PagesPage() {
             </Link>
             <Link
               href="/dashboard/pages/new"
-              className="bg-gray-900 text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-800 transition"
+              className="bg-button text-button hover:bg-secondary px-6 py-3 rounded-lg font-medium transition"
             >
               New Page
             </Link>

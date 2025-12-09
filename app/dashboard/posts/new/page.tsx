@@ -33,6 +33,8 @@ export default function NewPostPage() {
   const [requirements, setRequirements] = useState("");
   const [downloads, setDownloads] = useState("");
   const [googlePlayLink, setGooglePlayLink] = useState("");
+  const [rating, setRating] = useState("");
+  const [ratingCount, setRatingCount] = useState("0");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -99,6 +101,8 @@ export default function NewPostPage() {
           requirements,
           downloads,
           googlePlayLink,
+          rating: rating ? parseFloat(rating) : null,
+          ratingCount: ratingCount ? parseInt(ratingCount) : 0,
         }),
       });
 
@@ -282,6 +286,40 @@ export default function NewPostPage() {
                     placeholder="https://play.google.com/store/apps/..."
                   />
                 </div>
+
+                <div>
+                  <label htmlFor="rating" className="block text-sm font-medium text-gray-700 mb-2">
+                    Rating (0.0 - 5.0)
+                  </label>
+                  <input
+                    id="rating"
+                    type="number"
+                    min="0"
+                    max="5"
+                    step="0.1"
+                    value={rating}
+                    onChange={(e) => setRating(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                    placeholder="e.g., 4.5"
+                  />
+                  <p className="mt-1 text-xs text-gray-500">Rating from 0.0 to 5.0 (leave empty for no rating)</p>
+                </div>
+
+                <div>
+                  <label htmlFor="ratingCount" className="block text-sm font-medium text-gray-700 mb-2">
+                    Rating Count
+                  </label>
+                  <input
+                    id="ratingCount"
+                    type="number"
+                    min="0"
+                    value={ratingCount}
+                    onChange={(e) => setRatingCount(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                    placeholder="e.g., 1250"
+                  />
+                  <p className="mt-1 text-xs text-gray-500">Number of reviews/ratings</p>
+                </div>
               </div>
             </div>
 
@@ -414,7 +452,7 @@ export default function NewPostPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="bg-gray-900 text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-button text-button hover:bg-secondary px-6 py-3 rounded-lg font-medium transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? "Creating..." : "Create Post"}
               </button>
