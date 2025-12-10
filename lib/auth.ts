@@ -3,8 +3,24 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
+// Get NEXTAUTH_SECRET with fallback for development only
+const getSecret = () => {
+  if (process.env.NEXTAUTH_SECRET) {
+    return process.env.NEXTAUTH_SECRET;
+  }
+  
+  // Only allow fallback in development
+  if (process.env.NODE_ENV === "development") {
+    console.warn("⚠️  NEXTAUTH_SECRET not set. Using development fallback. Set NEXTAUTH_SECRET in production!");
+    return "development-secret-change-in-production";
+  }
+  
+  // In production, return undefined to let NextAuth throw the proper error
+  return undefined;
+};
+
 export const authOptions: NextAuthOptions = {
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: getSecret(),
   providers: [
     CredentialsProvider({
       name: "Credentials",
