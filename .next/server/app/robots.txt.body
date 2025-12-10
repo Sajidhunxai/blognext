@@ -1,8 +1,0 @@
-User-Agent: *
-Allow: /
-Disallow: /dashboard/
-Disallow: /api/
-Disallow: /login
-Disallow: /download/
-
-Sitemap: http://localhost:3000/sitemap.xml
