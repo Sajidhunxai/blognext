@@ -1,0 +1,1 @@
+"use strict";exports.id=1110,exports.ids=[1110],exports.modules={41110:(e,t,r)=>{r.r(t),r.d(t,{default:()=>s});let s=(0,r(68570).createProxy)(String.raw`/Users/hunxai/apkapp/components/ColoredLink.tsx#default`)}};

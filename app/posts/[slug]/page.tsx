@@ -310,7 +310,7 @@ export default async function PostPage({ params }: Props) {
 
               {/* Version */}
               {post.appVersion && (
-                <p className="text-base sm:text-lg text-gray-600 mb-3">{post.appVersion}</p>
+                <p className="text-base sm:text-lg text-gray-600 mb-3">v{post.appVersion}</p>
               )}
 
               {/* Tags */}

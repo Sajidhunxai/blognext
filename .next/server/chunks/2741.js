@@ -1,0 +1,1 @@
+"use strict";exports.id=2741,exports.ids=[2741],exports.modules={32741:(e,t,r)=>{r.r(t),r.d(t,{default:()=>s});let s=(0,r(68570).createProxy)(String.raw`/Users/hunxai/apkapp/components/NavigationLoader.tsx#default`)}};
