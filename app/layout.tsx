@@ -23,11 +23,14 @@ export async function generateMetadata(): Promise<Metadata> {
     authors: [{ name: settings.siteName || "Blog CMS" }],
     creator: settings.siteName || "Blog CMS",
     publisher: settings.siteName || "Blog CMS",
-    icons: {
-      icon: settings.favicon || '/favicon.ico',
-      shortcut: settings.favicon || '/favicon.ico',
-      apple: settings.favicon || '/favicon.ico',
-    },
+    // Only set icons if custom favicon is configured, otherwise let Next.js handle /favicon.ico automatically
+    ...(settings.favicon && {
+      icons: {
+        icon: settings.favicon,
+        shortcut: settings.favicon,
+        apple: settings.favicon,
+      },
+    }),
     robots: {
       index: true,
       follow: true,
