@@ -59,10 +59,13 @@ export default function CategoryStructuredData({
         "@type": "ListItem",
         position: index + 1,
         item: {
-          "@type": "SoftwareApplication",
+          "@type": "WebPage",
+          "@id": `${siteUrl}/posts/${post.slug}`,
           name: post.title,
           url: `${siteUrl}/posts/${post.slug}`,
-          image: post.featuredImage || undefined,
+          ...(post.featuredImage && {
+            image: post.featuredImage,
+          }),
           datePublished: post.createdAt.toISOString(),
         },
       })),
