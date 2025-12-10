@@ -8,12 +8,13 @@ import { useTheme } from "@/contexts/ThemeContext";
 import ColoredButton from "@/components/ColoredButton";
 
 type FooterLink = string | { label: string; url: string };
+type HeaderMenuItem = string | { label: string; url: string };
 
 interface SettingsState {
   siteName: string;
   logo: string;
   favicon: string;
-  headerMenu: string[];
+  headerMenu: HeaderMenuItem[];
   footerLinks: FooterLink[];
   socialMedia: {
     facebook: string;
@@ -114,14 +115,62 @@ export default function SettingsClient({ initialSettings, pages: initialPages }:
   const addHeaderMenuItem = () => {
     setSettings({
       ...settings,
-      headerMenu: [...settings.headerMenu, ""],
+      headerMenu: [...settings.headerMenu, { label: "", url: "" }],
     });
   };
 
-  const updateHeaderMenuItem = (index: number, value: string) => {
-    const newMenu = [...settings.headerMenu];
-    newMenu[index] = value;
+  const updateHeaderMenuItem = (index: number, field: "label" | "url", value: string) => {
+    const newMenu: HeaderMenuItem[] = [...settings.headerMenu];
+    let menuItem: { label: string; url: string };
+    
+    // Convert old string format to object format if needed
+    if (typeof newMenu[index] === "string") {
+      const oldValue = newMenu[index] as string;
+      // If it's a page reference, extract info
+      if (oldValue.startsWith("page:")) {
+        const slug = oldValue.substring(5);
+        const page = pages.find(p => p.slug === slug);
+        menuItem = { 
+          label: page ? page.title : slug, 
+          url: `/pages/${slug}` 
+        };
+      } else {
+        // For old string items, use it as label and generate URL
+        menuItem = { 
+          label: oldValue, 
+          url: index === 0 && oldValue.toLowerCase() === "home" ? "/" : `/${oldValue.toLowerCase().replace(/\s+/g, "-")}` 
+        };
+      }
+    } else {
+      menuItem = { ...(newMenu[index] as { label: string; url: string }) };
+    }
+    
+    menuItem[field] = value;
+    newMenu[index] = menuItem;
     setSettings({ ...settings, headerMenu: newMenu });
+  };
+
+  const getMenuDisplayValue = (item: HeaderMenuItem, field: "label" | "url"): string => {
+    if (typeof item === "string") {
+      // Handle old string format
+      if (item.startsWith("page:")) {
+        const slug = item.substring(5);
+        const page = pages.find(p => p.slug === slug);
+        if (field === "label") {
+          return page ? page.title : slug;
+        } else {
+          return `/pages/${slug}`;
+        }
+      } else {
+        if (field === "label") {
+          return item;
+        } else {
+          return item.toLowerCase() === "home" ? "/" : `/${item.toLowerCase().replace(/\s+/g, "-")}`;
+        }
+      }
+    } else {
+      return item[field];
+    }
   };
 
   const removeHeaderMenuItem = (index: number) => {
@@ -246,7 +295,10 @@ export default function SettingsClient({ initialSettings, pages: initialPages }:
                           if (selectedPage) {
                             setSettings({
                               ...settings,
-                              headerMenu: [...settings.headerMenu, selectedPage.title],
+                              headerMenu: [...settings.headerMenu, { 
+                                label: selectedPage.title, 
+                                url: `/pages/${selectedPage.slug}` 
+                              }],
                             });
                             e.target.value = "";
                           }
@@ -272,9 +324,17 @@ export default function SettingsClient({ initialSettings, pages: initialPages }:
                   <div key={index} className="flex gap-2">
                     <input
                       type="text"
-                      value={item}
-                      onChange={(e) => updateHeaderMenuItem(index, e.target.value)}
+                      value={getMenuDisplayValue(item, "label")}
+                      onChange={(e) => updateHeaderMenuItem(index, "label", e.target.value)}
                       placeholder="Menu item name"
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-900"
+                      style={{ color: '#000' }}
+                    />
+                    <input
+                      type="text"
+                      value={getMenuDisplayValue(item, "url")}
+                      onChange={(e) => updateHeaderMenuItem(index, "url", e.target.value)}
+                      placeholder="URL (e.g., / or /pages/about)"
                       className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-900"
                       style={{ color: '#000' }}
                     />
@@ -289,7 +349,7 @@ export default function SettingsClient({ initialSettings, pages: initialPages }:
                 ))}
               </div>
               <p className="mt-2 text-xs text-gray-500">
-                Tip: Use page titles or custom menu names. First item links to home (/).
+                Tip: Use page dropdown to add pages, or add custom menu items manually. First item should link to home (/).
               </p>
             </div>
 

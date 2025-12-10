@@ -109,10 +109,10 @@ model Settings {
   favicon         String?
   
   // Header Navigation
-  headerMenu      String[] // Array of menu items: ["Home", "Apps", "Games", "Casinos"]
+  headerMenu      Json?    // Array of menu items: [{ label: "Home", url: "/" }, { label: "About", url: "/pages/about" }] or ["Home", "Apps"] for backward compatibility
   
   // Footer Links
-  footerLinks     String[] // Array of footer link items
+  footerLinks     Json?    // Array of footer link items: [{ label: "About", url: "/pages/about" }] or ["About"] for backward compatibility
   
   // Social Media Links
   socialMedia     Json?    // { facebook: "", twitter: "", instagram: "", youtube: "", pinterest: "", telegram: "" }

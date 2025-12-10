@@ -1,0 +1,12 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/dashboard/settings/page": "app/dashboard/settings/page.js",
+  "/manifest.webmanifest/route": "app/manifest.webmanifest/route.js",
+  "/page": "app/page.js",
+  "/pages/[slug]/page": "app/pages/[slug]/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/dashboard/pages/page": "app/dashboard/pages/page.js",
+  "/dashboard/pages/new/page": "app/dashboard/pages/new/page.js",
+  "/api/pages/route": "app/api/pages/route.js",
+  "/api/upload/route": "app/api/upload/route.js"
+}

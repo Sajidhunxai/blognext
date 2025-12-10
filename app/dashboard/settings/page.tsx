@@ -26,11 +26,34 @@ export default async function SettingsPage() {
   }
 
   // Transform settings to match client component interface
+  // Convert old string[] format to new {label, url}[] format if needed
+  const headerMenuRaw = settingsData.headerMenu || ["Home", "Apps", "Games", "Casinos"];
+  // Ensure headerMenuRaw is an array
+  const headerMenuArray = Array.isArray(headerMenuRaw) ? headerMenuRaw : [];
+  const headerMenu = headerMenuArray.map((item: any, index: number) => {
+    // If already in new format, return as is
+    if (typeof item === "object" && item !== null && "label" in item && "url" in item) {
+      return item;
+    }
+    // Convert old string format to new format
+    const label = typeof item === "string" ? item : "";
+    let url = "";
+    if (index === 0 && label.toLowerCase() === "home") {
+      url = "/";
+    } else if (typeof label === "string" && label.startsWith("page:")) {
+      const slug = label.substring(5);
+      url = `/pages/${slug}`;
+    } else {
+      url = `/${label.toLowerCase().replace(/\s+/g, "-")}`;
+    }
+    return { label, url };
+  });
+
   const initialSettings = {
     siteName: settingsData.siteName || "PKR Games",
     logo: settingsData.logo || "",
     favicon: settingsData.favicon || "",
-    headerMenu: (settingsData.headerMenu as string[]) || ["Home", "Apps", "Games", "Casinos"],
+    headerMenu: headerMenu,
     footerLinks: (settingsData.footerLinks as any[]) || [],
     socialMedia: (settingsData.socialMedia as any) || {
       facebook: "",

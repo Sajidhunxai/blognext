@@ -30,7 +30,8 @@ interface FrontendLayoutProps {
 export default async function FrontendLayout({ children }: FrontendLayoutProps) {
   const session = await getServerSession(authOptions);
   const settings = await getSettings();
-  const menuItems = await resolveMenuItems(settings.headerMenu);
+  const headerMenu = Array.isArray(settings.headerMenu) ? settings.headerMenu : (settings.headerMenu ? [settings.headerMenu] : []);
+  const menuItems = await resolveMenuItems(headerMenu);
   
   const colors = {
     primary: settings.primaryColor || "#dc2626",
@@ -50,15 +51,15 @@ export default async function FrontendLayout({ children }: FrontendLayoutProps) 
       <NavigationLoader />
       {/* Header */}
       <header style={{ backgroundColor: colors.background, borderColor: colors.primary }} className="border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl p-2  mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition">
+            <Link href="/" className="flex  items-center gap-3 hover:opacity-80 transition">
               {settings.logo ? (
                 <Image
                   src={settings.logo}
                   alt={settings.siteName}
-                  width={48}
                   height={48}
+                  width={160}
                   className="rounded"
                 />
               ) : (
