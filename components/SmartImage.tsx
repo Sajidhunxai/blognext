@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useMemo } from "react";
+import { optimizeCloudinaryUrl, getCloudinarySrcSet } from "@/lib/cloudinary";
 
 interface SmartImageProps {
   src: string;
@@ -12,6 +13,7 @@ interface SmartImageProps {
   priority?: boolean;
   quality?: number;
   sizes?: string;
+  fetchPriority?: "high" | "low" | "auto";
 }
 
 // List of configured hostnames in next.config.js
@@ -29,7 +31,17 @@ export default function SmartImage({
   priority = false,
   quality = 90,
   sizes,
+  fetchPriority,
 }: SmartImageProps) {
+  const isCloudinary = useMemo(() => {
+    try {
+      const url = new URL(src);
+      return CONFIGURED_HOSTNAMES.includes(url.hostname);
+    } catch {
+      return false;
+    }
+  }, [src]);
+
   const isConfiguredDomain = useMemo(() => {
     try {
       const url = new URL(src);
@@ -40,18 +52,47 @@ export default function SmartImage({
     }
   }, [src]);
 
+  // Optimize Cloudinary URLs with transformations
+  const optimizedSrc = useMemo(() => {
+    if (isCloudinary && width) {
+      return optimizeCloudinaryUrl(src, width, height, quality);
+    }
+    return src;
+  }, [src, width, height, quality, isCloudinary]);
+
   // Use Next.js Image for configured domains or relative paths
   if (isConfiguredDomain && width && height) {
     return (
       <Image
-        src={src}
+        src={optimizedSrc}
         alt={alt}
         width={width}
         height={height}
         className={className}
         priority={priority}
-        quality={quality}
-        sizes={sizes}
+        quality={typeof quality === 'number' ? quality : undefined}
+        sizes={sizes || (width ? `${width}px` : '100vw')}
+        fetchPriority={fetchPriority}
+      />
+    );
+  }
+
+  // For Cloudinary images without width/height, use optimized img tag
+  if (isCloudinary && width) {
+    const srcSet = sizes 
+      ? getCloudinarySrcSet(src, [width, width * 2, width * 3])
+      : undefined;
+    
+    return (
+      <img
+        src={optimizedSrc}
+        srcSet={srcSet}
+        alt={alt}
+        className={className}
+        loading={priority ? "eager" : "lazy"}
+        fetchPriority={fetchPriority}
+        sizes={sizes || (width ? `${width}px` : '100vw')}
+        style={{ width: width ? `${width}px` : '100%', height: height ? `${height}px` : 'auto' }}
       />
     );
   }
@@ -63,6 +104,7 @@ export default function SmartImage({
       alt={alt}
       className={className}
       loading={priority ? "eager" : "lazy"}
+      fetchPriority={fetchPriority}
       style={{ width: width ? `${width}px` : '100%', height: height ? `${height}px` : 'auto' }}
     />
   );

@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { getSettings } from "@/lib/settings";
 import FrontendLayout from "@/components/FrontendLayout";
 import Image from "next/image";
+import SmartImage from "@/components/SmartImage";
 import StarRating from "@/components/StarRating";
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
@@ -276,10 +277,14 @@ export default async function CategoryPage({ params }: Props) {
                     >
                       <div className="relative mb-3">
                         {post.featuredImage ? (
-                          <img
+                          <SmartImage
                             src={post.featuredImage}
                             alt={post.title}
+                            width={259}
+                            height={259}
                             className="w-full h-32 object-cover rounded"
+                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 20vw, 16vw"
+                            quality={85}
                           />
                         ) : (
                           <div

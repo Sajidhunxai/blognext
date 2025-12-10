@@ -7,6 +7,8 @@ import { getSettings } from "@/lib/settings";
 import Image from "next/image";
 import FrontendLayout from "@/components/FrontendLayout";
 import StarRating from "@/components/StarRating";
+import SmartImage from "@/components/SmartImage";
+import HeroBackground from "@/components/HeroBackground";
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
 
@@ -159,19 +161,27 @@ export default async function Home({
 
   return (
     <FrontendLayout>
+      {/* Preload hero image for LCP */}
+      {settings.heroBackground && (
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                var link = document.createElement('link');
+                link.rel = 'preload';
+                link.as = 'image';
+                link.href = '${settings.heroBackground}';
+                link.setAttribute('fetchpriority', 'high');
+                document.head.appendChild(link);
+              })();
+            `,
+          }}
+        />
+      )}
       <div className="bg-theme-background">
 
       {/* Hero Section */}
-      <section
-        className="relative py-20 px-4 sm:px-6 lg:px-8"
-        style={{
-          backgroundImage: settings.heroBackground
-            ? `url(${settings.heroBackground})`
-            : "linear-gradient(135deg, #1f2937 0%, #111827 100%)",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
+      <HeroBackground backgroundImage={settings.heroBackground}>
         <div className="absolute inset-0 bg-black/50"></div>
         <div className="relative max-w-4xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-8">
@@ -245,7 +255,7 @@ export default async function Home({
             )}
           </div>
         </div>
-      </section>
+      </HeroBackground>
 
       {/* Filter Section */}
       <Suspense fallback={null}>
@@ -282,10 +292,14 @@ export default async function Home({
                     >
                       <div className="relative mb-3">
                         {post.featuredImage ? (
-                          <img
+                          <SmartImage
                             src={post.featuredImage}
                             alt={post.title}
+                            width={259}
+                            height={259}
                             className="w-full h-32 object-cover rounded"
+                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 20vw, 16vw"
+                            quality={85}
                           />
                         ) : (
                           <div className="w-full h-32 rounded flex items-center justify-center text-theme-text text-2xl font-bold bg-gradient-secondary">
@@ -338,10 +352,14 @@ export default async function Home({
               >
                   <div className="relative mb-3">
                     {post.featuredImage ? (
-                    <img
-                      src={post.featuredImage}
+                      <SmartImage
+                        src={post.featuredImage}
                         alt={post.title}
+                        width={259}
+                        height={259}
                         className="w-full h-32 object-cover rounded"
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 20vw, 16vw"
+                        quality={85}
                       />
                     ) : (
                       <div className="w-full h-32 rounded flex items-center justify-center text-theme-text text-2xl font-bold bg-gradient-secondary"

@@ -88,6 +88,9 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <head>
+        {/* Preconnect to Cloudinary for faster image loading */}
+        <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
         {settings.favicon && (
           <link rel="icon" href={settings.favicon} />
         )}
