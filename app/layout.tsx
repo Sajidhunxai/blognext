@@ -23,6 +23,11 @@ export async function generateMetadata(): Promise<Metadata> {
     authors: [{ name: settings.siteName || "Blog CMS" }],
     creator: settings.siteName || "Blog CMS",
     publisher: settings.siteName || "Blog CMS",
+    icons: {
+      icon: settings.favicon || '/favicon.ico',
+      shortcut: settings.favicon || '/favicon.ico',
+      apple: settings.favicon || '/favicon.ico',
+    },
     robots: {
       index: true,
       follow: true,
@@ -91,9 +96,6 @@ export default async function RootLayout({
         {/* Preconnect to Cloudinary for faster image loading */}
         <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
-        {settings.favicon && (
-          <link rel="icon" href={settings.favicon} />
-        )}
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
         <meta name="theme-color" content={settings.primaryColor || "#dc2626"} />
         {headerCSS && (
