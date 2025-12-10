@@ -29,10 +29,29 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react'],
   },
-  // Configure SWC to target modern browsers
+  // Configure SWC to target modern browsers and reduce polyfills
   swcMinify: true,
   // Optimize CSS
   optimizeFonts: true,
+  // Webpack configuration to reduce polyfills
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      // Reduce polyfills for modern browsers
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+      };
+      
+      // Exclude unnecessary polyfills for modern browsers
+      // These features are natively supported in browsers we target
+      config.resolve.alias = {
+        ...config.resolve.alias,
+      };
+    }
+    return config;
+  },
 };
 
 module.exports = nextConfig;

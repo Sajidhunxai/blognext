@@ -1,8 +1,9 @@
 # Target modern browsers only to reduce polyfills
-last 2 Chrome versions
-last 2 Firefox versions
-last 2 Safari versions
-last 2 Edge versions
+# ES2020+ features are supported in these browsers
+Chrome >= 90
+Firefox >= 88
+Safari >= 14
+Edge >= 90
 not dead
 not IE 11
 
