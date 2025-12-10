@@ -347,12 +347,10 @@ export default async function PostPage({ params }: Props) {
               {/* Description Section */}
               <div className="mb-8">
                 <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">DESCRIPTION</h2>
-                <div className="prose prose-sm sm:prose-lg max-w-none">
-                  <div 
-                    className="text-gray-700 leading-relaxed text-sm sm:text-base"
-                    dangerouslySetInnerHTML={{ __html: post.content }}
-                  />
-                </div>
+                <div 
+                  className="content-area text-sm sm:text-base"
+                  dangerouslySetInnerHTML={{ __html: post.content }}
+                />
               </div>
 
               {/* Related Apps */}
