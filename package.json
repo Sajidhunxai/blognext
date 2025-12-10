@@ -2,14 +2,6 @@
   "name": "blog-cms",
   "version": "0.1.0",
   "private": true,
-  "browserslist": [
-    "Chrome >= 90",
-    "Firefox >= 88",
-    "Safari >= 14",
-    "Edge >= 90",
-    "not dead",
-    "not IE 11"
-  ],
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
