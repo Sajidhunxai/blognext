@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { prisma } from "@/lib/prisma";
 
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
@@ -10,36 +9,64 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/api") ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/static") ||
-    pathname.includes(".")
+    pathname.includes(".") ||
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/login")
   ) {
     return NextResponse.next();
   }
 
-  try {
-    // Check if redirect exists for this path
-    if (prisma && 'redirect' in prisma) {
-      const redirect = await (prisma as any).redirect.findFirst({
-        where: {
-          from: pathname,
-          active: true,
-        },
-      });
+  // Skip if it matches known routes (posts, pages, category, download)
+  if (
+    pathname.startsWith("/posts/") ||
+    pathname.startsWith("/pages/") ||
+    pathname.startsWith("/category/") ||
+    pathname.startsWith("/download/")
+  ) {
+    return NextResponse.next();
+  }
 
-      if (redirect) {
+  // Skip root path
+  if (pathname === "/") {
+    return NextResponse.next();
+  }
+
+  // Check redirect via API route
+  try {
+    const baseUrl = request.nextUrl.origin;
+    const redirectUrl = new URL("/api/check-redirect", baseUrl);
+    redirectUrl.searchParams.set("from", pathname);
+
+    const redirectResponse = await fetch(redirectUrl.toString(), {
+      cache: 'no-store',
+      headers: {
+        'x-middleware-request': 'true',
+      },
+    });
+
+    if (redirectResponse.ok) {
+      const data = await redirectResponse.json();
+      if (data.redirect) {
         // Determine if destination is absolute or relative
-        const destination = redirect.to.startsWith("http")
-          ? redirect.to
-          : new URL(redirect.to, request.url).toString();
+        let destination = data.redirect.to;
+        
+        if (!destination.startsWith("http")) {
+          if (!destination.startsWith("/")) {
+            destination = `/${destination}`;
+          }
+          // Make it absolute URL
+          destination = new URL(destination, baseUrl).toString();
+        }
 
         // Return redirect response
         return NextResponse.redirect(destination, {
-          status: redirect.type || 301,
+          status: data.redirect.type || 301,
         });
       }
     }
   } catch (error) {
     // If there's an error checking redirects, continue normally
-    console.error("Error checking redirects:", error);
+    console.error("Error checking redirects in middleware:", error);
   }
 
   return NextResponse.next();
