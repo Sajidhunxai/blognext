@@ -37,31 +37,45 @@ export async function middleware(request: NextRequest) {
     const redirectUrl = new URL("/api/check-redirect", baseUrl);
     redirectUrl.searchParams.set("from", pathname);
 
-    const redirectResponse = await fetch(redirectUrl.toString(), {
-      cache: 'no-store',
-      headers: {
-        'x-middleware-request': 'true',
-      },
-    });
+    // Use a timeout to prevent hanging
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2000); // 2 second timeout
 
-    if (redirectResponse.ok) {
-      const data = await redirectResponse.json();
-      if (data.redirect) {
-        // Determine if destination is absolute or relative
-        let destination = data.redirect.to;
-        
-        if (!destination.startsWith("http")) {
-          if (!destination.startsWith("/")) {
-            destination = `/${destination}`;
+    try {
+      const redirectResponse = await fetch(redirectUrl.toString(), {
+        cache: 'no-store',
+        signal: controller.signal,
+        headers: {
+          'x-middleware-request': 'true',
+        },
+      });
+
+      clearTimeout(timeoutId);
+
+      if (redirectResponse.ok) {
+        const data = await redirectResponse.json();
+        if (data.redirect) {
+          // Determine if destination is absolute or relative
+          let destination = data.redirect.to;
+          
+          if (!destination.startsWith("http")) {
+            if (!destination.startsWith("/")) {
+              destination = `/${destination}`;
+            }
+            // Make it absolute URL
+            destination = new URL(destination, baseUrl).toString();
           }
-          // Make it absolute URL
-          destination = new URL(destination, baseUrl).toString();
-        }
 
-        // Return redirect response
-        return NextResponse.redirect(destination, {
-          status: data.redirect.type || 301,
-        });
+          // Return redirect response
+          return NextResponse.redirect(destination, {
+            status: data.redirect.type || 301,
+          });
+        }
+      }
+    } catch (fetchError: any) {
+      clearTimeout(timeoutId);
+      if (fetchError.name !== 'AbortError') {
+        console.error("Error fetching redirect in middleware:", fetchError);
       }
     }
   } catch (error) {

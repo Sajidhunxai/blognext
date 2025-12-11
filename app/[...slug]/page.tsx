@@ -1,6 +1,7 @@
 import { redirect, permanentRedirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
+import { Metadata } from "next";
 
 type Props = {
   params: { slug: string[] };
@@ -9,6 +10,53 @@ type Props = {
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
+// Check redirect in metadata generation to catch it early
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const pathname = `/${params.slug.join("/")}`;
+  
+  try {
+    if (prisma && 'redirect' in prisma) {
+      let redirectRecord = await (prisma as any).redirect.findFirst({
+        where: {
+          from: pathname,
+          active: true,
+        },
+      });
+
+      if (!redirectRecord) {
+        redirectRecord = await (prisma as any).redirect.findFirst({
+          where: {
+            from: `${pathname}/`,
+            active: true,
+          },
+        });
+      }
+
+      if (redirectRecord) {
+        let destination = redirectRecord.to;
+        if (!destination.startsWith("http")) {
+          if (!destination.startsWith("/")) {
+            destination = `/${destination}`;
+          }
+        }
+        
+        // Redirect immediately
+        if (redirectRecord.type === 301) {
+          permanentRedirect(destination);
+        } else {
+          redirect(destination);
+        }
+      }
+    }
+  } catch (error) {
+    // Continue to page component
+  }
+
+  return {
+    title: "Page Not Found",
+  };
+}
+
 export default async function CatchAllPage({ params }: Props) {
   // Reconstruct the path from the slug array
   const pathname = `/${params.slug.join("/")}`;
@@ -16,12 +64,10 @@ export default async function CatchAllPage({ params }: Props) {
   try {
     // Check if a redirect exists for this path
     if (!prisma) {
-      console.error("Prisma not available in catch-all route");
       notFound();
     }
 
     if (!('redirect' in prisma)) {
-      console.error("Redirect model not found in Prisma");
       notFound();
     }
 
@@ -72,8 +118,6 @@ export default async function CatchAllPage({ params }: Props) {
       } else {
         redirect(destination);
       }
-    } else {
-      console.log(`No redirect found for pathname: ${pathname}`);
     }
   } catch (error) {
     console.error("Error checking redirect:", error);
