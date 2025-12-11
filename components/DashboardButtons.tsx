@@ -38,6 +38,12 @@ export default function DashboardButtons() {
       >
         Categories
       </Link>
+      <Link
+        href="/dashboard/redirects"
+        className="bg-button text-button hover:bg-secondary px-6 py-3 rounded-lg font-medium transition"
+      >
+        Redirects
+      </Link>
     </div>
   );
 }

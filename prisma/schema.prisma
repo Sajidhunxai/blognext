@@ -147,3 +147,13 @@ model Settings {
   updatedAt       DateTime @updatedAt
 }
 
+model Redirect {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  from        String   @unique // Source path/URL (e.g., "/old-page" or "/old-post")
+  to          String   // Destination URL (can be relative like "/new-page" or absolute like "https://example.com")
+  type        Int      @default(301) // Redirect type: 301 (permanent) or 302 (temporary)
+  active      Boolean  @default(true) // Whether the redirect is active
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
