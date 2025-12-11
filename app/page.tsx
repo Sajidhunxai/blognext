@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getSettings } from "@/lib/settings";
+import { normalizeUrl } from "@/lib/url";
 import Image from "next/image";
 import FrontendLayout from "@/components/FrontendLayout";
 import StarRating from "@/components/StarRating";
@@ -44,7 +45,7 @@ export async function generateMetadata(): Promise<Metadata> {
       images: settings.logo ? [settings.logo] : [],
     },
     alternates: {
-      canonical: siteUrl,
+      canonical: normalizeUrl(siteUrl),
     },
     robots: {
       index: true,

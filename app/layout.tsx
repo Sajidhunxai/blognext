@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { getSettings } from "@/lib/settings";
+import { normalizeUrl } from "@/lib/url";
 import ClientThemeProvider from "@/components/ClientThemeProvider";
 import CustomScripts from "@/components/CustomScripts";
 import dynamic from "next/dynamic";
@@ -59,7 +60,7 @@ export async function generateMetadata(): Promise<Metadata> {
       images: settings.logo ? [settings.logo] : [],
     },
     alternates: {
-      canonical: siteUrl,
+      canonical: normalizeUrl(siteUrl),
     },
     verification: {
       // Add Google Search Console verification if needed

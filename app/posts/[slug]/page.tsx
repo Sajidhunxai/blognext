@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { getSettings } from "@/lib/settings";
+import { buildCanonicalUrl } from "@/lib/url";
 import Link from "next/link";
 import StructuredData from "@/components/StructuredData";
 import SmartImage from "@/components/SmartImage";
@@ -75,7 +76,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title: metaTitle,
       description: metaDescription,
-      url: `${siteUrl}/posts/${post.slug}`,
+      url: buildCanonicalUrl(siteUrl, `/posts/${post.slug}`),
       siteName: settings.siteName || "PKR Games",
       images: [
         {
@@ -101,7 +102,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       creator: settings.siteName || undefined,
     },
     alternates: {
-      canonical: `${siteUrl}/posts/${post.slug}`,
+      canonical: buildCanonicalUrl(siteUrl, `/posts/${post.slug}`),
     },
     robots: {
       index: post.published,
@@ -340,7 +341,7 @@ export default async function PostPage({ params }: Props) {
 
               {/* Social Share Buttons */}
               <SocialShareButtons 
-                url={`${siteUrl}/posts/${post.slug}`}
+                url={buildCanonicalUrl(siteUrl, `/posts/${post.slug}`)}
                 title={post.title}
               />
 

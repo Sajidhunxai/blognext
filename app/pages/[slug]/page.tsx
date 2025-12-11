@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { getSettings } from "@/lib/settings";
+import { buildCanonicalUrl } from "@/lib/url";
 import FrontendLayout from "@/components/FrontendLayout";
 import SmartImage from "@/components/SmartImage";
 
@@ -39,7 +40,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title: metaTitle,
       description: metaDescription,
-      url: `${siteUrl}/pages/${page.slug}`,
+      url: buildCanonicalUrl(siteUrl, `/pages/${page.slug}`),
       siteName: settings.siteName || "PKR Games",
       type: "website",
       images: page.featuredImage ? [
@@ -58,7 +59,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       images: page.featuredImage ? [page.featuredImage] : [],
     },
     alternates: {
-      canonical: `${siteUrl}/pages/${page.slug}`,
+      canonical: buildCanonicalUrl(siteUrl, `/pages/${page.slug}`),
     },
   };
 }

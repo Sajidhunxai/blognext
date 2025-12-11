@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getSettings } from "@/lib/settings";
+import { buildCanonicalUrl } from "@/lib/url";
 import FrontendLayout from "@/components/FrontendLayout";
 import Image from "next/image";
 import SmartImage from "@/components/SmartImage";
@@ -88,7 +89,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title,
       description: enhancedDescription,
-      url: `${siteUrl}/category/${category.slug}`,
+      url: buildCanonicalUrl(siteUrl, `/category/${category.slug}`),
       siteName: settings.siteName,
       type: "website",
       locale: "en_US",
@@ -101,7 +102,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       images: settings.logo ? [settings.logo] : [],
     },
     alternates: {
-      canonical: `${siteUrl}/category/${category.slug}`,
+      canonical: buildCanonicalUrl(siteUrl, `/category/${category.slug}`),
     },
     robots: {
       index: true,
