@@ -3,8 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { getSettings } from "@/lib/settings";
 import { resolveMenuItems } from "@/lib/menu";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getSafeServerSession } from "@/lib/session";
 import dynamic from "next/dynamic";
 
 const NavigationLoader = dynamic(() => import("@/components/NavigationLoader"), {
@@ -28,7 +27,9 @@ interface FrontendLayoutProps {
 }
 
 export default async function FrontendLayout({ children }: FrontendLayoutProps) {
-  const session = await getServerSession(authOptions);
+  // Use safe session retrieval that handles JWT decryption errors gracefully
+  // This prevents crashes when NEXTAUTH_SECRET changes or cookies are corrupted
+  const session = await getSafeServerSession();
   const settings = await getSettings();
   const headerMenu = Array.isArray(settings.headerMenu) ? settings.headerMenu : (settings.headerMenu ? [settings.headerMenu] : []);
   const menuItems = await resolveMenuItems(headerMenu);

@@ -6,7 +6,13 @@ import bcrypt from "bcryptjs";
 // Get NEXTAUTH_SECRET with fallback for development only
 const getSecret = () => {
   if (process.env.NEXTAUTH_SECRET) {
-    return process.env.NEXTAUTH_SECRET;
+    // Remove quotes if present (common in .env files)
+    let secret = process.env.NEXTAUTH_SECRET.trim();
+    if ((secret.startsWith('"') && secret.endsWith('"')) || 
+        (secret.startsWith("'") && secret.endsWith("'"))) {
+      secret = secret.slice(1, -1);
+    }
+    return secret;
   }
   
   // Only allow fallback in development

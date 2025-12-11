@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { getSettings } from "@/lib/settings";
 import ClientThemeProvider from "@/components/ClientThemeProvider";
+import CustomScripts from "@/components/CustomScripts";
 import dynamic from "next/dynamic";
 
 const NavigationLoader = dynamic(() => import("@/components/NavigationLoader"), {
@@ -64,6 +65,9 @@ export async function generateMetadata(): Promise<Metadata> {
       // Add Google Search Console verification if needed
       // google: 'your-google-verification-code',
     },
+    other: {
+      'theme-color': settings.primaryColor || "#dc2626",
+    },
   };
 }
 
@@ -99,26 +103,18 @@ export default async function RootLayout({
         {/* Preconnect to Cloudinary for faster image loading */}
         <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-        <meta name="theme-color" content={settings.primaryColor || "#dc2626"} />
-        {headerCSS && (
-          <style dangerouslySetInnerHTML={{ __html: headerCSS }} />
-        )}
-        {headerScript && (
-          <div dangerouslySetInnerHTML={{ __html: headerScript }} />
-        )}
       </head>
       <body>
         <ClientThemeProvider initialColors={initialColors}>
+          <CustomScripts
+            headerScript={headerScript}
+            footerScript={footerScript}
+            headerCSS={headerCSS}
+            footerCSS={footerCSS}
+          />
           <NavigationLoader />
           {children}
         </ClientThemeProvider>
-        {footerCSS && (
-          <style dangerouslySetInnerHTML={{ __html: footerCSS }} />
-        )}
-        {footerScript && (
-          <div dangerouslySetInnerHTML={{ __html: footerScript }} />
-        )}
       </body>
     </html>
   );
