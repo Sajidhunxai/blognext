@@ -1,125 +1,195 @@
-import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import Link from "next/link";
-import { signOut } from "next-auth/react";
-import LogoutButton from "@/components/LogoutButton";
-import DashboardButtons from "@/components/DashboardButtons";
+import DashboardMetricCard from "@/components/DashboardMetricCard";
+import DashboardBarChart from "@/components/DashboardBarChart";
+import DashboardAreaChart from "@/components/DashboardAreaChart";
+import DashboardDonutChart from "@/components/DashboardDonutChart";
+import DashboardCalendar from "@/components/DashboardCalendar";
+import { FileText, CheckCircle, MessageSquare, Folder } from "lucide-react";
 
 export default async function DashboardPage() {
-  const session = await getServerSession(authOptions);
 
-  if (!session || session.user.role !== "admin") {
-    redirect("/login");
-  }
-
-  const posts = await prisma.post.findMany({
-    orderBy: { createdAt: "desc" },
-    include: {
-      author: {
-        select: {
-          name: true,
-          email: true,
+  // Fetch dashboard statistics
+  const [posts, comments, categories, pages] = await Promise.all([
+    prisma.post.findMany({
+      select: {
+        published: true,
+        createdAt: true,
+        categoryId: true,
+        rating: true,
+        ratingCount: true,
+        downloads: true,
+      },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.comment.findMany({
+      select: {
+        createdAt: true,
+        approved: true,
+      },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.category.findMany({
+      include: {
+        posts: {
+          select: {
+            id: true,
+          },
         },
       },
-    },
+    }),
+    prisma.page.findMany({
+      select: {
+        published: true,
+      },
+    }),
+  ]);
+
+  // Calculate metrics
+  const totalPosts = posts.length;
+  const publishedPosts = posts.filter((p) => p.published).length;
+  const draftPosts = posts.filter((p) => !p.published).length;
+  const totalComments = comments.length;
+  const approvedComments = comments.filter((c) => c.approved).length;
+  const pendingComments = comments.filter((c) => !c.approved).length;
+  const totalCategories = categories.length;
+  const totalPages = pages.length;
+  const publishedPages = pages.filter((p) => p.published).length;
+
+  // Calculate posts by month for the last 6 months
+  const now = new Date();
+  const months = [];
+  for (let i = 5; i >= 0; i--) {
+    const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push({
+      month: date.toLocaleString("default", { month: "short" }).toUpperCase(),
+      date,
+    });
+  }
+
+  const barChartData = months.map((m) => {
+    const monthStart = new Date(m.date.getFullYear(), m.date.getMonth(), 1);
+    const monthEnd = new Date(m.date.getFullYear(), m.date.getMonth() + 1, 0);
+    
+    const thisMonthPosts = posts.filter((p) => {
+      const postDate = new Date(p.createdAt);
+      return postDate >= monthStart && postDate <= monthEnd;
+    });
+
+    const lastYearMonthStart = new Date(m.date.getFullYear() - 1, m.date.getMonth(), 1);
+    const lastYearMonthEnd = new Date(m.date.getFullYear() - 1, m.date.getMonth() + 1, 0);
+    
+    const lastYearPosts = posts.filter((p) => {
+      const postDate = new Date(p.createdAt);
+      return postDate >= lastYearMonthStart && postDate <= lastYearMonthEnd;
+    });
+
+    return {
+      month: m.month,
+      "This Year": thisMonthPosts.length,
+      "Last Year": lastYearPosts.length,
+    };
   });
 
+  // Calculate comments and posts over time for area chart (last 6 months)
+  const areaChartData = months.map((m) => {
+    const monthStart = new Date(m.date.getFullYear(), m.date.getMonth(), 1);
+    const monthEnd = new Date(m.date.getFullYear(), m.date.getMonth() + 1, 0);
+    
+    const monthPosts = posts.filter((p) => {
+      const postDate = new Date(p.createdAt);
+      return postDate >= monthStart && postDate <= monthEnd;
+    });
+
+    const monthComments = comments.filter((c) => {
+      const commentDate = new Date(c.createdAt);
+      return commentDate >= monthStart && commentDate <= monthEnd;
+    });
+
+    return {
+      name: m.month.substring(0, 3),
+      Posts: monthPosts.length,
+      Comments: monthComments.length,
+    };
+  });
+
+  // Calculate posts by category for donut chart
+  const categoryData = categories
+    .map((cat) => ({
+      name: cat.name,
+      count: cat.posts.length,
+    }))
+    .filter((cat) => cat.count > 0)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5); // Top 5 categories
+
+  const totalPostsInCategories = categoryData.reduce((sum, cat) => sum + cat.count, 0);
+  const topCategoryPercentage = totalPostsInCategories > 0
+    ? Math.round((categoryData[0]?.count || 0) / totalPostsInCategories * 100)
+    : 0;
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <nav className="border-b border-gray-200 bg-white/80 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link href="/" className="text-2xl font-bold text-gray-900">
-              Blog CMS
-            </Link>
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-600">{session.user.email}</span>
-              <LogoutButton />
+    <>
+          {/* Metric Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <DashboardMetricCard
+              title="Total Posts"
+              value={totalPosts}
+              icon={FileText}
+              bgColor="blue"
+              iconBgColor="blue"
+            />
+            <DashboardMetricCard
+              title="Published"
+              value={publishedPosts}
+              icon={CheckCircle}
+              bgColor="white"
+              iconBgColor="green"
+            />
+            <DashboardMetricCard
+              title="Comments"
+              value={totalComments}
+              icon={MessageSquare}
+              bgColor="white"
+              iconBgColor="beige"
+            />
+            <DashboardMetricCard
+              title="Categories"
+              value={totalCategories}
+              icon={Folder}
+              bgColor="white"
+              iconBgColor="grey"
+            />
+          </div>
+
+          {/* Charts Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            {/* Bar Chart - Takes 2 columns on large screens */}
+            <div className="lg:col-span-2">
+              <DashboardBarChart data={barChartData} title="Posts Created" />
+            </div>
+
+            {/* Calendar - Takes 1 column on large screens */}
+            <div className="lg:col-span-1">
+              <DashboardCalendar />
             </div>
           </div>
-        </div>
-      </nav>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <DashboardButtons />
-        </div>
+          {/* Bottom Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Area Chart */}
+            <div>
+              <DashboardAreaChart data={areaChartData} />
+            </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
-                <tr>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Title
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Created
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {posts.length === 0 ? (
-                  <tr>
-                    <td colSpan={4} className="px-6 py-8 text-center text-gray-500">
-                      No posts yet. Create your first post!
-                    </td>
-                  </tr>
-                ) : (
-                  posts.map((post) => (
-                    <tr key={post.id} className="hover:bg-gray-50 transition">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">
-                          {post.title}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span
-                          className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            post.published
-                              ? "bg-green-100 text-green-800"
-                              : "bg-gray-100 text-gray-800"
-                          }`}
-                        >
-                          {post.published ? "Published" : "Draft"}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(post.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <Link
-                          href={`/dashboard/posts/${post.id}/edit`}
-                          className="text-blue-600 hover:text-blue-900 mr-4"
-                        >
-                          Edit
-                        </Link>
-                        <Link
-                          href={`/posts/${post.slug}`}
-                          className="text-gray-600 hover:text-gray-900"
-                          target="_blank"
-                        >
-                          View
-                        </Link>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+            {/* Donut Chart */}
+            <div>
+              <DashboardDonutChart 
+                percentage={topCategoryPercentage} 
+                categoryData={categoryData}
+                totalPosts={totalPostsInCategories}
+              />
+            </div>
           </div>
-        </div>
-      </main>
-    </div>
+    </>
   );
 }
-

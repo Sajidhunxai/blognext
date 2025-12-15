@@ -1,16 +1,7 @@
-import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 
 export default async function PagesPage() {
-  const session = await getServerSession(authOptions);
-
-  if (!session || session.user.role !== "admin") {
-    redirect("/login");
-  }
-
   let pages = [];
   try {
     if (prisma && 'page' in prisma) {
@@ -25,21 +16,7 @@ export default async function PagesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <nav className="border-b border-gray-200 bg-white/80 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link href="/dashboard" className="text-2xl font-bold text-gray-900">
-              Blog CMS
-            </Link>
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-600">{session.user.email}</span>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <>
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Pages</h1>
           <div className="flex gap-4">
@@ -134,8 +111,7 @@ export default async function PagesPage() {
             </table>
           </div>
         </div>
-      </main>
-    </div>
+    </>
   );
 }
 

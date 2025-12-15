@@ -21,13 +21,15 @@
     "@tiptap/starter-kit": "^3.12.1",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.8.0",
+    "lucide-react": "^0.561.0",
     "next": "^14.0.0",
     "next-auth": "^4.24.5",
     "next-cloudinary": "^6.17.5",
     "quill": "^2.0.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-quill": "^2.0.0"
+    "react-quill": "^2.0.0",
+    "recharts": "^3.6.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",

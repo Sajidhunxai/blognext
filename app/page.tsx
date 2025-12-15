@@ -10,6 +10,7 @@ import FrontendLayout from "@/components/FrontendLayout";
 import StarRating from "@/components/StarRating";
 import SmartImage from "@/components/SmartImage";
 import HeroBackground from "@/components/HeroBackground";
+import PaginationWrapper from "@/components/PaginationWrapper";
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
 
@@ -63,6 +64,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 type SearchParams = {
   category?: string;
+  page?: string;
 };
 
 export default async function Home({
@@ -132,19 +134,30 @@ export default async function Home({
     }
   }
 
-  const posts = await prisma.post.findMany({
-    where: whereClause,
-    orderBy: { createdAt: "desc" },
-    take: 12,
-    include: {
-      category: {
-        select: {
-          name: true,
-          slug: true,
+  // Pagination for latest posts
+  const page = parseInt(resolvedSearchParams?.page || "1", 10);
+  const limit = 12;
+  const skip = (page - 1) * limit;
+
+  const [posts, totalPosts] = await Promise.all([
+    prisma.post.findMany({
+      where: whereClause,
+      skip,
+      take: limit,
+      orderBy: { createdAt: "desc" },
+      include: {
+        category: {
+          select: {
+            name: true,
+            slug: true,
+          },
         },
       },
-    },
-  });
+    }),
+    prisma.post.count({ where: whereClause }),
+  ]);
+
+  const totalPages = Math.ceil(totalPosts / limit);
 
   const socialMedia = settings.socialMedia as any || {};
   const colors = {
@@ -344,55 +357,60 @@ export default async function Home({
               <p className="text-gray-400 text-lg">No posts yet. Check back soon!</p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
-              {posts.map((post, index) => (
-              <Link
-                key={post.id}
-                href={`/posts/${post.slug}`}
-                  className="bg-white rounded-lg border-2 p-4 hover:shadow-lg transition-shadow "
-              >
-                  <div className="relative mb-3">
-                    {post.featuredImage ? (
-                      <SmartImage
-                        src={post.featuredImage}
-                        alt={post.title}
-                        width={259}
-                        height={259}
-                        className="w-full h-32 object-cover rounded"
-                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 20vw, 16vw"
-                        quality={85}
+            <>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+                {posts.map((post, index) => (
+                <Link
+                  key={post.id}
+                  href={`/posts/${post.slug}`}
+                    className="bg-white rounded-lg border-2 p-4 hover:shadow-lg transition-shadow "
+                >
+                    <div className="relative mb-3">
+                      {post.featuredImage ? (
+                        <SmartImage
+                          src={post.featuredImage}
+                          alt={post.title}
+                          width={259}
+                          height={259}
+                          className="w-full h-32 object-cover rounded"
+                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 20vw, 16vw"
+                          quality={85}
+                        />
+                      ) : (
+                        <div className="w-full h-32 rounded flex items-center justify-center text-theme-text text-2xl font-bold bg-gradient-secondary"
+                        >
+                          {post.title.charAt(0)}
+                        </div>
+                      )}
+                      {index < 2 && (
+                        <span className="absolute top-2 left-2 text-theme-text text-xs px-2 py-1 rounded bg-primary"
+                        >
+                          {index === 0 ? "UPDATED" : "NEW"}
+                        </span>
+                      )}
+                    </div>
+                    <h3 className="font-semibold text-gray-900 mb-1 line-clamp-1">
+                      {post.title}
+                    </h3>
+                    <p className="text-xs text-gray-600 mb-2">
+                      Version: {post.appVersion || (post.downloadLink ? "V1.0" : "N/A")}
+                    </p>
+                    <p className="text-xs text-gray-500 mb-2">{settings.siteName}</p>
+                    {post.rating && (
+                      <StarRating 
+                        rating={post.rating} 
+                        showNumber 
+                        size="xs" 
+                        ratingCount={post.ratingCount || 0}
                       />
-                    ) : (
-                      <div className="w-full h-32 rounded flex items-center justify-center text-theme-text text-2xl font-bold bg-gradient-secondary"
-                      >
-                        {post.title.charAt(0)}
-                      </div>
                     )}
-                    {index < 2 && (
-                      <span className="absolute top-2 left-2 text-theme-text text-xs px-2 py-1 rounded bg-primary"
-                      >
-                        {index === 0 ? "UPDATED" : "NEW"}
-                      </span>
-                    )}
+                  </Link>
+                ))}
                   </div>
-                  <h3 className="font-semibold text-gray-900 mb-1 line-clamp-1">
-                    {post.title}
-                  </h3>
-                  <p className="text-xs text-gray-600 mb-2">
-                    Version: {post.appVersion || (post.downloadLink ? "V1.0" : "N/A")}
-                  </p>
-                  <p className="text-xs text-gray-500 mb-2">{settings.siteName}</p>
-                  {post.rating && (
-                    <StarRating 
-                      rating={post.rating} 
-                      showNumber 
-                      size="xs" 
-                      ratingCount={post.ratingCount || 0}
-                    />
-                  )}
-                </Link>
-              ))}
-                </div>
+              {totalPages > 1 && (
+                <PaginationWrapper currentPage={page} totalPages={totalPages} />
+              )}
+            </>
           )}
           </section>
         </div>

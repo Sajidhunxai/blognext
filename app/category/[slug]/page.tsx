@@ -12,6 +12,7 @@ import dynamic from "next/dynamic";
 import { Suspense } from "react";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import CategoryStructuredData from "@/components/CategoryStructuredData";
+import PaginationWrapper from "@/components/PaginationWrapper";
 
 const CategoryFilter = dynamic(() => import("@/components/CategoryFilter"), {
   ssr: false,
@@ -20,6 +21,7 @@ const CategoryFilter = dynamic(() => import("@/components/CategoryFilter"), {
 
 type Props = {
   params: { slug: string };
+  searchParams?: { page?: string };
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -119,7 +121,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function CategoryPage({ params }: Props) {
+export default async function CategoryPage({ params, searchParams }: Props) {
   let category = null;
   try {
     if (prisma && "category" in prisma) {
@@ -154,22 +156,39 @@ export default async function CategoryPage({ params }: Props) {
     console.error("Error fetching categories:", error);
   }
 
-  // Fetch posts for this category
-  const posts = await prisma.post.findMany({
-    where: {
-      published: true,
-      categoryId: category.id,
-    },
-    orderBy: { createdAt: "desc" },
-    include: {
-      category: {
-        select: {
-          name: true,
-          slug: true,
+  // Pagination for category posts
+  const page = parseInt(searchParams?.page || "1", 10);
+  
+  const limit = 6;
+  const skip = (page - 1) * limit;
+
+  const [posts, totalPosts] = await Promise.all([
+    prisma.post.findMany({
+      where: {
+        published: true,
+        categoryId: category.id,
+      },
+      skip,
+      take: limit,
+      orderBy: { createdAt: "desc" },
+      include: {
+        category: {
+          select: {
+            name: true,
+            slug: true,
+          },
         },
       },
-    },
-  });
+    }),
+    prisma.post.count({
+      where: {
+        published: true,
+        categoryId: category.id,
+      },
+    }),
+  ]);
+
+  const totalPages = Math.ceil(totalPosts / limit);
 
   const colors = {
     primary: settings.primaryColor || "#dc2626",
@@ -217,9 +236,9 @@ export default async function CategoryPage({ params }: Props) {
                   {category.description}
                 </p>
               )}
-              {posts.length > 0 && (
+              {totalPosts > 0 && (
                 <p className="text-base sm:text-lg text-gray-200 mt-2">
-                  {posts.length} {posts.length === 1 ? "app" : "apps"} available
+                  {totalPosts} {totalPosts === 1 ? "app" : "apps"} available
                 </p>
               )}
             </div>
@@ -250,8 +269,8 @@ export default async function CategoryPage({ params }: Props) {
                     {category.name} Apps
                   </h2>
                   <p className="text-gray-400 text-sm sm:text-base">
-                    Browse our collection of {posts.length}{" "}
-                    {posts.length === 1 ? "app" : "apps"} in {category.name}
+                    Browse our collection of {totalPosts}{" "}
+                    {totalPosts === 1 ? "app" : "apps"} in {category.name}
                   </p>
                 </div>
               </div>
@@ -269,64 +288,73 @@ export default async function CategoryPage({ params }: Props) {
                   </Link>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
-                  {posts.map((post, index) => (
-                    <Link
-                      key={post.id}
-                      href={`/posts/${post.slug}`}
-                      className="bg-white rounded-lg border-2 p-4 hover:shadow-lg transition-shadow "
-                    >
-                      <div className="relative mb-3">
-                        {post.featuredImage ? (
-                          <SmartImage
-                            src={post.featuredImage}
-                            alt={post.title}
-                            width={259}
-                            height={259}
-                            className="w-full h-32 object-cover rounded"
-                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 20vw, 16vw"
-                            quality={85}
+                <>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+                    {posts.map((post, index) => (
+                      <Link
+                        key={post.id}
+                        href={`/posts/${post.slug}`}
+                        className="bg-white rounded-lg border-2 p-4 hover:shadow-lg transition-shadow "
+                      >
+                        <div className="relative mb-3">
+                          {post.featuredImage ? (
+                            <SmartImage
+                              src={post.featuredImage}
+                              alt={post.title}
+                              width={259}
+                              height={259}
+                              className="w-full h-32 object-cover rounded"
+                              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 20vw, 16vw"
+                              quality={85}
+                            />
+                          ) : (
+                            <div
+                              className="w-full h-32 rounded flex items-center justify-center text-theme-text text-2xl font-bold"
+                              style={{
+                                background: `linear-gradient(to bottom right, ${colors.secondary}, ${colors.secondary}dd)`,
+                              }}
+                            >
+                              {post.title.charAt(0)}
+                            </div>
+                          )}
+                          {index < 2 && (
+                            <span
+                              className="absolute top-2 left-2 text-theme-text text-xs px-2 py-1 rounded bg-primary"
+                            >
+                              {index === 0 ? "UPDATED" : "NEW"}
+                            </span>
+                          )}
+                        </div>
+                        <h3 className="font-semibold text-gray-900 mb-1 line-clamp-1">
+                          {post.title}
+                        </h3>
+                        <p className="text-xs text-gray-600 mb-2">
+                          Version:{" "}
+                          {post.appVersion ||
+                            (post.downloadLink ? "V1.0" : "N/A")}
+                        </p>
+                        <p className="text-xs text-gray-500 mb-2">
+                          {settings.siteName}
+                        </p>
+                        {post.rating && (
+                          <StarRating 
+                            rating={post.rating} 
+                            showNumber 
+                            size="xs" 
+                            ratingCount={post.ratingCount || 0}
                           />
-                        ) : (
-                          <div
-                            className="w-full h-32 rounded flex items-center justify-center text-theme-text text-2xl font-bold"
-                            style={{
-                              background: `linear-gradient(to bottom right, ${colors.secondary}, ${colors.secondary}dd)`,
-                            }}
-                          >
-                            {post.title.charAt(0)}
-                          </div>
                         )}
-                        {index < 2 && (
-                          <span
-                            className="absolute top-2 left-2 text-theme-text text-xs px-2 py-1 rounded bg-primary"
-                          >
-                            {index === 0 ? "UPDATED" : "NEW"}
-                          </span>
-                        )}
-                      </div>
-                      <h3 className="font-semibold text-gray-900 mb-1 line-clamp-1">
-                        {post.title}
-                      </h3>
-                      <p className="text-xs text-gray-600 mb-2">
-                        Version:{" "}
-                        {post.appVersion ||
-                          (post.downloadLink ? "V1.0" : "N/A")}
-                      </p>
-                      <p className="text-xs text-gray-500 mb-2">
-                        {settings.siteName}
-                      </p>
-                      {post.rating && (
-                        <StarRating 
-                          rating={post.rating} 
-                          showNumber 
-                          size="xs" 
-                          ratingCount={post.ratingCount || 0}
-                        />
-                      )}
-                    </Link>
-                  ))}
-                </div>
+                      </Link>
+                    ))}
+                  </div>
+                  {totalPages > 1 && (
+                    <PaginationWrapper 
+                      currentPage={page} 
+                      totalPages={totalPages}
+                      baseUrl={`/category/${category.slug}`}
+                    />
+                  )}
+                </>
               )}
             </div>
           </main>
