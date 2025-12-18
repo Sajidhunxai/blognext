@@ -10,6 +10,9 @@ const NavigationLoader = dynamic(() => import("@/components/NavigationLoader"), 
   ssr: false,
 });
 
+// Cache metadata for better performance
+export const revalidate = 300;
+
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettings();
   const siteUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
@@ -100,12 +103,32 @@ export default async function RootLayout({
   const footerCSS = (settings as any).footerCSS;
   const footerScript = (settings as any).footerScript;
 
+  const siteUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+  let siteDomain = siteUrl;
+  try {
+    if (siteUrl.startsWith('http')) {
+      siteDomain = new URL(siteUrl).origin;
+    }
+  } catch (e) {
+    // If URL parsing fails, use the original siteUrl
+    siteDomain = siteUrl;
+  }
+  
   return (
     <html lang="en">
       <head>
-        {/* Preconnect to Cloudinary for faster image loading */}
+        {/* Preconnect to critical origins for faster loading */}
+        {siteDomain && (
+          <>
+            <link rel="preconnect" href={siteDomain} />
+            <link rel="dns-prefetch" href={siteDomain} />
+          </>
+        )}
         <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+        {/* Preconnect to fonts if using external fonts */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
       </head>
       <body>
         <ClientThemeProvider initialColors={initialColors}>
