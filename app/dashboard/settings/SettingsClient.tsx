@@ -27,6 +27,11 @@ interface SettingsState {
   heroTitle: string;
   heroSubtitle: string;
   heroBackground: string;
+  metaTitle: string;
+  metaDescription: string;
+  whyChooseTitle: string;
+  whyChooseSubtitle: string;
+  whyChooseFeatures: Array<{ icon: string; title: string; description: string; color?: string }>;
   enableComments: boolean;
   primaryColor: string;
   secondaryColor: string;
@@ -506,6 +511,123 @@ export default function SettingsClient({ initialSettings, pages: initialPages }:
                     label="Hero Background Image"
                     placeholder="Upload or enter background image URL"
                   />
+                </div>
+              </div>
+            </div>
+
+            {/* SEO Settings */}
+            <div className="border-t border-gray-200 pt-6 mt-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">SEO Settings (Homepage)</h2>
+              <p className="text-sm text-gray-600 mb-4">
+                These fields are used for search engine optimization. They are separate from the hero title and subtitle shown on the page.
+              </p>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Meta Title (for SEO)
+                  </label>
+                  <input
+                    type="text"
+                    value={settings.metaTitle}
+                    onChange={(e) => setSettings({ ...settings, metaTitle: e.target.value })}
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-gray-900 text-sm sm:text-base"
+                    style={{ color: '#000' }}
+                    placeholder="e.g., Download Best Games & Apps - Site Name"
+                  />
+                  <p className="mt-1 text-xs text-gray-500">Recommended: 50-60 characters</p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Meta Description (for SEO)
+                  </label>
+                  <textarea
+                    value={settings.metaDescription}
+                    onChange={(e) => setSettings({ ...settings, metaDescription: e.target.value })}
+                    rows={3}
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-gray-900 text-sm sm:text-base"
+                    style={{ color: '#000' }}
+                    placeholder="e.g., Download the best games and apps for Android. Free APK downloads, latest versions, and reviews."
+                  />
+                  <p className="mt-1 text-xs text-gray-500">Recommended: 150-160 characters</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Why Choose Us Section */}
+            <div className="border-t border-gray-200 pt-6 mt-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Why Choose Us Section</h2>
+              <p className="text-sm text-gray-600 mb-4">
+                Customize the "Why Choose Us" section that appears before the footer on the homepage.
+              </p>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Section Title
+                  </label>
+                  <input
+                    type="text"
+                    value={settings.whyChooseTitle}
+                    onChange={(e) => setSettings({ ...settings, whyChooseTitle: e.target.value })}
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-gray-900 text-sm sm:text-base"
+                    style={{ color: '#000' }}
+                    placeholder="e.g., Why Choose App Marka?"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Section Subtitle
+                  </label>
+                  <input
+                    type="text"
+                    value={settings.whyChooseSubtitle}
+                    onChange={(e) => setSettings({ ...settings, whyChooseSubtitle: e.target.value })}
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-gray-900 text-sm sm:text-base"
+                    style={{ color: '#000' }}
+                    placeholder="e.g., Your trusted source for the latest apps and games"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Features (JSON Format)
+                  </label>
+                  <textarea
+                    value={JSON.stringify(settings.whyChooseFeatures || [], null, 2)}
+                    onChange={(e) => {
+                      try {
+                        const parsed = JSON.parse(e.target.value);
+                        setSettings({ ...settings, whyChooseFeatures: Array.isArray(parsed) ? parsed : [] });
+                      } catch (err) {
+                        // Invalid JSON, keep as is
+                      }
+                    }}
+                    rows={12}
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition font-mono text-sm"
+                    style={{ color: '#000', backgroundColor: '#f9fafb' }}
+                    placeholder='[{"icon": "phone", "title": "Latest Apps", "description": "Get access to the newest apps", "color": "primary"}, ...]'
+                  />
+                  <p className="mt-2 text-xs text-gray-500">
+                    Enter features as JSON array. Each feature should have: icon (phone/check/bolt/dollar), title, description, and optional color (primary/secondary/info/warning).
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const defaultFeatures = [
+                        { icon: "phone", title: "Latest Apps", description: "Get access to the newest and most popular apps updated daily", color: "primary" },
+                        { icon: "check", title: "Safe Downloads", description: "All apps are verified and safe to download with no malware", color: "secondary" },
+                        { icon: "bolt", title: "Fast Downloads", description: "High-speed download servers for quick and easy access", color: "info" },
+                        { icon: "dollar", title: "Free Forever", description: "100% free downloads with no hidden costs or subscriptions", color: "warning" }
+                      ];
+                      setSettings({ ...settings, whyChooseFeatures: defaultFeatures });
+                    }}
+                    className="mt-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm"
+                  >
+                    Load Default Features
+                  </button>
                 </div>
               </div>
             </div>

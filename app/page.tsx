@@ -277,7 +277,7 @@ export default async function Home({
       </Suspense>
 
       {/* Content Section */}
-      <main className="min-h-screen bg-theme-background">
+      <main className="bg-theme-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           
       
@@ -415,6 +415,80 @@ export default async function Home({
           </section>
         </div>
       </main>
+
+      {/* Why Choose Us Section - Before Footer */}
+      {(settings.whyChooseTitle || (settings.whyChooseFeatures && Array.isArray(settings.whyChooseFeatures) && settings.whyChooseFeatures.length > 0)) && (
+        <section className="py-12 sm:py-16 bg-gradient-to-br from-gray-50 to-gray-100">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {(settings.whyChooseTitle || settings.whyChooseSubtitle) && (
+              <div className="text-center mb-10 sm:mb-12">
+                {settings.whyChooseTitle && (
+                  <h2 className="text-3xl sm:text-4xl font-bold mb-4" style={{ color: colors.primary }}>
+                    {settings.whyChooseTitle}
+                  </h2>
+                )}
+                {settings.whyChooseSubtitle && (
+                  <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                    {settings.whyChooseSubtitle}
+                  </p>
+                )}
+              </div>
+            )}
+            
+            {settings.whyChooseFeatures && Array.isArray(settings.whyChooseFeatures) && settings.whyChooseFeatures.length > 0 && (
+              <div className={`grid grid-cols-1 sm:grid-cols-2 ${settings.whyChooseFeatures.length >= 4 ? 'lg:grid-cols-4' : settings.whyChooseFeatures.length === 3 ? 'lg:grid-cols-3' : 'lg:grid-cols-2'} gap-6 sm:gap-8`}>
+                {settings.whyChooseFeatures.map((feature: any, index: number) => {
+                  const featureColor = feature.color || 'primary';
+                  const colorValue = colors[featureColor as keyof typeof colors] || colors.primary;
+                  
+                  // Icon mapping
+                  const getIcon = () => {
+                    const iconType = feature.icon?.toLowerCase() || 'phone';
+                    switch (iconType) {
+                      case 'phone':
+                        return (
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                        );
+                      case 'check':
+                        return (
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        );
+                      case 'bolt':
+                        return (
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        );
+                      case 'dollar':
+                        return (
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        );
+                      default:
+                        return (
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                        );
+                    }
+                  };
+
+                  return (
+                    <div key={index} className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow">
+                      <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4" style={{ backgroundColor: colorValue + '20' }}>
+                        <svg className="w-6 h-6" style={{ color: colorValue }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          {getIcon()}
+                        </svg>
+                      </div>
+                      {feature.title && (
+                        <h3 className="text-xl font-semibold mb-2 text-gray-900">{feature.title}</h3>
+                      )}
+                      {feature.description && (
+                        <p className="text-gray-600 text-sm">{feature.description}</p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       </div>
     </FrontendLayout>

@@ -116,6 +116,11 @@ export async function PUT(req: NextRequest) {
     if (data.heroTitle !== undefined) updateData.heroTitle = data.heroTitle;
     if (data.heroSubtitle !== undefined) updateData.heroSubtitle = data.heroSubtitle;
     if (data.heroBackground !== undefined) updateData.heroBackground = data.heroBackground;
+    if (data.metaTitle !== undefined) updateData.metaTitle = data.metaTitle;
+    if (data.metaDescription !== undefined) updateData.metaDescription = data.metaDescription;
+    if (data.whyChooseTitle !== undefined) updateData.whyChooseTitle = data.whyChooseTitle;
+    if (data.whyChooseSubtitle !== undefined) updateData.whyChooseSubtitle = data.whyChooseSubtitle;
+    if (data.whyChooseFeatures !== undefined) updateData.whyChooseFeatures = data.whyChooseFeatures;
     if (data.enableComments !== undefined) updateData.enableComments = data.enableComments;
     if (data.primaryColor !== undefined) updateData.primaryColor = data.primaryColor;
     if (data.secondaryColor !== undefined) updateData.secondaryColor = data.secondaryColor;
@@ -150,6 +155,11 @@ export async function PUT(req: NextRequest) {
           heroTitle: data.heroTitle || null,
           heroSubtitle: data.heroSubtitle || "",
           heroBackground: data.heroBackground || "",
+          metaTitle: data.metaTitle || null,
+          metaDescription: data.metaDescription || null,
+          whyChooseTitle: data.whyChooseTitle || null,
+          whyChooseSubtitle: data.whyChooseSubtitle || null,
+          whyChooseFeatures: data.whyChooseFeatures || [],
           enableComments: data.enableComments !== undefined ? data.enableComments : true,
           primaryColor: data.primaryColor || "#dc2626",
           secondaryColor: data.secondaryColor || "#16a34a",

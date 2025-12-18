@@ -48,7 +48,7 @@ export default async function FrontendLayout({ children }: FrontendLayoutProps) 
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-theme-background">
       <NavigationLoader />
       {/* Header */}
       <header style={{ backgroundColor: colors.background, borderColor: colors.primary }} className="border-b">
@@ -99,7 +99,7 @@ export default async function FrontendLayout({ children }: FrontendLayoutProps) 
       <footer className="border-t py-6 sm:py-8 mt-8 sm:mt-12" style={{ backgroundColor: colors.background, borderColor: colors.primary }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6 mb-6">
-            <div className="font-bold text-lg sm:text-xl m-auto" style={{ color: colors.text }}>{settings.siteName}</div>
+            <div className="font-bold text-lg sm:text-xl m-auto sm:m-0" style={{ color: colors.text }}>{settings.siteName}</div>
             <div className="flex flex-wrap gap-4 sm:gap-6">
               {settings.footerLinks.map((link: string | { label: string; url: string }, index: number) => {
                 const linkObj = typeof link === "string" ? { label: link, url: "#" } : link;

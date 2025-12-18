@@ -122,6 +122,15 @@ model Settings {
   heroSubtitle    String?
   heroBackground  String?
   
+  // SEO Fields for Homepage
+  metaTitle       String?  // Meta title for homepage (separate from hero title)
+  metaDescription String?  // Meta description for homepage (separate from hero subtitle)
+  
+  // Why Choose Us Section
+  whyChooseTitle       String?  // Title for "Why Choose Us" section
+  whyChooseSubtitle    String?  // Subtitle/description for "Why Choose Us" section
+  whyChooseFeatures    Json?    // Array of feature objects: [{ icon: "phone", title: "Latest Apps", description: "..." }, ...]
+  
   // Comments
   enableComments  Boolean  @default(true)
   
