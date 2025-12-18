@@ -43,15 +43,8 @@ const nextConfig = {
           },
         ],
       },
-      {
-        source: '/:path*\\.(?:jpg|jpeg|gif|png|svg|ico|webp|avif)',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
-        ],
-      },
+      // Cache common image formats (Next.js handles most images via Image component)
+      // Static images in public folder will be served with appropriate headers
     ];
   },
   // Target modern browsers to reduce polyfills
