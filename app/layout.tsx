@@ -91,6 +91,8 @@ export default async function RootLayout({
     error: settings.errorColor || undefined,
     warning: settings.warningColor || undefined,
     info: settings.infoColor || undefined,
+    darkModeBackground: settings.darkModeBackgroundColor || undefined,
+    darkModeText: settings.darkModeTextColor || undefined,
   };
 
   const headerCSS = (settings as any).headerCSS;

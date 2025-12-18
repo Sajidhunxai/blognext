@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useEffect, useState } from "react";
 
 interface ColoredLinkProps {
   href: string;
@@ -18,6 +19,21 @@ export default function ColoredLink({
   defaultColor,
   hoverColor
 }: ColoredLinkProps) {
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    const checkDarkMode = () => {
+      setIsDark(document.documentElement.classList.contains('dark'));
+    };
+    checkDarkMode();
+    const observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
+    return () => observer.disconnect();
+  }, []);
+
   let colors = {
     primary: "#dc2626",
     secondary: "#16a34a",
@@ -40,8 +56,25 @@ export default function ColoredLink({
     // Context not available, use defaults
   }
 
-  const defaultTextColor = defaultColor || (colors.text === "#ffffff" ? "#6b7280" : "#6b7280");
-  const hoverTextColor = hoverColor || colors.text;
+  // Adjust colors for dark mode if not explicitly provided
+  const getDefaultColor = () => {
+    if (defaultColor) return defaultColor;
+    if (isDark) {
+      return colors.text === "#ffffff" ? "#9ca3af" : "#6b7280";
+    }
+    return colors.text === "#ffffff" ? "#6b7280" : "#6b7280";
+  };
+
+  const getHoverColor = () => {
+    if (hoverColor) return hoverColor;
+    if (isDark) {
+      return colors.text === "#ffffff" ? "#ffffff" : "#111827";
+    }
+    return colors.text === "#ffffff" ? "#111827" : colors.text;
+  };
+
+  const defaultTextColor = getDefaultColor();
+  const hoverTextColor = getHoverColor();
 
   return (
     <Link

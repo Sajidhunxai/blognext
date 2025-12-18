@@ -196,7 +196,7 @@ export default async function Home({
 
       {/* Hero Section */}
       <HeroBackground backgroundImage={settings.heroBackground}>
-        <div className="absolute inset-0 bg-black/50"></div>
+        <div className="absolute inset-0 "></div>
         <div className="relative max-w-4xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-8">
             {settings.heroTitle || settings.siteName}
@@ -289,7 +289,7 @@ export default async function Home({
             return (
               <section key={category.id} className="mb-12">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-primary">{category.name} Apps</h2>
+                  <h2 className="text-2xl font-bold text-primary dark:text-blue-400">{category.name} Apps</h2>
                   <Link
                     href={`/category/${category.slug}`}
                     className="text-sm font-medium text-link hover:underline"
@@ -302,7 +302,7 @@ export default async function Home({
                     <Link
                       key={post.id}
                       href={`/posts/${post.slug}`}
-                      className="bg-white rounded-lg border-2 p-4 hover:shadow-lg transition-shadow "
+                      className="bg-white dark:bg-gray-800 rounded-lg border-2 dark:border-gray-700 p-4 hover:shadow-lg transition-shadow "
                     >
                       <div className="relative mb-3">
                         {post.featuredImage ? (
@@ -326,13 +326,13 @@ export default async function Home({
                           </span>
                         )}
                       </div>
-                      <h3 className="font-semibold text-gray-900 mb-1 line-clamp-1">
+                      <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 line-clamp-1">
                         {post.title}
                       </h3>
-                      <p className="text-xs text-gray-600 mb-2">
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
                         Version: {post.appVersion || (post.downloadLink ? "V1.0" : "N/A")}
                       </p>
-                      <p className="text-xs text-gray-500 mb-2">{settings.siteName}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-500 mb-2">{settings.siteName}</p>
                       {post.rating && (
                         <StarRating 
                           rating={post.rating} 
@@ -350,11 +350,11 @@ export default async function Home({
 
           {/* Latest Apps Section */}
           <section>
-            <h2 className="text-2xl font-bold text-center mb-8 text-primary">Latest Apps</h2>
+            <h2 className="text-2xl font-bold text-center mb-8 text-primary dark:text-blue-400">Latest Apps</h2>
 
           {posts.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-gray-400 text-lg">No posts yet. Check back soon!</p>
+              <p className="text-gray-400 dark:text-gray-500 text-lg">No posts yet. Check back soon!</p>
             </div>
           ) : (
             <>
@@ -363,7 +363,7 @@ export default async function Home({
                 <Link
                   key={post.id}
                   href={`/posts/${post.slug}`}
-                    className="bg-white rounded-lg border-2 p-4 hover:shadow-lg transition-shadow "
+                    className="bg-white dark:bg-gray-800 rounded-lg border-2 dark:border-gray-700 p-4 hover:shadow-lg transition-shadow "
                 >
                     <div className="relative mb-3">
                       {post.featuredImage ? (
@@ -418,7 +418,7 @@ export default async function Home({
 
       {/* Why Choose Us Section - Before Footer */}
       {(settings.whyChooseTitle || (settings.whyChooseFeatures && Array.isArray(settings.whyChooseFeatures) && settings.whyChooseFeatures.length > 0)) && (
-        <section className="py-12 sm:py-16 bg-gradient-to-br from-gray-50 to-gray-100">
+        <section className="py-12 sm:py-16 bg-theme-background">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {(settings.whyChooseTitle || settings.whyChooseSubtitle) && (
               <div className="text-center mb-10 sm:mb-12">
@@ -469,17 +469,17 @@ export default async function Home({
                   };
 
                   return (
-                    <div key={index} className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow">
+                    <div key={index} className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow">
                       <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4" style={{ backgroundColor: colorValue + '20' }}>
                         <svg className="w-6 h-6" style={{ color: colorValue }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           {getIcon()}
                         </svg>
                       </div>
                       {feature.title && (
-                        <h3 className="text-xl font-semibold mb-2 text-gray-900">{feature.title}</h3>
+                        <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-gray-100">{feature.title}</h3>
                       )}
                       {feature.description && (
-                        <p className="text-gray-600 text-sm">{feature.description}</p>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">{feature.description}</p>
                       )}
                     </div>
                   );

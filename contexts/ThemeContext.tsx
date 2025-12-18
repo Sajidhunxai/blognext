@@ -14,6 +14,8 @@ interface ThemeColors {
   error: string;
   warning: string;
   info: string;
+  darkModeBackground: string;
+  darkModeText: string;
 }
 
 interface ThemeContextType {
@@ -34,6 +36,8 @@ const defaultColors: ThemeColors = {
   error: "#dc2626",
   warning: "#f59e0b",
   info: "#3b82f6",
+  darkModeBackground: "#0a0a0a",
+  darkModeText: "#ededed",
 };
 
 const ThemeContext = createContext<ThemeContextType>({
@@ -41,6 +45,18 @@ const ThemeContext = createContext<ThemeContextType>({
   updateColors: () => {},
   loading: true,
 });
+
+// Helper function to convert hex to RGB
+function hexToRgb(hex: string): { r: number; g: number; b: number } {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result
+    ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16),
+      }
+    : { r: 220, g: 38, b: 38 }; // Default red fallback
+}
 
 export function ThemeProvider({ children, initialColors }: { children: ReactNode; initialColors?: Partial<ThemeColors> }) {
   const [colors, setColors] = useState<ThemeColors>({ ...defaultColors, ...initialColors });
@@ -56,6 +72,8 @@ export function ThemeProvider({ children, initialColors }: { children: ReactNode
   const updateColors = (newColors: Partial<ThemeColors>) => {
     setColors((prev) => ({ ...prev, ...newColors }));
   };
+
+  const primaryRgb = hexToRgb(colors.primary);
 
   return (
     <ThemeContext.Provider value={{ colors, updateColors, loading }}>
@@ -73,6 +91,18 @@ export function ThemeProvider({ children, initialColors }: { children: ReactNode
           --color-warning: ${colors.warning};
           --color-info: ${colors.info};
           --input-text-color: #000000;
+        }
+        
+        .dark {
+          --color-dark-background: ${colors.darkModeBackground};
+          --color-dark-text: ${colors.darkModeText};
+        }
+        
+        /* Convert hex to RGB for rgba usage */
+        :root {
+          --color-primary-r: ${primaryRgb.r};
+          --color-primary-g: ${primaryRgb.g};
+          --color-primary-b: ${primaryRgb.b};
         }
         input[type="text"],
         input[type="email"],

@@ -9,8 +9,13 @@
   --input-border-color: #d1d5db;
 }
 
+.dark {
+  --background: var(--color-dark-background, #0a0a0a);
+  --foreground: var(--color-dark-text, #ededed);
+}
+
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not(.light) {
     --background: #0a0a0a;
     --foreground: #ededed;
   }
@@ -27,6 +32,12 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
   width: 100%;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.dark body {
+  background-color: var(--color-dark-background, #0a0a0a);
+  color: var(--color-dark-text, #ededed);
 }
 
 /* Input fields - always use dark text for visibility, no borders */
@@ -119,7 +130,12 @@ textarea::placeholder {
   }
 
   .bg-theme-background {
-    background-color: var(--color-background, #111827);
+    background-color: #ffffff;
+    transition: background-color 0.3s ease;
+  }
+
+  .dark .bg-theme-background {
+    background-color: var(--color-dark-background, #0a0a0a);
   }
 
   .bg-button {
@@ -128,6 +144,45 @@ textarea::placeholder {
 
   .text-button {
     color: var(--color-button-text, #ffffff);
+  }
+
+  /* Button Variants for Dark/Light Mode */
+  .btn-primary {
+    background-color: var(--color-primary, #dc2626);
+    color: var(--color-text, #ffffff);
+    transition: all 0.2s ease;
+  }
+
+  .btn-primary:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+
+  .dark .btn-primary {
+    background-color: var(--color-primary, #dc2626);
+    color: var(--color-text, #ffffff);
+  }
+
+  .btn-link {
+    color: #6b7280;
+    transition: all 0.2s ease;
+    background-color: transparent;
+  }
+
+  .dark .btn-link {
+    color: #d1d5db;
+  }
+
+  /* Light mode hover - subtle primary color tint */
+  .btn-link:hover {
+    color: var(--color-text, #171717);
+    background-color: rgba(var(--color-primary-r, 220), var(--color-primary-g, 38), var(--color-primary-b, 38), 0.1);
+  }
+
+  /* Dark mode hover - more visible primary color tint */
+  .dark .btn-link:hover {
+    color: var(--color-text, #ffffff);
+    background-color: rgba(var(--color-primary-r, 220), var(--color-primary-g, 38), var(--color-primary-b, 38), 0.25);
   }
 
   .bg-success {
@@ -215,6 +270,11 @@ textarea::placeholder {
   padding-bottom: 0.5rem;
 }
 
+.dark .content-area h1 {
+  color: #f9fafb;
+  border-bottom-color: #4b5563;
+}
+
 .content-area h2 {
   font-size: 1.875rem;
   font-weight: 700;
@@ -222,6 +282,10 @@ textarea::placeholder {
   margin-top: 1.75rem;
   margin-bottom: 0.875rem;
   color: #1f2937;
+}
+
+.dark .content-area h2 {
+  color: #f9fafb;
 }
 
 .content-area h3 {
@@ -233,6 +297,10 @@ textarea::placeholder {
   color: #374151;
 }
 
+.dark .content-area h3 {
+  color: #f9fafb;
+}
+
 .content-area h4 {
   font-size: 1.25rem;
   font-weight: 600;
@@ -240,6 +308,10 @@ textarea::placeholder {
   margin-top: 1.25rem;
   margin-bottom: 0.625rem;
   color: #4b5563;
+}
+
+.dark .content-area h4 {
+  color: #e5e7eb;
 }
 
 .content-area h5 {
@@ -251,6 +323,10 @@ textarea::placeholder {
   color: #6b7280;
 }
 
+.dark .content-area h5 {
+  color: #d1d5db;
+}
+
 .content-area h6 {
   font-size: 1rem;
   font-weight: 600;
@@ -258,6 +334,10 @@ textarea::placeholder {
   margin-top: 0.875rem;
   margin-bottom: 0.5rem;
   color: #6b7280;
+}
+
+.dark .content-area h6 {
+  color: #d1d5db;
 }
 
 .content-area p {
@@ -317,6 +397,10 @@ textarea::placeholder {
   color: #111827;
 }
 
+.dark .content-area strong {
+  color: #f9fafb;
+}
+
 .content-area em {
   font-style: italic;
 }
@@ -330,6 +414,11 @@ textarea::placeholder {
   font-style: italic;
 }
 
+.dark .content-area blockquote {
+  border-left-color: #4b5563;
+  color: #9ca3af;
+}
+
 .content-area code {
   background-color: #f3f4f6;
   padding: 0.125rem 0.375rem;
@@ -337,6 +426,11 @@ textarea::placeholder {
   font-size: 0.875em;
   font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
   color: #dc2626;
+}
+
+.dark .content-area code {
+  background-color: #374151;
+  color: #fca5a5;
 }
 
 .content-area pre {
@@ -371,6 +465,10 @@ textarea::placeholder {
   margin-bottom: 2rem;
 }
 
+.dark .content-area hr {
+  border-top-color: #4b5563;
+}
+
 .content-area table {
   width: 100%;
   border-collapse: collapse;
@@ -391,8 +489,23 @@ textarea::placeholder {
   color: #111827;
 }
 
+.dark .content-area th {
+  background-color: #374151;
+  color: #f9fafb;
+}
+
 .content-area tr:nth-child(even) {
   background-color: #f9fafb;
+}
+
+.dark .content-area tr:nth-child(even) {
+  background-color: #374151;
+}
+
+.dark .content-area th,
+.dark .content-area td {
+  border-color: #4b5563;
+  color: #e5e7eb;
 }
 
 /* Responsive adjustments */

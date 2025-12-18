@@ -44,6 +44,8 @@ interface SettingsState {
   errorColor: string;
   warningColor: string;
   infoColor: string;
+  darkModeBackgroundColor: string;
+  darkModeTextColor: string;
   headerScript: string;
   footerScript: string;
   headerCSS: string;
@@ -669,6 +671,39 @@ export default function SettingsClient({ initialSettings, pages: initialPages }:
                   { key: 'errorColor', label: 'Error Color', placeholder: '#dc2626' },
                   { key: 'warningColor', label: 'Warning Color', placeholder: '#f59e0b' },
                   { key: 'infoColor', label: 'Info Color', placeholder: '#3b82f6' },
+                ].map(({ key, label, placeholder }) => (
+                  <div key={key}>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {label}
+                    </label>
+                    <input
+                      type="color"
+                      value={settings[key as keyof SettingsState] as string}
+                      onChange={(e) => setSettings({ ...settings, [key]: e.target.value })}
+                      className="w-full h-12 border border-gray-300 rounded-lg cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={settings[key as keyof SettingsState] as string}
+                      onChange={(e) => setSettings({ ...settings, [key]: e.target.value })}
+                      className="w-full mt-2 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-900"
+                      style={{ color: '#000' }}
+                      placeholder={placeholder}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Dark Mode Colors */}
+            <div className="border-t border-gray-200 pt-6 mt-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Dark Mode Colors</h2>
+              <p className="text-sm text-gray-600 mb-4">Configure the background and text colors for dark mode theme</p>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {[
+                  { key: 'darkModeBackgroundColor', label: 'Dark Mode Background Color', placeholder: '#0a0a0a' },
+                  { key: 'darkModeTextColor', label: 'Dark Mode Text Color', placeholder: '#ededed' },
                 ].map(({ key, label, placeholder }) => (
                   <div key={key}>
                     <label className="block text-sm font-medium text-gray-700 mb-2">

@@ -83,6 +83,8 @@ export default async function SettingsPage() {
     errorColor: settingsData.errorColor || "#dc2626",
     warningColor: settingsData.warningColor || "#f59e0b",
     infoColor: settingsData.infoColor || "#3b82f6",
+    darkModeBackgroundColor: settingsData.darkModeBackgroundColor || "#0a0a0a",
+    darkModeTextColor: settingsData.darkModeTextColor || "#ededed",
     headerScript: settingsData.headerScript || "",
     footerScript: settingsData.footerScript || "",
     headerCSS: settingsData.headerCSS || "",

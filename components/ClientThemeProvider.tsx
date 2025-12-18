@@ -18,6 +18,8 @@ export default function ClientThemeProvider({
     error?: string;
     warning?: string;
     info?: string;
+    darkModeBackground?: string;
+    darkModeText?: string;
   };
 }) {
   return <ThemeProvider initialColors={initialColors}>{children}</ThemeProvider>;

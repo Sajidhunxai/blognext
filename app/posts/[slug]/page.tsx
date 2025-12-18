@@ -179,18 +179,18 @@ export default async function PostPage({ params }: Props) {
       <FrontendLayout>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
           {/* Breadcrumbs */}
-          <nav className="text-sm mb-4" style={{ color: "#6b7280" }}>
-            <ColoredLink href="/" defaultColor="#6b7280" hoverColor="#111827">
+          <nav className="text-sm mb-4 text-gray-600 dark:text-gray-400">
+            <ColoredLink href="/" defaultColor="#6b7280" hoverColor="#111827" className="dark:hover:!text-gray-200">
               Home
             </ColoredLink>
             <span className="mx-2">/</span>
-            <span>{post.metaTitle}</span>
+            <span className="dark:text-gray-300">{post.metaTitle}</span>
           </nav>
 
           <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
             {/* Left Sidebar - Appears first on mobile */}
             <aside className="w-full lg:w-80 flex-shrink-0 order-1 lg:order-1">
-              <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm">
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6 shadow-sm">
                 {/* App Icon */}
                 <div className="relative mb-4 sm:mb-6">
                   {post.featuredImage ? (
@@ -216,7 +216,7 @@ export default async function PostPage({ params }: Props) {
                 {post.downloadLink && (
                   <Link
                     href={`/download/${post.slug}`}
-                    className="w-full flex items-center justify-center gap-2 px-4 sm:px-6 py-3 sm:py-4 text-button text-sm sm:text-base font-bold rounded-lg hover:bg-secondary transition mb-4 bg-button"
+                    className="w-full flex items-center justify-center gap-2 px-4 sm:px-6 py-3 sm:py-4 text-button text-sm sm:text-base font-bold rounded-lg hover:bg-secondary transition mb-4 bg-button dark:bg-button dark:text-button"
                   >
                     <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -243,12 +243,12 @@ export default async function PostPage({ params }: Props) {
                     href={post.googlePlayLink}
                     target="_blank"
                     rel="nofollow noopener noreferrer"
-                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 rounded-lg hover:opacity-90 transition mb-6 border-primary"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white dark:bg-gray-800 border-2 rounded-lg hover:opacity-90 transition mb-6 border-primary dark:border-primary"
                   >
                     <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.53,12.9 20.18,13.18L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z"/>
                     </svg>
-                    <span className="text-sm font-medium text-gray-900">Get it on Google Play</span>
+                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">Get it on Google Play</span>
                   </a>
                 )}
 
@@ -256,36 +256,36 @@ export default async function PostPage({ params }: Props) {
                 <div className="space-y-3 mb-4">
                   {post.developer && (
                     <div className="flex justify-between">
-                      <span className="text-sm font-medium text-gray-600">Developer:</span>
-                      <span className="text-sm text-gray-900">{post.developer}</span>
+                      <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Developer:</span>
+                      <span className="text-sm text-gray-900 dark:text-gray-100">{post.developer}</span>
                     </div>
                   )}
                   <div className="flex justify-between">
-                    <span className="text-sm font-medium text-gray-600">Updated:</span>
-                    <span className="text-sm text-gray-900">JUST NOW</span>
+                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Updated:</span>
+                    <span className="text-sm text-gray-900 dark:text-gray-100">JUST NOW</span>
                   </div>
                   {post.appSize && (
                     <div className="flex justify-between">
-                      <span className="text-sm font-medium text-gray-600">Size:</span>
-                      <span className="text-sm text-gray-900">{post.appSize}</span>
+                      <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Size:</span>
+                      <span className="text-sm text-gray-900 dark:text-gray-100">{post.appSize}</span>
                     </div>
                   )}
                   {post.appVersion && (
                     <div className="flex justify-between">
-                      <span className="text-sm font-medium text-gray-600">Version:</span>
-                      <span className="text-sm text-gray-900">{post.appVersion}</span>
+                      <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Version:</span>
+                      <span className="text-sm text-gray-900 dark:text-gray-100">{post.appVersion}</span>
                     </div>
                   )}
                   {post.requirements && (
                     <div className="flex justify-between">
-                      <span className="text-sm font-medium text-gray-600">Requirements:</span>
-                      <span className="text-sm text-gray-900">{post.requirements}</span>
+                      <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Requirements:</span>
+                      <span className="text-sm text-gray-900 dark:text-gray-100">{post.requirements}</span>
                     </div>
                   )}
                   {post.downloads && (
                     <div className="flex justify-between">
-                      <span className="text-sm font-medium text-gray-600">Downloads:</span>
-                      <span className="text-sm text-gray-900">{post.downloads}</span>
+                      <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Downloads:</span>
+                      <span className="text-sm text-gray-900 dark:text-gray-100">{post.downloads}</span>
                     </div>
                   )}
                 </div>
@@ -305,13 +305,13 @@ export default async function PostPage({ params }: Props) {
             {/* Main Content */}
             <div className="flex-1 order-2 lg:order-2">
               {/* Title */}
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                 {post.title}
               </h1>
 
               {/* Version */}
               {post.appVersion && (
-                <p className="text-base sm:text-lg text-gray-600 mb-3">v{post.appVersion}</p>
+                <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 mb-3">v{post.appVersion}</p>
               )}
 
               {/* Tags */}
@@ -334,7 +334,7 @@ export default async function PostPage({ params }: Props) {
 
               {/* Short Description / Intro */}
               {post.metaDescription && (
-                <p className="text-gray-700 text-base sm:text-lg mb-6 leading-relaxed">
+                <p className="text-gray-700 dark:text-gray-300 text-base sm:text-lg mb-6 leading-relaxed">
                   {post.metaDescription}
                 </p>
               )}
@@ -347,9 +347,9 @@ export default async function PostPage({ params }: Props) {
 
               {/* Description Section */}
               <div className="mb-8">
-                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">DESCRIPTION</h2>
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">DESCRIPTION</h2>
                 <div 
-                  className="content-area text-sm sm:text-base"
+                  className="content-area text-sm sm:text-base dark:text-gray-300"
                   dangerouslySetInnerHTML={{ __html: post.content }}
                 />
               </div>
@@ -357,13 +357,13 @@ export default async function PostPage({ params }: Props) {
               {/* Related Apps */}
               {relatedPosts.length > 0 && (
                 <div className="mt-8 sm:mt-12">
-                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Related Apps</h2>
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4 sm:mb-6">Related Apps</h2>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
                     {relatedPosts.slice(0, 6).map((relatedPost) => (
             <Link
                         key={relatedPost.id}
                         href={`/posts/${relatedPost.slug}`}
-                        className="bg-white rounded-lg p-4 hover:shadow-lg transition shadow-sm"
+                        className="bg-white dark:bg-gray-800 rounded-lg p-4 hover:shadow-lg transition shadow-sm"
                       >
                         {relatedPost.featuredImage ? (
                           <SmartImage
@@ -380,7 +380,7 @@ export default async function PostPage({ params }: Props) {
                             {relatedPost.title.charAt(0)}
                           </div>
                         )}
-                        <h3 className="text-sm font-semibold text-gray-900 mb-1 line-clamp-1">
+                        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1 line-clamp-1">
                           {relatedPost.title}
                         </h3>
                         {relatedPost.rating && (

@@ -147,6 +147,10 @@ model Settings {
   warningColor       String?  @default("#f59e0b") // Orange warning
   infoColor          String?  @default("#3b82f6") // Blue info
   
+  // Dark Mode Colors
+  darkModeBackgroundColor  String?  @default("#0a0a0a") // Dark mode background
+  darkModeTextColor        String?  @default("#ededed") // Dark mode text
+  
   // Custom Scripts and CSS
   headerScript       String?  // Scripts to add in <head>
   footerScript       String?  // Scripts to add before </body>

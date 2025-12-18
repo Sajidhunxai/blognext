@@ -133,6 +133,8 @@ export async function PUT(req: NextRequest) {
     if (data.errorColor !== undefined) updateData.errorColor = data.errorColor;
     if (data.warningColor !== undefined) updateData.warningColor = data.warningColor;
     if (data.infoColor !== undefined) updateData.infoColor = data.infoColor;
+    if (data.darkModeBackgroundColor !== undefined) updateData.darkModeBackgroundColor = data.darkModeBackgroundColor;
+    if (data.darkModeTextColor !== undefined) updateData.darkModeTextColor = data.darkModeTextColor;
     if (data.headerScript !== undefined) updateData.headerScript = data.headerScript;
     if (data.footerScript !== undefined) updateData.footerScript = data.footerScript;
     if (data.headerCSS !== undefined) updateData.headerCSS = data.headerCSS;
@@ -172,6 +174,8 @@ export async function PUT(req: NextRequest) {
           errorColor: data.errorColor || "#dc2626",
           warningColor: data.warningColor || "#f59e0b",
           infoColor: data.infoColor || "#3b82f6",
+          darkModeBackgroundColor: data.darkModeBackgroundColor || "#0a0a0a",
+          darkModeTextColor: data.darkModeTextColor || "#ededed",
           headerScript: data.headerScript || null,
           footerScript: data.footerScript || null,
           headerCSS: data.headerCSS || null,

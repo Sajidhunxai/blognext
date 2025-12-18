@@ -106,7 +106,7 @@ export default async function PagePage({ params }: Props) {
         </div>
       ) : (
         /* Fallback Banner without Image */
-        <div className="relative w-full h-[300px] md:h-[400px] bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center px-4 sm:px-6 lg:px-8">
+        <div className="relative w-full h-[300px] md:h-[400px] bg-gradient-to-br from-gray-800 to-gray-900 dark:from-gray-900 dark:to-gray-950 flex items-center justify-center px-4 sm:px-6 lg:px-8">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white text-center drop-shadow-lg max-w-4xl">
             {page.title}
           </h1>
@@ -115,9 +115,9 @@ export default async function PagePage({ params }: Props) {
 
       {/* Content Section */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <article className="bg-white rounded-lg shadow-sm p-6 sm:p-8 md:p-10">
+        <article className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 sm:p-8 md:p-10">
           <div 
-            className="content-area text-base sm:text-lg"
+            className="content-area text-base sm:text-lg dark:text-gray-300"
             dangerouslySetInnerHTML={{ __html: page.content }}
           />
         </article>
