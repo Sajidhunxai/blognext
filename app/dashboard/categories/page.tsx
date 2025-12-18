@@ -175,8 +175,8 @@ export default function CategoriesPage() {
 
   return (
     <>
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">Categories</h1>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Categories</h1>
           <button
             onClick={() => {
               if (showForm) {
@@ -192,7 +192,7 @@ export default function CategoriesPage() {
                 setSuccess("");
               }
             }}
-            className="px-4 py-2 bg-button text-button rounded-lg hover:bg-secondary transition"
+            className="px-4 py-2 bg-button text-button rounded-lg hover:bg-secondary transition text-sm sm:text-base w-full sm:w-auto"
           >
             {showForm ? "Cancel" : "New Category"}
           </button>
@@ -211,8 +211,8 @@ export default function CategoriesPage() {
         )}
 
         {showForm && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 mb-6">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4">
               {editingCategory ? "Edit Category" : "Create New Category"}
             </h2>
             {error && (
@@ -300,72 +300,75 @@ export default function CategoriesPage() {
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           {categories.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">No categories yet. Create your first category!</p>
+            <div className="text-center py-8 sm:py-12">
+              <p className="text-gray-500 text-base sm:text-lg">No categories yet. Create your first category!</p>
             </div>
           ) : (
-            <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
-                <tr>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Name
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Slug
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Posts
-                  </th>
-                  <th className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {categories.map((category) => (
-                  <tr key={category.id} className="hover:bg-gray-50 transition">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-2">
-                        <div className="text-sm font-medium text-gray-900">{category.name}</div>
-                        {category.featured && (
-                          <span className="px-2 py-1 text-xs font-semibold bg-yellow-100 text-yellow-800 rounded">
-                            Featured
-                          </span>
-                        )}
-                      </div>
-                      {category.description && (
-                        <div className="text-sm text-gray-500">{category.description}</div>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {category.slug}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {category._count?.posts || 0}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex justify-end gap-2">
-                        <button
-                          onClick={() => handleEdit(category)}
-                          className="text-blue-600 hover:text-blue-900 transition"
-                          title="Edit category"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(category.id)}
-                          disabled={deletingId === category.id}
-                          className="text-red-600 hover:text-red-900 transition disabled:opacity-50"
-                          title="Delete category"
-                        >
-                          {deletingId === category.id ? "Deleting..." : "Delete"}
-                        </button>
-                      </div>
-                    </td>
+            <div className="overflow-x-auto" style={{ WebkitOverflowScrolling: 'touch', maxWidth: '100%' }}>
+              <table className="w-full" style={{ minWidth: '640px' }}>
+                <thead className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Name
+                    </th>
+                    <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
+                      Slug
+                    </th>
+                    <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Posts
+                    </th>
+                    <th className="px-3 sm:px-6 py-3 sm:py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {categories.map((category) => (
+                    <tr key={category.id} className="hover:bg-gray-50 transition">
+                      <td className="px-3 sm:px-6 py-3 sm:py-4">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <div className="text-sm font-medium text-gray-900">{category.name}</div>
+                          {category.featured && (
+                            <span className="px-2 py-1 text-xs font-semibold bg-yellow-100 text-yellow-800 rounded">
+                              Featured
+                            </span>
+                          )}
+                        </div>
+                        {category.description && (
+                          <div className="text-sm text-gray-500 mt-1">{category.description}</div>
+                        )}
+                        <div className="text-xs text-gray-500 sm:hidden mt-1">{category.slug}</div>
+                      </td>
+                      <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm text-gray-500 hidden sm:table-cell">
+                        {category.slug}
+                      </td>
+                      <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm text-gray-500">
+                        {category._count?.posts || 0}
+                      </td>
+                      <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div className="flex justify-end gap-2 sm:gap-3">
+                          <button
+                            onClick={() => handleEdit(category)}
+                            className="text-blue-600 hover:text-blue-900 transition text-sm"
+                            title="Edit category"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDelete(category.id)}
+                            disabled={deletingId === category.id}
+                            className="text-red-600 hover:text-red-900 transition disabled:opacity-50 text-sm"
+                            title="Delete category"
+                          >
+                            {deletingId === category.id ? "Deleting..." : "Delete"}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
     </>

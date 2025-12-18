@@ -147,21 +147,21 @@ export default function RedirectsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center">Loading...</div>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading redirects...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-6 flex justify-between items-center">
+    <>
+        <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Redirects</h1>
-            <p className="text-gray-600 mt-2">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Redirects</h1>
+            <p className="text-gray-600 mt-2 text-sm sm:text-base">
               Manage URL redirects for your site
             </p>
           </div>
@@ -170,7 +170,7 @@ export default function RedirectsPage() {
               resetForm();
               setShowForm(true);
             }}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition text-sm sm:text-base w-full sm:w-auto"
           >
             + Add Redirect
           </button>
@@ -189,8 +189,8 @@ export default function RedirectsPage() {
         )}
 
         {showForm && (
-          <div className="mb-6 bg-white p-6 rounded-lg shadow">
-            <h2 className="text-xl font-semibold mb-4">
+          <div className="mb-6 bg-white p-4 sm:p-6 rounded-lg shadow">
+            <h2 className="text-lg sm:text-xl font-semibold mb-4">
               {editingRedirect ? "Edit Redirect" : "Create New Redirect"}
             </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -280,22 +280,23 @@ export default function RedirectsPage() {
         )}
 
         <div className="bg-white rounded-lg shadow overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
+          <div className="overflow-x-auto" style={{ WebkitOverflowScrolling: 'touch', maxWidth: '100%' }}>
+            <table className="w-full divide-y divide-gray-200" style={{ minWidth: '640px' }}>
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   From
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   To
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
                   Type
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -303,20 +304,20 @@ export default function RedirectsPage() {
             <tbody className="bg-white divide-y divide-gray-200">
               {redirects.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
+                  <td colSpan={5} className="px-3 sm:px-6 py-6 sm:py-8 text-center text-gray-500 text-sm sm:text-base">
                     No redirects found. Create your first redirect!
                   </td>
                 </tr>
               ) : (
                 redirects.map((redirect) => (
                   <tr key={redirect.id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {redirect.from}
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 text-sm font-medium text-gray-900">
+                      <div className="break-words">{redirect.from}</div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
-                      {redirect.to}
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 text-sm text-gray-500">
+                      <div className="break-words">{redirect.to}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm text-gray-500 hidden sm:table-cell">
                       {redirect.type === 301 ? (
                         <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">
                           301 Permanent
@@ -327,7 +328,7 @@ export default function RedirectsPage() {
                         </span>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                       {redirect.active ? (
                         <span className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs">
                           Active
@@ -338,38 +339,40 @@ export default function RedirectsPage() {
                         </span>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <button
-                        onClick={() => handleEdit(redirect)}
-                        className="text-blue-600 hover:text-blue-900 mr-4"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(redirect.id)}
-                        disabled={deletingId === redirect.id}
-                        className="text-red-600 hover:text-red-900 disabled:opacity-50"
-                      >
-                        {deletingId === redirect.id ? "Deleting..." : "Delete"}
-                      </button>
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex flex-col sm:flex-row gap-2 sm:gap-0">
+                        <button
+                          onClick={() => handleEdit(redirect)}
+                          className="text-blue-600 hover:text-blue-900 sm:mr-4 text-sm"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(redirect.id)}
+                          disabled={deletingId === redirect.id}
+                          className="text-red-600 hover:text-red-900 disabled:opacity-50 text-sm"
+                        >
+                          {deletingId === redirect.id ? "Deleting..." : "Delete"}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
               )}
             </tbody>
           </table>
+          </div>
         </div>
 
         <div className="mt-6">
           <Link
             href="/dashboard"
-            className="text-blue-600 hover:text-blue-800"
+            className="text-blue-600 hover:text-blue-800 text-sm sm:text-base"
           >
             ← Back to Dashboard
           </Link>
         </div>
-      </div>
-    </div>
+    </>
   );
 }
 

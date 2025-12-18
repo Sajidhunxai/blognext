@@ -16,10 +16,17 @@
   }
 }
 
+html,
+body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
 body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+  width: 100%;
 }
 
 /* Input fields - always use dark text for visibility, no borders */

@@ -207,18 +207,18 @@ export default function SettingsClient({ initialSettings, pages: initialPages }:
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100" style={{ '--theme-primary': colors.primary, '--theme-button': colors.button } as React.CSSProperties}>
-      <nav className="border-b border-gray-200 bg-white/80 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link href="/dashboard" className="text-2xl font-bold text-gray-900">
+      <nav className="border-b border-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-14 sm:h-16">
+            <Link href="/dashboard" className="text-xl sm:text-2xl font-bold text-gray-900">
               Blog CMS
             </Link>
           </div>
         </div>
       </nav>
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+      <main className="max-w-4xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 md:p-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-8">Site Settings</h1>
 
           {error && (
@@ -243,14 +243,14 @@ export default function SettingsClient({ initialSettings, pages: initialPages }:
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Site Name
                   </label>
-                  <input
-                    type="text"
-                    value={settings.siteName}
-                    onChange={(e) => setSettings({ ...settings, siteName: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-gray-900"
-                    style={{ color: '#000' }}
-                    required
-                  />
+                    <input
+                      type="text"
+                      value={settings.siteName}
+                      onChange={(e) => setSettings({ ...settings, siteName: e.target.value })}
+                      className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-gray-900 text-sm sm:text-base"
+                      style={{ color: '#000' }}
+                      required
+                    />
                 </div>
 
                 <div>
@@ -277,13 +277,14 @@ export default function SettingsClient({ initialSettings, pages: initialPages }:
 
             {/* Header Menu */}
             <div className="border-b border-gray-200 pb-6">
-              <div className="flex justify-between items-center mb-4">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-2 mb-4">
                 <h2 className="text-xl font-semibold text-gray-900">Header Menu</h2>
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                   <ColoredButton
                     type="button"
                     onClick={addHeaderMenuItem}
                     color="button"
+                    className="w-full sm:w-auto text-sm sm:text-base"
                   >
                     + Add Custom
                   </ColoredButton>
@@ -304,7 +305,7 @@ export default function SettingsClient({ initialSettings, pages: initialPages }:
                           }
                         }
                       }}
-                      className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-900"
+                      className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-900 text-sm sm:text-base w-full sm:w-auto"
                       style={{ color: '#000' }}
                       defaultValue=""
                     >
@@ -321,13 +322,13 @@ export default function SettingsClient({ initialSettings, pages: initialPages }:
               
               <div className="space-y-2">
                 {settings.headerMenu.map((item, index) => (
-                  <div key={index} className="flex gap-2">
+                  <div key={index} className="flex flex-col sm:flex-row gap-2">
                     <input
                       type="text"
                       value={getMenuDisplayValue(item, "label")}
                       onChange={(e) => updateHeaderMenuItem(index, "label", e.target.value)}
                       placeholder="Menu item name"
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-900"
+                      className="flex-1 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-900 text-sm sm:text-base"
                       style={{ color: '#000' }}
                     />
                     <input
@@ -335,13 +336,13 @@ export default function SettingsClient({ initialSettings, pages: initialPages }:
                       value={getMenuDisplayValue(item, "url")}
                       onChange={(e) => updateHeaderMenuItem(index, "url", e.target.value)}
                       placeholder="URL (e.g., / or /pages/about)"
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-900"
+                      className="flex-1 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-900 text-sm sm:text-base"
                       style={{ color: '#000' }}
                     />
                     <button
                       type="button"
                       onClick={() => removeHeaderMenuItem(index)}
-                      className="px-4 py-2 bg-red-600 text-theme-text rounded-lg hover:bg-red-700 transition"
+                      className="px-3 sm:px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm sm:text-base whitespace-nowrap"
                     >
                       Remove
                     </button>
@@ -355,13 +356,14 @@ export default function SettingsClient({ initialSettings, pages: initialPages }:
 
             {/* Footer Links */}
             <div className="border-b border-gray-200 pb-6">
-              <div className="flex justify-between items-center mb-4">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-2 mb-4">
                 <h2 className="text-xl font-semibold text-gray-900">Footer Links</h2>
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                   <ColoredButton
                     type="button"
                     onClick={addFooterLink}
                     color="button"
+                    className="w-full sm:w-auto text-sm sm:text-base"
                   >
                     + Add Custom
                   </ColoredButton>
@@ -382,7 +384,7 @@ export default function SettingsClient({ initialSettings, pages: initialPages }:
                           }
                         }
                       }}
-                      className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-900"
+                      className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-900 text-sm sm:text-base w-full sm:w-auto"
                       style={{ color: '#000' }}
                       defaultValue=""
                     >
@@ -401,13 +403,13 @@ export default function SettingsClient({ initialSettings, pages: initialPages }:
                 {settings.footerLinks.map((link, index) => {
                   const linkObj = typeof link === "string" ? { label: link, url: "" } : link;
                   return (
-                    <div key={index} className="flex gap-2">
+                    <div key={index} className="flex flex-col sm:flex-row gap-2">
                       <input
                         type="text"
                         value={linkObj.label}
                         onChange={(e) => updateFooterLink(index, "label", e.target.value)}
                         placeholder="Link label"
-                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-900"
+                        className="flex-1 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-900 text-sm sm:text-base"
                         style={{ color: '#000' }}
                       />
                       <input
@@ -415,13 +417,13 @@ export default function SettingsClient({ initialSettings, pages: initialPages }:
                         value={linkObj.url}
                         onChange={(e) => updateFooterLink(index, "url", e.target.value)}
                         placeholder="URL (e.g., /pages/about or https://example.com)"
-                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-900"
+                        className="flex-1 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-900 text-sm sm:text-base"
                         style={{ color: '#000' }}
                       />
                       <button
                         type="button"
                         onClick={() => removeFooterLink(index)}
-                        className="px-4 py-2 bg-red-600 text-theme-text rounded-lg hover:bg-red-700 transition"
+                        className="px-3 sm:px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm sm:text-base whitespace-nowrap"
                       >
                         Remove
                       </button>
@@ -438,7 +440,7 @@ export default function SettingsClient({ initialSettings, pages: initialPages }:
             <div className="border-b border-gray-200 pb-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Social Media Links</h2>
               
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {Object.keys(settings.socialMedia).map((platform) => (
                   <div key={platform}>
                     <label className="block text-sm font-medium text-gray-700 mb-2 capitalize">
@@ -532,7 +534,7 @@ export default function SettingsClient({ initialSettings, pages: initialPages }:
             <div>
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Theme Colors</h2>
               
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {[
                   { key: 'primaryColor', label: 'Primary Color', placeholder: '#dc2626' },
                   { key: 'secondaryColor', label: 'Secondary Color', placeholder: '#16a34a' },
@@ -598,17 +600,18 @@ export default function SettingsClient({ initialSettings, pages: initialPages }:
               </div>
             </div>
 
-            <div className="flex gap-4 pt-6">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-6">
               <ColoredButton
                 type="submit"
                 disabled={saving}
                 color="button"
+                className="w-full sm:w-auto text-sm sm:text-base"
               >
                 {saving ? "Saving..." : "Save Settings"}
               </ColoredButton>
               <Link
                 href="/dashboard"
-                className="bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-200 transition"
+                className="bg-gray-100 text-gray-700 px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium hover:bg-gray-200 transition text-center text-sm sm:text-base"
               >
                 Cancel
               </Link>

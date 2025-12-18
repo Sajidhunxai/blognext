@@ -130,7 +130,7 @@ export default async function DashboardPage() {
   return (
     <>
           {/* Metric Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
             <DashboardMetricCard
               title="Total Posts"
               value={totalPosts}
@@ -162,7 +162,7 @@ export default async function DashboardPage() {
           </div>
 
           {/* Charts Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
             {/* Bar Chart - Takes 2 columns on large screens */}
             <div className="lg:col-span-2">
               <DashboardBarChart data={barChartData} title="Posts Created" />
@@ -175,7 +175,7 @@ export default async function DashboardPage() {
           </div>
 
           {/* Bottom Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             {/* Area Chart */}
             <div>
               <DashboardAreaChart data={areaChartData} />

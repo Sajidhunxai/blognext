@@ -22,12 +22,14 @@ interface DashboardLayoutProps {
   children: React.ReactNode;
   userName: string;
   userEmail: string;
+  siteLogo?: string;
 }
 
 export default function DashboardLayout({
   children,
   userName,
   userEmail,
+  siteLogo,
 }: DashboardLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -133,6 +135,7 @@ export default function DashboardLayout({
             isSidebarOpen ? "right-0 -mr-3" : "right-0 -mr-3"
           }`}
           aria-label="Toggle sidebar"
+          type="button"
         >
           {isSidebarOpen ? (
             <svg
@@ -224,19 +227,19 @@ export default function DashboardLayout({
 
       {/* Main Content */}
       <main
-        className={`flex-1 min-h-screen transition-all duration-300 ${
+        className={`flex-1 min-h-screen transition-all duration-300 bg-gray-50 overflow-x-hidden ${
           isSidebarOpen ? "lg:ml-64" : "lg:ml-20"
-        }`}
+        } ml-0`}
       >
         {/* Header */}
-        <header >
-          <div className="px-4 sm:px-6 lg:px-8 py-4">
+        <header className="bg-white border-b border-gray-200 sticky top-0 z-20">
+          <div className="px-3 sm:px-4 md:px-6 lg:px-8 py-3 sm:py-4">
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-4">
                 {/* Mobile Menu Button */}
                 <button
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="lg:hidden p-2 text-gray-600 hover:text-gray-900"
+                  className="lg:hidden p-2 text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition"
                   aria-label="Toggle menu"
                 >
                   {isMobileMenuOpen ? (
@@ -246,12 +249,28 @@ export default function DashboardLayout({
                   )}
                 </button>
               </div>
+              {/* Site Logo */}
+              {siteLogo && (
+                <div className="flex items-center">
+                  <Link href="/" className="flex items-center">
+                    <img
+                      src={siteLogo}
+                      alt="Site Logo"
+                      className="h-12 sm:h-12 w-auto object-contain"
+                      onError={(e) => {
+                        // Hide image if it fails to load
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </header>
 
         {/* Page Content */}
-        <div className="p-4 sm:p-6 lg:p-8">{children}</div>
+        <div className="p-3 sm:p-4 md:p-6 lg:p-8 overflow-x-hidden">{children}</div>
       </main>
     </div>
   );
