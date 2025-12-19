@@ -10,6 +10,7 @@
     "postinstall": "prisma generate",
     "create-admin": "node scripts/create-admin.js",
     "seed": "node scripts/seed.js",
+    "scrape": "node scripts/scrape-and-seed.js",
     "ngrok": "ngrok http 3000"
   },
   "dependencies": {
@@ -19,9 +20,12 @@
     "@tiptap/extension-underline": "^3.12.1",
     "@tiptap/react": "^3.12.1",
     "@tiptap/starter-kit": "^3.12.1",
+    "axios": "^1.13.2",
     "bcryptjs": "^2.4.3",
+    "cheerio": "^1.1.2",
     "cloudinary": "^2.8.0",
     "lucide-react": "^0.561.0",
+    "mongodb": "^7.0.0",
     "next": "^14.0.0",
     "next-auth": "^4.24.5",
     "next-cloudinary": "^6.17.5",
@@ -33,6 +37,7 @@
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
+    "@types/cheerio": "^1.0.0",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

@@ -11,18 +11,14 @@ export default async function PostsPage({ searchParams }: Props) {
   const limit = 20; 
   const skip = (page - 1) * limit;
 
-  const [posts, totalPosts] = await Promise.all([
+  // Fetch posts and total count
+  const [postsData, totalPosts] = await Promise.all([
     prisma.post.findMany({
       skip,
       take: limit,
       orderBy: { createdAt: "desc" },
       include: {
-        author: {
-          select: {
-            name: true,
-            email: true,
-          },
-        },
+        author: true,
         category: {
           select: {
             name: true,
@@ -33,6 +29,20 @@ export default async function PostsPage({ searchParams }: Props) {
     }),
     prisma.post.count(),
   ]);
+
+  // Map posts to ensure author is never null
+  const posts = postsData.map(post => ({
+    ...post,
+    author: post.author || { 
+      id: '', 
+      name: 'Unknown', 
+      email: 'unknown@example.com',
+      password: '',
+      role: 'admin',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }
+  }));
 
   const totalPages = Math.ceil(totalPosts / limit);
 

@@ -19,6 +19,8 @@ export default function DashboardSidebar({ userName, userEmail }: DashboardSideb
     { icon: "📁", label: "Categories", href: "/dashboard/categories" },
     { icon: "💬", label: "Comments", href: "/dashboard/comments" },
     { icon: "🔗", label: "Redirects", href: "/dashboard/redirects" },
+    { icon: "🕷️", label: "Scraper", href: "/dashboard/scraper" },
+    { icon: "✨", label: "AI Writer", href: "/dashboard/ai-writer" },
     { icon: "⚙️", label: "Settings", href: "/dashboard/settings" },
   ];
 

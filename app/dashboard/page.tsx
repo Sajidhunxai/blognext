@@ -4,7 +4,8 @@ import DashboardBarChart from "@/components/DashboardBarChart";
 import DashboardAreaChart from "@/components/DashboardAreaChart";
 import DashboardDonutChart from "@/components/DashboardDonutChart";
 import DashboardCalendar from "@/components/DashboardCalendar";
-import { FileText, CheckCircle, MessageSquare, Folder } from "lucide-react";
+import { FileText, CheckCircle, MessageSquare, Folder, Search, Sparkles } from "lucide-react";
+import Link from "next/link";
 
 export default async function DashboardPage() {
 
@@ -159,6 +160,53 @@ export default async function DashboardPage() {
               bgColor="white"
               iconBgColor="grey"
             />
+          </div>
+
+          {/* Quick Actions */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
+            {/* Content Scraper Card */}
+            <Link href="/dashboard/scraper">
+              <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-lg p-6 hover:shadow-xl transition-all duration-200 hover:scale-[1.02] cursor-pointer">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="bg-white/20 p-3 rounded-lg">
+                    <Search className="w-8 h-8 text-white" />
+                  </div>
+                  <div className="text-white/80 text-sm font-medium">Quick Action</div>
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-2">Content Scraper</h3>
+                <p className="text-blue-100 text-sm mb-4">
+                  Scrape posts from any website URL or category page. Images are automatically uploaded to Cloudinary.
+                </p>
+                <div className="flex items-center text-white text-sm font-medium">
+                  <span>Start Scraping</span>
+                  <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </div>
+            </Link>
+
+            {/* AI Content Writer Card */}
+            <Link href="/dashboard/ai-writer">
+              <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg shadow-lg p-6 hover:shadow-xl transition-all duration-200 hover:scale-[1.02] cursor-pointer">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="bg-white/20 p-3 rounded-lg">
+                    <Sparkles className="w-8 h-8 text-white" />
+                  </div>
+                  <div className="text-white/80 text-sm font-medium">AI Powered</div>
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-2">AI Content Writer</h3>
+                <p className="text-purple-100 text-sm mb-4">
+                  Generate unique content using AI from any post URL. Customize keywords and writing tone.
+                </p>
+                <div className="flex items-center text-white text-sm font-medium">
+                  <span>Generate Content</span>
+                  <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </div>
+            </Link>
           </div>
 
           {/* Charts Section */}
