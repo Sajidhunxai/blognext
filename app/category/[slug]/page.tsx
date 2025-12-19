@@ -159,7 +159,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   // Pagination for category posts
   const page = parseInt(searchParams?.page || "1", 10);
   
-  const limit = 6;
+  const limit = 12;
   const skip = (page - 1) * limit;
 
   const [posts, totalPosts] = await Promise.all([
