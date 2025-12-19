@@ -380,7 +380,7 @@ export default async function Home({
                           quality={85}
                         />
                       ) : (
-                        <div className="w-full h-32 rounded flex items-center justify-center text-theme-text text-2xl font-bold bg-gradient-secondary"
+                        <div className="w-full h-32 dark:text-white rounded flex items-center justify-center text-theme-text text-2xl font-bold bg-gradient-secondary"
                         >
                           {post.title.charAt(0)}
                         </div>
@@ -392,13 +392,12 @@ export default async function Home({
                         </span>
                       )}
                     </div>
-                    <h3 className="font-semibold text-gray-900 mb-1 line-clamp-1">
+                    <h3 className="font-semibold  dark:text-white  text-gray-900 mb-1 line-clamp-1">
                       {post.title}
                     </h3>
                     <p className="text-xs text-gray-600 mb-2">
                       Version: {post.appVersion || (post.downloadLink ? "V1.0" : "N/A")}
                     </p>
-                    <p className="text-xs text-gray-500 mb-2">{settings.siteName}</p>
                     {post.rating && (
                       <StarRating 
                         rating={post.rating} 
