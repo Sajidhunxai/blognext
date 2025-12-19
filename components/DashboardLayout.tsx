@@ -15,7 +15,9 @@ import {
   User,
   LogOut,
   Menu,
-  X
+  X,
+  Copy,
+  InspectionPanel
 } from "lucide-react";
 
 interface DashboardLayoutProps {
@@ -52,7 +54,10 @@ export default function DashboardLayout({
     { icon: Folder, label: "Categories", href: "/dashboard/categories" },
     { icon: MessageSquare, label: "Comments", href: "/dashboard/comments" },
     { icon: LinkIcon, label: "Redirects", href: "/dashboard/redirects" },
+    { icon: Copy, label: "Scraper", href: "/dashboard/scraper" },
+    { icon: InspectionPanel, label: "AI Writer", href: "/dashboard/ai-writer" },
     { icon: Settings, label: "Settings", href: "/dashboard/settings" },
+  
   ];
 
   const isActive = (href: string) => {
