@@ -67,6 +67,7 @@ model Post {
   ratingCount     Int      @default(0) // Number of ratings/reviews
   
   comments        Comment[]
+  rankChecks      RankCheck[]
   
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -168,5 +169,21 @@ model Redirect {
   active      Boolean  @default(true) // Whether the redirect is active
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model RankCheck {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  keyword     String   // The keyword being ranked
+  postId      String?  @db.ObjectId // Optional reference to Post
+  post        Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  siteUrl     String   // The URL to check ranking for (e.g., your site domain)
+  ranking     Int?     // The position in search results (null if not found)
+  checkedAt   DateTime @default(now()) // When the rank was checked
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([keyword])
+  @@index([postId])
+  @@index([checkedAt])
 }
 
