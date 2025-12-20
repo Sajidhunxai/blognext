@@ -1,11 +1,29 @@
 import { prisma } from "@/lib/prisma";
 import DashboardMetricCard from "@/components/DashboardMetricCard";
-import DashboardBarChart from "@/components/DashboardBarChart";
-import DashboardAreaChart from "@/components/DashboardAreaChart";
-import DashboardDonutChart from "@/components/DashboardDonutChart";
-import DashboardCalendar from "@/components/DashboardCalendar";
 import { FileText, CheckCircle, MessageSquare, Folder, Search, Sparkles } from "lucide-react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
+
+// Dynamically import charts and calendar with SSR disabled to prevent hydration errors
+const DashboardBarChart = dynamic(() => import("@/components/DashboardBarChart"), {
+  ssr: false,
+  loading: () => <div className="bg-white rounded-lg shadow-md p-6 h-[350px] flex items-center justify-center"><div className="text-gray-500">Loading chart...</div></div>
+});
+
+const DashboardAreaChart = dynamic(() => import("@/components/DashboardAreaChart"), {
+  ssr: false,
+  loading: () => <div className="bg-white rounded-lg shadow-md p-6 h-[300px] flex items-center justify-center"><div className="text-gray-500">Loading chart...</div></div>
+});
+
+const DashboardDonutChart = dynamic(() => import("@/components/DashboardDonutChart"), {
+  ssr: false,
+  loading: () => <div className="bg-white rounded-lg shadow-md p-6 h-[400px] flex items-center justify-center"><div className="text-gray-500">Loading chart...</div></div>
+});
+
+const DashboardCalendar = dynamic(() => import("@/components/DashboardCalendar"), {
+  ssr: false,
+  loading: () => <div className="bg-white rounded-lg shadow-md p-6 h-[300px] flex items-center justify-center"><div className="text-gray-500">Loading calendar...</div></div>
+});
 
 export default async function DashboardPage() {
 

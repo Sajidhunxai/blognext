@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { secureResponse, obfuscateResponse } from "@/lib/api-security";
+import { revalidateTag } from "next/cache";
 
 // Ensure this route is dynamic
 export const dynamic = 'force-dynamic';
@@ -183,6 +184,9 @@ export async function PUT(req: NextRequest) {
         },
       });
     }
+
+    // Revalidate the settings cache so changes are immediately visible
+    revalidateTag('settings');
 
     // Obfuscate sensitive fields and add security headers
     const safeSettings = obfuscateResponse(settings);
