@@ -92,6 +92,12 @@ export default function SettingsClient({ initialSettings, pages: initialPages }:
         throw new Error(data.error || "Failed to save settings");
       }
 
+      // Clear localStorage cache so fresh settings are fetched
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("app_settings");
+        localStorage.removeItem("app_settings_version");
+      }
+
       setSuccess("Settings saved successfully!");
       // Update theme context with new colors
       updateColors({
@@ -114,6 +120,50 @@ export default function SettingsClient({ initialSettings, pages: initialPages }:
       }, 1000);
     } catch (err: any) {
       setError(err.message || "Failed to save settings");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleInitializeDefaults = async () => {
+    if (!confirm("Are you sure you want to reset all settings to defaults? This action cannot be undone.")) {
+      return;
+    }
+
+    setError("");
+    setSuccess("");
+    setSaving(true);
+
+    try {
+      const response = await fetch("/api/settings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to initialize defaults");
+      }
+
+      const data = await response.json();
+
+      // Clear localStorage cache
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("app_settings");
+        localStorage.removeItem("app_settings_version");
+      }
+
+      // Reload page to get fresh settings from server
+      setSuccess(data.message || "Settings initialized to defaults successfully!");
+      
+      // Reload page to reflect changes
+      setTimeout(() => {
+        router.refresh();
+      }, 1000);
+    } catch (err: any) {
+      setError(err.message || "Failed to initialize defaults");
     } finally {
       setSaving(false);
     }
@@ -757,7 +807,7 @@ export default function SettingsClient({ initialSettings, pages: initialPages }:
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-6">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-6 border-t border-gray-200">
               <ColoredButton
                 type="submit"
                 disabled={saving}
@@ -766,6 +816,14 @@ export default function SettingsClient({ initialSettings, pages: initialPages }:
               >
                 {saving ? "Saving..." : "Save Settings"}
               </ColoredButton>
+              <button
+                type="button"
+                onClick={handleInitializeDefaults}
+                disabled={saving}
+                className="bg-yellow-500 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium hover:bg-yellow-600 transition text-center text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {saving ? "Processing..." : "Reset to Defaults"}
+              </button>
               <Link
                 href="/dashboard"
                 className="bg-gray-100 text-gray-700 px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium hover:bg-gray-200 transition text-center text-sm sm:text-base"
