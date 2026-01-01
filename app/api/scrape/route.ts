@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { scrapePost, getPostLinks, createSlug, ScrapedPost } from '@/lib/scraper';
 import { secureResponse } from '@/lib/api-security';
+import { processContentWithInternalLinks } from '@/lib/internal-links';
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -177,9 +178,33 @@ export async function POST(req: NextRequest) {
           where: { slug },
         });
 
+        // Fetch all published posts for internal linking
+        const allPostsForLinking = await prisma.post.findMany({
+          where: { published: true },
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            content: true,
+            published: true,
+          },
+        });
+
+        // Process content: remove external links and add internal links
+        // For existing posts, use the post ID; for new posts, use undefined (will still add links but won't exclude current post)
+        const { processedContent, linksAdded } = processContentWithInternalLinks(
+          postData.content,
+          allPostsForLinking,
+          existingPost?.id,
+          postData.title,
+          3 // Max 3 internal links
+        );
+
+        console.log(`Processed content for "${postData.title}": Removed external links, added ${linksAdded} internal links`);
+
         const postPayload = {
           title: postData.title,
-          content: postData.content,
+          content: processedContent,
           slug,
           published: true,
           authorId: admin.id,

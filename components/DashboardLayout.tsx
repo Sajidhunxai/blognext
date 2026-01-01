@@ -18,7 +18,8 @@ import {
   X,
   Copy,
   InspectionPanel,
-  CheckCheckIcon
+  CheckCheckIcon,
+  Link2
 } from "lucide-react";
 
 interface DashboardLayoutProps {
@@ -55,6 +56,7 @@ export default function DashboardLayout({
     { icon: Folder, label: "Categories", href: "/dashboard/categories" },
     { icon: MessageSquare, label: "Comments", href: "/dashboard/comments" },
     { icon: LinkIcon, label: "Redirects", href: "/dashboard/redirects" },
+    { icon: Link2, label: "Internal Links", href: "/dashboard/internal-links" },
     { icon: CheckCheckIcon, label: "Rank Checker", href: "/dashboard/rank-checker" },
     { icon: Copy, label: "Scraper", href: "/dashboard/scraper" },
     { icon: InspectionPanel, label: "AI Writer", href: "/dashboard/ai-writer" },

@@ -312,6 +312,7 @@ export default async function Home({
                           <SmartImage
                             src={post.featuredImage}
                             alt={post.title}
+                            title={post.title}
                             width={259}
                             height={259}
                             className="w-full h-32 object-cover rounded"
@@ -373,6 +374,7 @@ export default async function Home({
                         <SmartImage
                           src={post.featuredImage}
                           alt={post.title}
+                          title={post.title}
                           width={259}
                           height={259}
                           className="w-full h-32 object-cover rounded"

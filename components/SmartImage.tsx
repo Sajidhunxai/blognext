@@ -7,6 +7,7 @@ import { optimizeCloudinaryUrl, getCloudinarySrcSet } from "@/lib/cloudinary";
 interface SmartImageProps {
   src: string;
   alt: string;
+  title?: string;
   width?: number;
   height?: number;
   className?: string;
@@ -25,6 +26,7 @@ const CONFIGURED_HOSTNAMES = [
 export default function SmartImage({
   src,
   alt,
+  title,
   width,
   height,
   className = "",
@@ -66,6 +68,7 @@ export default function SmartImage({
       <Image
         src={optimizedSrc}
         alt={alt}
+        {...(title ? { title } : {})}
         width={width}
         height={height}
         className={className}
@@ -88,6 +91,7 @@ export default function SmartImage({
         src={optimizedSrc}
         srcSet={srcSet}
         alt={alt}
+        title={title}
         className={className}
         loading={priority ? "eager" : "lazy"}
         fetchPriority={fetchPriority}
@@ -102,6 +106,7 @@ export default function SmartImage({
     <img
       src={src}
       alt={alt}
+      title={title}
       className={className}
       loading={priority ? "eager" : "lazy"}
       fetchPriority={fetchPriority}

@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { scrapePost } from '@/lib/scraper';
 import { secureResponse } from '@/lib/api-security';
+import { processContentWithInternalLinks } from '@/lib/internal-links';
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -147,12 +148,34 @@ Output format: Return ONLY the rewritten HTML content, no explanations or metada
 
     console.log(`AI content generated. Length: ${rewrittenContent.length} characters`);
 
+    // Process content: remove external links and add internal links
+    const allPostsForLinking = await prisma.post.findMany({
+      where: { published: true },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        content: true,
+        published: true,
+      },
+    });
+
+    const { processedContent, linksAdded } = processContentWithInternalLinks(
+      rewrittenContent,
+      allPostsForLinking,
+      undefined, // New post, no ID yet
+      scrapedData.title,
+      3 // Max 3 internal links
+    );
+
+    console.log(`Processed AI content: Removed external links, added ${linksAdded} internal links`);
+
     // Return the rewritten data
     return secureResponse({
       success: true,
       originalTitle: scrapedData.title,
       originalSlug: scrapedData.slug,
-      rewrittenContent,
+      rewrittenContent: processedContent,
       originalMetaDescription: scrapedData.metaDescription,
       featuredImage: scrapedData.featuredImage,
       appVersion: scrapedData.appVersion,
