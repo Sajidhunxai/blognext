@@ -6,7 +6,10 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 3600; // Revalidate every hour
 
 export default async function manifest(): Promise<MetadataRoute.Manifest> {
-  const siteUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+  const siteUrl = process.env.NEXT_PUBLIC_CANONICAL_URL || 
+                  process.env.NEXTAUTH_URL || 
+                  process.env.NEXT_PUBLIC_SITE_URL || 
+                  'http://localhost:3000';
   
   // Get settings with error handling and timeout
   let settings;

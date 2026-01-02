@@ -1,5 +1,56 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async redirects() {
+    const canonicalUrl = process.env.NEXT_PUBLIC_CANONICAL_URL || 
+                        process.env.NEXTAUTH_URL || 
+                        process.env.NEXT_PUBLIC_SITE_URL;
+    
+    if (!canonicalUrl) {
+      return [];
+    }
+
+    try {
+      const url = new URL(canonicalUrl);
+      const canonicalHost = url.hostname; 
+      const canonicalOrigin = url.origin;
+      const canonicalDomain = canonicalHost.replace(/^www\./, '');
+      const isWww = canonicalHost.startsWith('www.');
+      
+      const redirects = [];
+
+      if (isWww) {
+        redirects.push({
+          source: '/:path*',
+          has: [
+            {
+              type: 'host',
+              value: canonicalDomain, 
+            },
+          ],
+          destination: `${canonicalOrigin}/:path*`,
+          permanent: true,
+        });
+      } 
+      else {
+        redirects.push({
+          source: '/:path*',
+          has: [
+            {
+              type: 'host',
+              value: `www.${canonicalDomain}`, 
+            },
+          ],
+          destination: `${canonicalOrigin}/:path*`,
+          permanent: true,
+        });
+      }
+
+      return redirects;
+    } catch (error) {
+      console.warn('Invalid canonical URL in environment variables, skipping redirects:', error);
+      return [];
+    }
+  },
   images: {
     remotePatterns: [
       {

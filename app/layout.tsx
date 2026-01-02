@@ -15,7 +15,13 @@ export const revalidate = 300;
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettings();
-  const siteUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+  // Use canonical domain: https://www.appmarka.com
+  // Fallback to env vars for local development
+  const canonicalUrl = process.env.NEXT_PUBLIC_CANONICAL_URL || 
+                       process.env.NEXTAUTH_URL || 
+                       process.env.NEXT_PUBLIC_SITE_URL || 
+                       'https://www.appmarka.com';
+  const siteUrl = canonicalUrl;
   
   return {
     metadataBase: new URL(siteUrl),
@@ -63,7 +69,7 @@ export async function generateMetadata(): Promise<Metadata> {
       images: settings.logo ? [settings.logo] : [],
     },
     alternates: {
-      canonical: normalizeUrl(siteUrl),
+      canonical: normalizeUrl(siteUrl) || '/',
     },
     verification: {
       // Add Google Search Console verification if needed
@@ -103,7 +109,11 @@ export default async function RootLayout({
   const footerCSS = (settings as any).footerCSS;
   const footerScript = (settings as any).footerScript;
 
-  const siteUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+  // Use canonical domain for preconnect/dns-prefetch
+  const siteUrl = process.env.NEXT_PUBLIC_CANONICAL_URL || 
+                  process.env.NEXTAUTH_URL || 
+                  process.env.NEXT_PUBLIC_SITE_URL || 
+                  'https://www.appmarka.com';
   let siteDomain = siteUrl;
   try {
     if (siteUrl.startsWith('http')) {

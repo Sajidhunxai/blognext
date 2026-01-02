@@ -80,7 +80,6 @@ export default async function FrontendLayout({ children }: FrontendLayoutProps) 
                   <NavLink
                     key={index}
                     href={item.url}
-                    isActive={index === 0}
                   >
                     {item.label}
                   </NavLink>

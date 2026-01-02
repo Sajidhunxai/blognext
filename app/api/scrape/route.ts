@@ -190,7 +190,8 @@ export async function POST(req: NextRequest) {
           },
         });
 
-        // Process content: remove external links and add internal links
+        // Process content: add internal links
+        // Note: External links are already removed during scraping (in scraper.ts)
         // For existing posts, use the post ID; for new posts, use undefined (will still add links but won't exclude current post)
         const { processedContent, linksAdded } = processContentWithInternalLinks(
           postData.content,
@@ -200,7 +201,7 @@ export async function POST(req: NextRequest) {
           3 // Max 3 internal links
         );
 
-        console.log(`Processed content for "${postData.title}": Removed external links, added ${linksAdded} internal links`);
+        console.log(`Processed content for "${postData.title}": Added ${linksAdded} internal links`);
 
         const postPayload = {
           title: postData.title,

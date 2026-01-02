@@ -204,6 +204,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   };
 
   const siteUrl =
+    process.env.NEXT_PUBLIC_CANONICAL_URL ||
     process.env.NEXTAUTH_URL ||
     process.env.NEXT_PUBLIC_SITE_URL ||
     "http://localhost:3000";
@@ -265,8 +266,8 @@ export default async function CategoryPage({ params, searchParams }: Props) {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
               <div className="flex items-center justify-between mb-8">
                 <div>
-                  <h2 className="text-2xl sm:text-3xl font-bold text-theme-text mb-2">
-                    {category.name} Apps
+                  <h2 className="text-2xl sm:text-3xl font-bold text-theme-text mb-2 dark:text-white">
+                    {category.name}
                   </h2>
                   <p className="text-gray-400 text-sm sm:text-base">
                     Browse our collection of {totalPosts}{" "}

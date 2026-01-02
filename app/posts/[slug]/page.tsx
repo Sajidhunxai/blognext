@@ -55,7 +55,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
-  const siteUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const siteUrl = process.env.NEXT_PUBLIC_CANONICAL_URL || 
+                  process.env.NEXTAUTH_URL || 
+                  process.env.NEXT_PUBLIC_SITE_URL || 
+                  "http://localhost:3000";
   const settings = await getSettings();
   const metaTitle = post.metaTitle || post.title;
   const metaDescription = post.metaDescription || post.content.substring(0, 160);
@@ -142,7 +145,10 @@ export default async function PostPage({ params }: Props) {
   }
 
   const settings = await getSettings();
-  const siteUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const siteUrl = process.env.NEXT_PUBLIC_CANONICAL_URL || 
+                  process.env.NEXTAUTH_URL || 
+                  process.env.NEXT_PUBLIC_SITE_URL || 
+                  "http://localhost:3000";
   const colors = {
     primary: settings.primaryColor || "#dc2626",
     secondary: settings.secondaryColor || "#16a34a",
@@ -180,7 +186,7 @@ export default async function PostPage({ params }: Props) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
           {/* Breadcrumbs */}
           <nav className="text-sm mb-4 text-gray-600 dark:text-gray-400">
-            <ColoredLink href="/" defaultColor="#6b7280" hoverColor="#111827" className="dark:hover:!text-gray-200">
+            <ColoredLink href="/" hoverColor="#111827" className="dark:hover:!text-gray-200">
               Home
             </ColoredLink>
             <span className="mx-2">/</span>

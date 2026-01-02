@@ -28,7 +28,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
-  const siteUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const siteUrl = process.env.NEXT_PUBLIC_CANONICAL_URL || 
+                  process.env.NEXTAUTH_URL || 
+                  process.env.NEXT_PUBLIC_SITE_URL || 
+                  "http://localhost:3000";
   const settings = await getSettings();
   const metaTitle = page.metaTitle || page.title;
   const metaDescription = page.metaDescription || page.content.substring(0, 160);

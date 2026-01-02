@@ -413,6 +413,16 @@ export async function scrapePost(url: string): Promise<ScrapedPost | null> {
     // Remove empty paragraphs and divs
     $content('p:empty, div:empty, span:empty').remove();
     
+    // Remove ALL external links - replace with just the text content
+    $content('a').each((i: number, elem: any) => {
+      const $a = $content(elem);
+      const href = $a.attr('href') || '';
+      const linkText = $a.text().trim();
+      
+      // Replace the link with just its text content (remove the <a> tag)
+      $a.replaceWith(linkText || '');
+    });
+    
     content = $content.html() || '';
 
     // Process images in content - upload to Cloudinary

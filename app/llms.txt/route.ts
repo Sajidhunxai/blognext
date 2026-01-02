@@ -21,7 +21,10 @@ function stripHtml(html: string): string {
 
 export async function GET() {
   try {
-    const siteUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+    const siteUrl = process.env.NEXT_PUBLIC_CANONICAL_URL || 
+                    process.env.NEXTAUTH_URL || 
+                    process.env.NEXT_PUBLIC_SITE_URL || 
+                    'http://localhost:3000';
     
     // Get settings
     let settings;

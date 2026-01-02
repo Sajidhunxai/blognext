@@ -7,8 +7,12 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 3600; // Revalidate every hour
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  // Normalize siteUrl to remove trailing slash
-  const rawSiteUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+  // Use canonical domain: https://www.appmarka.com
+  // Fallback to env vars for local development
+  const rawSiteUrl = process.env.NEXT_PUBLIC_CANONICAL_URL || 
+                     process.env.NEXTAUTH_URL || 
+                     process.env.NEXT_PUBLIC_SITE_URL || 
+                     'https://www.appmarka.com';
   const siteUrl = rawSiteUrl.replace(/\/+$/, ''); // Remove trailing slashes
   
   // Get settings with error handling

@@ -21,7 +21,10 @@ const CategoryFilter = dynamic(() => import("@/components/CategoryFilter"), {
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettings();
-  const siteUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const siteUrl = process.env.NEXT_PUBLIC_CANONICAL_URL || 
+                  process.env.NEXTAUTH_URL || 
+                  process.env.NEXT_PUBLIC_SITE_URL || 
+                  "http://localhost:3000";
   const title = settings.heroTitle || `${settings.siteName} - Download Best Games`;
   const description = settings.heroSubtitle || `Download the best games and apps from ${settings.siteName}`;
 
@@ -411,9 +414,9 @@ export default async function Home({
                   </Link>
                 ))}
                   </div>
-              {totalPages > 1 && (
+              {/* {totalPages > 1 && (
                 <PaginationWrapper currentPage={page} totalPages={totalPages} />
-              )}
+              )} */}
             </>
           )}
           </section>
