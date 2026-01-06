@@ -141,6 +141,21 @@ export default async function PostPage({ params }: Props) {
           slug: true,
         },
       },
+      comments: {
+        where: {
+          approved: true,
+        },
+        select: {
+          id: true,
+          content: true,
+          authorName: true,
+          createdAt: true,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+        take: 20, // Limit to most recent 20 comments for schema
+      },
     },
   });
 
@@ -181,10 +196,39 @@ export default async function PostPage({ params }: Props) {
     <>
       <StructuredData 
         post={{
-          ...post,
+          title: post.title,
+          content: post.content,
+          slug: post.slug,
+          createdAt: post.createdAt,
+          updatedAt: post.updatedAt,
+          metaDescription: post.metaDescription,
+          keywords: post.keywords,
+          featuredImage: post.featuredImage,
+          ogImage: post.ogImage,
+          downloadLink: post.downloadLink,
+          rating: post.rating,
+          ratingCount: post.ratingCount,
+          developer: post.developer,
+          appSize: post.appSize,
+          appVersion: post.appVersion,
+          requirements: post.requirements,
+          downloads: post.downloads,
+          googlePlayLink: post.googlePlayLink,
+          author: {
+            name: post.author.name,
+            email: post.author.email,
+          },
           category: post.category || null,
+          comments: post.comments.map((comment: any) => ({
+            id: comment.id,
+            content: comment.content,
+            author: comment.authorName,
+            createdAt: comment.createdAt,
+            rating: undefined,
+          })),
         }} 
-        siteUrl={siteUrl} 
+        siteUrl={siteUrl}
+        siteName={settings.siteName}
       />
       <FrontendLayout>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
