@@ -38,6 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const ogImage = page.featuredImage || `${siteUrl}/og-default.jpg`;
 
   return {
+    metadataBase: new URL(siteUrl),
     title: metaTitle,
     description: metaDescription,
     openGraph: {
@@ -63,6 +64,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     alternates: {
       canonical: buildCanonicalUrl(siteUrl, `/pages/${page.slug}`),
+    },
+    robots: {
+      index: page.published,
+      follow: true,
+      googleBot: {
+        index: page.published,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
     },
   };
 }

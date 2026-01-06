@@ -52,6 +52,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!post) {
     return {
       title: "Post Not Found",
+      robots: {
+        index: false,
+        follow: false,
+      },
     };
   }
 
@@ -108,10 +112,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       canonical: buildCanonicalUrl(siteUrl, `/posts/${post.slug}`),
     },
     robots: {
-      index: post.published,
+      index: post.published === true,
       follow: true,
       googleBot: {
-        index: post.published,
+        index: post.published === true,
         follow: true,
         'max-video-preview': -1,
         'max-image-preview': 'large',
