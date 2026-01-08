@@ -1,5 +1,4 @@
 import { ReactNode } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { getSettings } from "@/lib/settings";
 import { resolveMenuItems } from "@/lib/menu";
@@ -24,6 +23,11 @@ const MobileMenu = dynamic(() => import("@/components/MobileMenu"), {
 
 const ThemeToggle = dynamic(() => import("@/components/ThemeToggle"), {
   ssr: false,
+});
+
+const Logo = dynamic(() => import("@/components/Logo"), {
+  ssr: false,
+  loading: () => null,
 });
 
 interface FrontendLayoutProps {
@@ -60,9 +64,10 @@ export default async function FrontendLayout({ children }: FrontendLayoutProps) 
           <div className="flex justify-between items-center h-16">
             <Link href="/" className="flex  items-center gap-3 hover:opacity-80 transition">
               {settings.logo ? (
-                <Image
-                  src={settings.logo}
-                  alt={settings.siteName}
+                <Logo
+                  lightLogo={settings.logo}
+                  darkLogo={(settings as any).darkModeLogo}
+                  siteName={settings.siteName}
                   height={48}
                   width={160}
                   className="rounded"

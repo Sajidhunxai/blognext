@@ -222,6 +222,7 @@ export async function PUT(req: NextRequest) {
     
     if (data.siteName !== undefined) updateData.siteName = data.siteName;
     if (data.logo !== undefined) updateData.logo = data.logo;
+    if (data.darkModeLogo !== undefined) updateData.darkModeLogo = data.darkModeLogo;
     if (data.favicon !== undefined) updateData.favicon = data.favicon;
     if (data.headerMenu !== undefined) updateData.headerMenu = data.headerMenu;
     if (data.footerLinks !== undefined) updateData.footerLinks = data.footerLinks;
@@ -248,6 +249,11 @@ export async function PUT(req: NextRequest) {
     if (data.infoColor !== undefined) updateData.infoColor = data.infoColor;
     if (data.darkModeBackgroundColor !== undefined) updateData.darkModeBackgroundColor = data.darkModeBackgroundColor;
     if (data.darkModeTextColor !== undefined) updateData.darkModeTextColor = data.darkModeTextColor;
+    if (data.enableWatermark !== undefined) updateData.enableWatermark = data.enableWatermark;
+    if (data.watermarkImage !== undefined) updateData.watermarkImage = data.watermarkImage;
+    if (data.watermarkPosition !== undefined) updateData.watermarkPosition = data.watermarkPosition;
+    if (data.watermarkOpacity !== undefined) updateData.watermarkOpacity = data.watermarkOpacity;
+    if (data.watermarkScale !== undefined) updateData.watermarkScale = data.watermarkScale;
     if (data.headerScript !== undefined) updateData.headerScript = data.headerScript;
     if (data.footerScript !== undefined) updateData.footerScript = data.footerScript;
     if (data.headerCSS !== undefined) updateData.headerCSS = data.headerCSS;
@@ -263,6 +269,7 @@ export async function PUT(req: NextRequest) {
         data: {
           siteName: data.siteName || "PKR Games",
           logo: data.logo || "",
+          darkModeLogo: data.darkModeLogo || null,
           favicon: data.favicon || "",
           headerMenu: data.headerMenu || [],
           footerLinks: data.footerLinks || [],

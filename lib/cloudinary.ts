@@ -22,7 +22,7 @@ export function optimizeCloudinaryUrl(
   }
 
   // Parse the Cloudinary URL
-  // Format: https://res.cloudinary.com/{cloud_name}/image/upload/{version}/{public_id}.{format}
+  // Format: https://res.cloudinary.com/{cloud_name}/image/upload/{transformations}/{version}/{public_id}.{format}
   const urlParts = url.split('/upload/');
   if (urlParts.length !== 2) {
     return url; // Not a standard Cloudinary URL, return as-is
@@ -30,35 +30,60 @@ export function optimizeCloudinaryUrl(
 
   const [baseUrl, path] = urlParts;
   
-  // Build transformation parameters
-  const transformations: string[] = [];
+  // Check if URL already has transformations (not starting with version number)
+  // Cloudinary URLs with transformations: /upload/{transformations}/v{version}/{public_id}
+  // Cloudinary URLs without: /upload/v{version}/{public_id}
+  const pathParts = path.split('/');
+  const startsWithVersion = pathParts[0].match(/^v\d+$/);
+  const hasExistingTransformations = !startsWithVersion && pathParts.length > 1;
+  
+  // Build new transformation parameters
+  const newTransformations: string[] = [];
   
   // Add width
-  transformations.push(`w_${width}`);
+  newTransformations.push(`w_${width}`);
   
   // Add height if provided
   if (height) {
-    transformations.push(`h_${height}`);
+    newTransformations.push(`h_${height}`);
   }
   
   // Add quality
   if (typeof quality === 'number') {
-    transformations.push(`q_${quality}`);
+    newTransformations.push(`q_${quality}`);
   } else if (quality) {
-    transformations.push(`q_${quality}`);
+    newTransformations.push(`q_${quality}`);
   }
   
   // Add format optimization
-  transformations.push('f_auto');
+  newTransformations.push('f_auto');
   
   // Add DPR for retina displays
-  transformations.push('dpr_auto');
+  newTransformations.push('dpr_auto');
   
-  // Combine transformations
-  const transformationString = transformations.join(',');
+  const newTransformationString = newTransformations.join(',');
   
-  // Reconstruct URL with transformations
-  return `${baseUrl}/upload/${transformationString}/${path}`;
+  // If there are existing transformations, we need to combine them properly
+  if (hasExistingTransformations) {
+    // Extract existing transformations (everything before the version or public_id)
+    const existingTransformations = pathParts[0];
+    const restOfPath = pathParts.slice(1).join('/');
+    
+    // Check if existing transformations contain an overlay (l_ prefix)
+    // If so, we need to combine all transformations in the same string, not chain with /
+    if (existingTransformations.includes('l_')) {
+      // Overlay transformations need to be combined with other transformations in one string
+      // Format: l_...,w_320,h_320,q_90,f_auto,dpr_auto
+      const combinedTransformations = `${existingTransformations},${newTransformationString}`;
+      return `${baseUrl}/upload/${combinedTransformations}/${restOfPath}`;
+    } else {
+      // No overlay, chain transformations with / separator
+      return `${baseUrl}/upload/${existingTransformations}/${newTransformationString}/${restOfPath}`;
+    }
+  }
+  
+  // No existing transformations, just add ours
+  return `${baseUrl}/upload/${newTransformationString}/${path}`;
 }
 
 /**

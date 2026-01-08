@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import ImageUpload from "@/components/ImageUpload";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -13,6 +13,7 @@ type HeaderMenuItem = string | { label: string; url: string };
 interface SettingsState {
   siteName: string;
   logo: string;
+  darkModeLogo: string;
   favicon: string;
   headerMenu: HeaderMenuItem[];
   footerLinks: FooterLink[];
@@ -46,6 +47,11 @@ interface SettingsState {
   infoColor: string;
   darkModeBackgroundColor: string;
   darkModeTextColor: string;
+  enableWatermark: boolean;
+  watermarkImage: string;
+  watermarkPosition: string;
+  watermarkOpacity: number;
+  watermarkScale: number;
   headerScript: string;
   footerScript: string;
   headerCSS: string;
@@ -71,6 +77,13 @@ export default function SettingsClient({ initialSettings, pages: initialPages }:
   const [success, setSuccess] = useState("");
   const [pages, setPages] = useState<Page[]>(initialPages);
   const [settings, setSettings] = useState<SettingsState>(initialSettings);
+  const [mounted, setMounted] = useState(false);
+  const [backfilling, setBackfilling] = useState(false);
+  const [backfillMessage, setBackfillMessage] = useState("");
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -262,6 +275,45 @@ export default function SettingsClient({ initialSettings, pages: initialPages }:
     setSettings({ ...settings, footerLinks: newLinks });
   };
 
+  const handleWatermarkBackfill = async () => {
+    if (!confirm("This will add watermarks to all existing images. This may take a few minutes. Continue?")) {
+      return;
+    }
+
+    setBackfilling(true);
+    setBackfillMessage("");
+    setError("");
+    setSuccess("");
+
+    try {
+      const response = await fetch("/api/watermark/backfill", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to process watermark backfill");
+      }
+
+      setSuccess(
+        `Watermark backfill completed! Processed ${data.processed || 0} images.` +
+        (data.errors > 0 ? ` ${data.errors} errors occurred.` : "")
+      );
+      setBackfillMessage(
+        `Processed: ${data.processed || 0} images` +
+        (data.errors > 0 ? `, Errors: ${data.errors}` : "")
+      );
+    } catch (err: any) {
+      setError(err.message || "Failed to process watermark backfill");
+    } finally {
+      setBackfilling(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100" style={{ '--theme-primary': colors.primary, '--theme-button': colors.button } as React.CSSProperties}>
       <nav className="border-b border-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-10">
@@ -273,6 +325,14 @@ export default function SettingsClient({ initialSettings, pages: initialPages }:
           </div>
         </div>
       </nav>
+      
+      {!mounted && (
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-gray-500 text-lg">Loading settings...</div>
+        </div>
+      )}
+
+      {mounted && (
 
       <main className="max-w-4xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 md:p-8">
@@ -315,9 +375,22 @@ export default function SettingsClient({ initialSettings, pages: initialPages }:
                     id="logo"
                     value={settings.logo}
                     onChange={(url) => setSettings({ ...settings, logo: url })}
-                    label="Logo"
+                    label="Logo (Light Mode)"
                     placeholder="Upload or enter logo URL"
                   />
+                </div>
+
+                <div>
+                  <ImageUpload
+                    id="darkModeLogo"
+                    value={settings.darkModeLogo}
+                    onChange={(url) => setSettings({ ...settings, darkModeLogo: url })}
+                    label="Logo (Dark Mode)"
+                    placeholder="Upload or enter dark mode logo URL (optional)"
+                  />
+                  <p className="text-sm text-gray-500 mt-1">
+                    Optional: Upload a separate logo for dark mode. If not provided, the light mode logo will be used.
+                  </p>
                 </div>
 
                 <div>
@@ -745,6 +818,127 @@ export default function SettingsClient({ initialSettings, pages: initialPages }:
               </div>
             </div>
 
+            {/* Watermark Settings */}
+            <div className="border-t border-gray-200 pt-6 mt-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Image Watermark</h2>
+              <p className="text-sm text-gray-600 mb-4">Automatically add a watermark to all uploaded post images</p>
+              
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    id="enableWatermark"
+                    checked={settings.enableWatermark}
+                    onChange={(e) => setSettings({ ...settings, enableWatermark: e.target.checked })}
+                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  />
+                  <label htmlFor="enableWatermark" className="text-sm font-medium text-gray-700">
+                    Enable Watermark on Uploaded Images
+                  </label>
+                </div>
+
+                {settings.enableWatermark && (
+                  <>
+                    <div>
+                      <ImageUpload
+                        id="watermarkImage"
+                        value={settings.watermarkImage}
+                        onChange={(url) => setSettings({ ...settings, watermarkImage: url })}
+                        label="Watermark Image"
+                        placeholder="Upload your logo or watermark image"
+                      />
+                      <p className="mt-1 text-xs text-gray-500">
+                        Upload a PNG image with transparency for best results. Recommended size: 200x200px
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Watermark Position
+                      </label>
+                      <select
+                        value={settings.watermarkPosition}
+                        onChange={(e) => setSettings({ ...settings, watermarkPosition: e.target.value })}
+                        className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-gray-900"
+                      >
+                        <option value="bottom_right">Bottom Right</option>
+                        <option value="bottom_left">Bottom Left</option>
+                        <option value="top_right">Top Right</option>
+                        <option value="top_left">Top Left</option>
+                        <option value="center">Center</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Watermark Opacity: {settings.watermarkOpacity}%
+                      </label>
+                      <input
+                        type="range"
+                        min="10"
+                        max="100"
+                        value={settings.watermarkOpacity}
+                        onChange={(e) => setSettings({ ...settings, watermarkOpacity: parseInt(e.target.value) })}
+                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                      />
+                      <p className="mt-1 text-xs text-gray-500">
+                        Adjust the transparency of the watermark (10% = very transparent, 100% = fully opaque)
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Watermark Scale: {settings.watermarkScale}% of image width
+                      </label>
+                      <input
+                        type="range"
+                        min="5"
+                        max="50"
+                        value={settings.watermarkScale}
+                        onChange={(e) => setSettings({ ...settings, watermarkScale: parseInt(e.target.value) })}
+                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                      />
+                      <p className="mt-1 text-xs text-gray-500">
+                        Control the size of the watermark relative to the image (5% = very small, 50% = half the image width)
+                      </p>
+                    </div>
+
+                    {/* Backfill Watermarks - Inside watermark settings */}
+                    <div className="border-t-2 border-blue-200 bg-blue-50 rounded-lg p-4 mt-4">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                        <span>🔄</span>
+                        <span>Backfill Watermarks</span>
+                      </h3>
+                      <p className="text-sm text-gray-700 mb-4">
+                        Add watermarks to all existing images (posts and pages). This will process all images that were uploaded before watermarking was enabled. The watermark will be applied via URL transformation - no re-uploading required.
+                      </p>
+                      {(!settings.enableWatermark || !settings.watermarkImage) && (
+                        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4">
+                          <p className="text-sm text-amber-800 font-medium">
+                            ⚠️ Please enable watermark and upload a watermark image first before running the backfill.
+                          </p>
+                        </div>
+                      )}
+                      <button
+                        type="button"
+                        onClick={handleWatermarkBackfill}
+                        disabled={backfilling || !settings.enableWatermark || !settings.watermarkImage}
+                        className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed text-base font-medium shadow-md hover:shadow-lg"
+                      >
+                        {backfilling ? "⏳ Processing..." : "✨ Add Watermarks to Old Images"}
+                      </button>
+                      {backfillMessage && (
+                        <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                          <p className="text-sm text-green-800 font-medium">{backfillMessage}</p>
+                        </div>
+                      )}
+                    </div>
+
+                  </>
+                )}
+              </div>
+            </div>
+
             {/* Dark Mode Colors */}
             <div className="border-t border-gray-200 pt-6 mt-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Dark Mode Colors</h2>
@@ -834,6 +1028,7 @@ export default function SettingsClient({ initialSettings, pages: initialPages }:
           </form>
         </div>
       </main>
+      )}
     </div>
   );
 }

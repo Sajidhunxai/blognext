@@ -6,6 +6,7 @@ interface Settings {
   id: string;
   siteName: string;
   logo: string | null;
+  darkModeLogo: string | null;
   favicon: string | null;
   headerMenu: any;
   footerLinks: any;
@@ -32,6 +33,11 @@ interface Settings {
   infoColor: string | null;
   darkModeBackgroundColor: string | null;
   darkModeTextColor: string | null;
+  enableWatermark: boolean;
+  watermarkImage: string | null;
+  watermarkPosition: string | null;
+  watermarkOpacity: number | null;
+  watermarkScale: number | null;
   headerScript: string | null;
   footerScript: string | null;
   headerCSS: string | null;
@@ -47,6 +53,7 @@ const defaultSettings: Settings = {
   id: "",
   siteName: "App Marka",
   logo: "https://res.cloudinary.com/dogyqmaev/image/upload/v1766218941/apkapp/tckns1cbre8cntlqipzc.png",
+  darkModeLogo: null,
   favicon: "https://res.cloudinary.com/dogyqmaev/image/upload/v1766218951/apkapp/awtdtxtoqrtho7b68ez3.png",
   headerMenu: ["Home", "Apps", "Games"],
   footerLinks: [],
@@ -80,6 +87,11 @@ const defaultSettings: Settings = {
   infoColor: "#3b82f6",
   darkModeBackgroundColor: "#272626",
   darkModeTextColor: "#ededed",
+  enableWatermark: false,
+  watermarkImage: null,
+  watermarkPosition: "bottom_right",
+  watermarkOpacity: 70,
+  watermarkScale: 15,
   headerScript: null,
   footerScript: null,
   headerCSS: null,
