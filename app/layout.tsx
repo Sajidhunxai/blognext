@@ -136,9 +136,13 @@ export default async function RootLayout({
         )}
         <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
-        {/* Preconnect to fonts if using external fonts */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+        {/* Defer font loading if not critical */}
+        {false && (
+          <>
+            <link rel="preconnect" href="https://fonts.googleapis.com" crossOrigin="anonymous" />
+            <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+          </>
+        )}
       </head>
       <body>
         <ClientThemeProvider initialColors={initialColors}>

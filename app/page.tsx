@@ -14,6 +14,7 @@ import PaginationWrapper from "@/components/PaginationWrapper";
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
 
+// Load CategoryFilter only when needed (below the fold)
 const CategoryFilter = dynamic(() => import("@/components/CategoryFilter"), {
   ssr: false,
   loading: () => null,
@@ -104,16 +105,16 @@ export default async function Home({
   // Fetch featured categories
   const featuredCategories = categories.filter(cat => cat.featured && cat._count.posts > 0);
 
-  // Fetch posts for each featured category
+  // Fetch posts for each featured category - limit to reduce requests
   const featuredCategoriesWithPosts = await Promise.all(
-    featuredCategories.map(async (category) => {
+    featuredCategories.slice(0, 3).map(async (category) => { // Limit to 3 featured categories
       const posts = await prisma.post.findMany({
         where: {
           published: true,
           categoryId: category.id,
         },
         orderBy: { createdAt: "desc" },
-        take: 6,
+        take: 4, // Reduce from 6 to 4 per category
         include: {
           category: {
             select: {
@@ -140,9 +141,9 @@ export default async function Home({
     }
   }
 
-  // Pagination for latest posts
+  // Pagination for latest posts - reduce initial load
   const page = parseInt(resolvedSearchParams?.page || "1", 10);
-  const limit = 12;
+  const limit = page === 1 ? 9 : 12; // Show fewer on first page to reduce requests
   const skip = (page - 1) * limit;
 
   const [posts, totalPosts] = await Promise.all([
@@ -321,6 +322,8 @@ export default async function Home({
                             className="w-full h-32 object-cover rounded"
                             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 20vw, 16vw"
                             quality={85}
+                            priority={index < 2}
+                            fetchPriority={index < 2 ? "high" : "auto"}
                           />
                         ) : (
                           <div className="w-full h-32 rounded flex items-center justify-center text-theme-text text-2xl font-bold bg-gradient-secondary">
@@ -383,6 +386,8 @@ export default async function Home({
                           className="w-full h-32 object-cover rounded"
                           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 20vw, 16vw"
                           quality={85}
+                          priority={index < 2}
+                          fetchPriority={index < 2 ? "high" : "auto"}
                         />
                       ) : (
                         <div className="w-full h-32 dark:text-white rounded flex items-center justify-center text-theme-text text-2xl font-bold bg-gradient-secondary"
