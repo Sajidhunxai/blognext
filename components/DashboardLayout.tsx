@@ -19,7 +19,8 @@ import {
   Copy,
   InspectionPanel,
   CheckCheckIcon,
-  Link2
+  Link2,
+  Upload
 } from "lucide-react";
 
 interface DashboardLayoutProps {
@@ -60,6 +61,7 @@ export default function DashboardLayout({
     { icon: CheckCheckIcon, label: "Rank Checker", href: "/dashboard/rank-checker" },
     { icon: Copy, label: "Scraper", href: "/dashboard/scraper" },
     { icon: InspectionPanel, label: "AI Writer", href: "/dashboard/ai-writer" },
+    { icon: Upload, label: "Import/Export", href: "/dashboard/import-export" },
     { icon: Settings, label: "Settings", href: "/dashboard/settings" },
   
   ];

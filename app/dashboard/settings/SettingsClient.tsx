@@ -143,12 +143,17 @@ export default function SettingsClient({ initialSettings, pages: initialPages }:
       return;
     }
 
+    // Double confirmation
+    if (!confirm("This will PERMANENTLY delete all your current settings. Are you absolutely sure?")) {
+      return;
+    }
+
     setError("");
     setSuccess("");
     setSaving(true);
 
     try {
-      const response = await fetch("/api/settings", {
+      const response = await fetch("/api/settings?confirm=true", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

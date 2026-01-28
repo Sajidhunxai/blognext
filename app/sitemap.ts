@@ -91,39 +91,88 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     categories = [];
   }
 
-  // Static routes
-  const staticRoutes: MetadataRoute.Sitemap = [
-    {
+  // Get all active redirects to exclude from sitemap
+  let activeRedirects: Set<string> = new Set();
+  try {
+    if (prisma && 'redirect' in prisma) {
+      const redirectsPromise = (prisma as any).redirect.findMany({
+        where: { active: true },
+        select: { from: true },
+      });
+      
+      const redirects = await Promise.race([
+        redirectsPromise,
+        new Promise<any[]>((resolve) => setTimeout(() => resolve([]), 3000))
+      ]);
+      
+      // Normalize and store redirect paths (accounting for trailing slashes)
+      redirects.forEach((redirect: any) => {
+        const path = redirect.from;
+        // Normalize: ensure leading slash, remove trailing slash for comparison
+        const normalized = path.startsWith('/') ? path : `/${path}`;
+        const withoutTrailing = normalized.replace(/\/+$/, '');
+        activeRedirects.add(normalized);
+        activeRedirects.add(withoutTrailing);
+        activeRedirects.add(`${withoutTrailing}/`);
+      });
+      
+      console.log(`Sitemap: Found ${activeRedirects.size} redirect paths to exclude`);
+    }
+  } catch (error) {
+    console.error('Error fetching redirects for sitemap:', error);
+  }
+
+  // Helper function to check if a URL path has a redirect
+  const hasRedirect = (path: string): boolean => {
+    // Normalize the path for comparison
+    const normalized = path.startsWith('/') ? path : `/${path}`;
+    const withoutTrailing = normalized.replace(/\/+$/, '');
+    
+    return activeRedirects.has(normalized) || 
+           activeRedirects.has(withoutTrailing) ||
+           activeRedirects.has(`${withoutTrailing}/`);
+  };
+
+  // Static routes - check if homepage has redirect
+  const staticRoutes: MetadataRoute.Sitemap = [];
+  if (!hasRedirect('/')) {
+    staticRoutes.push({
       url: siteUrl,
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 1,
-    },
-  ];
+    });
+  }
 
-  // Post routes
-  const postRoutes: MetadataRoute.Sitemap = posts.map((post) => ({
-    url: `${siteUrl}/posts/${post.slug}`,
-    lastModified: post.updatedAt || post.createdAt,
-    changeFrequency: 'weekly' as const,
-    priority: 0.8,
-  }));
+  // Post routes - exclude posts with redirects
+  const postRoutes: MetadataRoute.Sitemap = posts
+    .filter((post) => !hasRedirect(`/posts/${post.slug}`))
+    .map((post) => ({
+      url: `${siteUrl}/posts/${post.slug}`,
+      lastModified: post.updatedAt || post.createdAt,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    }));
 
-  // Page routes
-  const pageRoutes: MetadataRoute.Sitemap = pages.map((page) => ({
-    url: `${siteUrl}/pages/${page.slug}`,
-    lastModified: page.updatedAt || page.createdAt,
-    changeFrequency: 'monthly' as const,
-    priority: 0.6,
-  }));
+  // Page routes - exclude pages with redirects
+  const pageRoutes: MetadataRoute.Sitemap = pages
+    .filter((page) => !hasRedirect(`/pages/${page.slug}`))
+    .map((page) => ({
+      url: `${siteUrl}/pages/${page.slug}`,
+      lastModified: page.updatedAt || page.createdAt,
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
+    }));
 
-  // Category routes
-  const categoryRoutes: MetadataRoute.Sitemap = categories.map((category) => ({
-    url: `${siteUrl}/category/${category.slug}`,
-    lastModified: new Date(),
-    changeFrequency: 'daily' as const,
-    priority: 0.7,
-  }));
+  // Category routes - exclude categories with redirects
+  const categoryRoutes: MetadataRoute.Sitemap = categories
+    .filter((category) => !hasRedirect(`/category/${category.slug}`))
+    .map((category) => ({
+      url: `${siteUrl}/category/${category.slug}`,
+      lastModified: new Date(),
+      changeFrequency: 'daily' as const,
+      priority: 0.7,
+    }));
 
   return [...staticRoutes, ...postRoutes, ...pageRoutes, ...categoryRoutes];
 }

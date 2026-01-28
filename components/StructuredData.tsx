@@ -81,12 +81,14 @@ export default function StructuredData({ post, siteUrl, siteName = "PKR Games" }
   const softwareSchema = post.downloadLink ? {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
+    "@id": `${siteUrl}/posts/${post.slug}`,
     name: post.title,
     description: post.metaDescription || post.content.substring(0, 200).replace(/<[^>]*>/g, ''),
     image: post.featuredImage || post.ogImage || `${siteUrl}/og-default.jpg`,
+    url: `${siteUrl}/posts/${post.slug}`,
     applicationCategory: post.category?.name || "Game",
     operatingSystem: post.requirements || "Android",
-    ...(post.rating && post.ratingCount && {
+    ...(post.rating && post.ratingCount && post.ratingCount > 0 && {
       aggregateRating: {
         "@type": "AggregateRating",
         ratingValue: post.rating,
@@ -118,6 +120,8 @@ export default function StructuredData({ post, siteUrl, siteName = "PKR Games" }
   } : null;
 
   // Article/BlogPosting Schema
+  // Note: When SoftwareApplication schema exists, we don't include aggregateRating here
+  // to avoid conflicts with Google's review snippets requirements
   const articleSchema = {
     "@context": "https://schema.org",
     "@type": post.downloadLink ? "Article" : "BlogPosting",
@@ -150,7 +154,9 @@ export default function StructuredData({ post, siteUrl, siteName = "PKR Games" }
     },
     keywords: post.keywords?.join(", ") || "",
     articleSection: post.category?.name || "General",
-    ...(post.rating && post.ratingCount && {
+    // Only include aggregateRating in Article schema if SoftwareApplication schema doesn't exist
+    // This prevents conflicts with Google's review snippets for SoftwareApplication
+    ...(!post.downloadLink && post.rating && post.ratingCount && {
       aggregateRating: {
         "@type": "AggregateRating",
         ratingValue: post.rating,
@@ -162,13 +168,16 @@ export default function StructuredData({ post, siteUrl, siteName = "PKR Games" }
   };
 
   // Review Schema (from comments with ratings)
+  // Note: Only include aggregateRating here if SoftwareApplication schema doesn't exist
+  // to avoid conflicts with Google's review snippets requirements for SoftwareApplication
   const reviewSchema = post.comments && post.comments.length > 0 && post.comments.some(c => c.rating) ? {
     "@context": "https://schema.org",
     "@type": "Product",
     name: post.title,
     image: post.featuredImage || post.ogImage || `${siteUrl}/og-default.jpg`,
     description: post.metaDescription || post.content.substring(0, 200).replace(/<[^>]*>/g, ''),
-    ...(post.rating && post.ratingCount && {
+    // Only include aggregateRating if SoftwareApplication schema doesn't exist
+    ...(!post.downloadLink && post.rating && post.ratingCount && post.ratingCount > 0 && {
       aggregateRating: {
         "@type": "AggregateRating",
         ratingValue: post.rating,

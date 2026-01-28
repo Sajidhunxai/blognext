@@ -37,49 +37,12 @@ export async function GET(req: NextRequest) {
 
     let settings = allSettings[0] || null;
 
-    // If there are multiple settings records, clean up duplicates (keep the correct one)
+    // If there are multiple settings records, keep the most recent one
+    // IMPORTANT: Don't auto-delete duplicates in GET endpoint to prevent accidental data loss
+    // If duplicates need cleanup, use the POST endpoint with confirm=true
     if (allSettings.length > 1) {
-      console.warn(`Found ${allSettings.length} settings records. Cleaning up duplicates...`);
-      
-      // Smart detection: Find the one with "App Marka" (correct one)
-      let keepSettings = allSettings.find(s => s.siteName === 'App Marka');
-      
-      if (!keepSettings) {
-        // If no "App Marka" found, find the one with most complete data
-        let bestScore = -1;
-        for (const setting of allSettings) {
-          let score = 0;
-          if (setting.logo) score += 1;
-          if (setting.favicon) score += 1;
-          if (setting.heroBackground) score += 1;
-          if (setting.metaTitle) score += 1;
-          if (setting.metaDescription) score += 1;
-          if (setting.whyChooseTitle) score += 1;
-          if (setting.whyChooseSubtitle) score += 1;
-          if (setting.primaryColor === '#5170ff') score += 2;
-          if (setting.backgroundColor === '#faf9f9') score += 2;
-          
-          if (score > bestScore) {
-            bestScore = score;
-            keepSettings = setting;
-          }
-        }
-      }
-      
-      // Ensure we have a settings to keep (fallback to first one if somehow still undefined)
-      if (!keepSettings) {
-        keepSettings = allSettings[0];
-      }
-      
-      // Delete duplicates (all except the one to keep)
-      const duplicates = allSettings.filter(s => s.id !== keepSettings!.id);
-      for (const duplicate of duplicates) {
-        await prisma.settings.delete({
-          where: { id: duplicate.id },
-        });
-      }
-      console.log(`Cleaned up ${duplicates.length} duplicate settings record(s), kept ID: ${keepSettings.id}`);
-      settings = keepSettings;
+      console.warn(`Found ${allSettings.length} settings records. Keeping most recent (ID: ${allSettings[0].id}). Consider cleaning duplicates manually.`);
+      settings = allSettings[0];
     }
 
     // If no settings exist, create default settings in MongoDB
@@ -172,49 +135,11 @@ export async function PUT(req: NextRequest) {
 
     let settings = allSettings[0] || null;
 
-    // If there are multiple settings records, clean up duplicates (keep the correct one)
+    // If there are multiple settings records, keep the most recent one for update
+    // Only log warning - don't auto-delete to prevent accidental data loss
     if (allSettings.length > 1) {
-      console.warn(`Found ${allSettings.length} settings records. Cleaning up duplicates...`);
-      
-      // Smart detection: Find the one with "App Marka" (correct one)
-      let keepSettings = allSettings.find(s => s.siteName === 'App Marka');
-      
-      if (!keepSettings) {
-        // If no "App Marka" found, find the one with most complete data
-        let bestScore = -1;
-        for (const setting of allSettings) {
-          let score = 0;
-          if (setting.logo) score += 1;
-          if (setting.favicon) score += 1;
-          if (setting.heroBackground) score += 1;
-          if (setting.metaTitle) score += 1;
-          if (setting.metaDescription) score += 1;
-          if (setting.whyChooseTitle) score += 1;
-          if (setting.whyChooseSubtitle) score += 1;
-          if (setting.primaryColor === '#5170ff') score += 2;
-          if (setting.backgroundColor === '#faf9f9') score += 2;
-          
-          if (score > bestScore) {
-            bestScore = score;
-            keepSettings = setting;
-          }
-        }
-      }
-      
-      // Ensure we have a settings to keep (fallback to first one if somehow still undefined)
-      if (!keepSettings) {
-        keepSettings = allSettings[0];
-      }
-      
-      // Delete duplicates (all except the one to keep)
-      const duplicates = allSettings.filter(s => s.id !== keepSettings!.id);
-      for (const duplicate of duplicates) {
-        await prisma.settings.delete({
-          where: { id: duplicate.id },
-        });
-      }
-      console.log(`Cleaned up ${duplicates.length} duplicate settings record(s), kept ID: ${keepSettings.id}`);
-      settings = keepSettings;
+      console.warn(`Found ${allSettings.length} settings records. Updating most recent (ID: ${allSettings[0].id}). Consider cleaning duplicates manually via POST endpoint.`);
+      settings = allSettings[0];
     }
 
     // Build update data object explicitly
@@ -319,6 +244,7 @@ export async function PUT(req: NextRequest) {
 }
 
 // POST endpoint to initialize/reset to default settings (admin only)
+// IMPORTANT: This endpoint resets ALL settings to defaults. Use with caution!
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
 
@@ -327,6 +253,19 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    // Require explicit confirmation parameter to prevent accidental resets
+    const { searchParams } = new URL(req.url);
+    const confirm = searchParams.get("confirm");
+    
+    if (confirm !== "true") {
+      return secureResponse(
+        { 
+          error: "Confirmation required. Add ?confirm=true to the URL to reset settings.",
+          warning: "This will reset ALL settings to defaults. This action cannot be undone."
+        },
+        400
+      );
+    }
     if (!prisma) {
       return secureResponse(
         { error: "Prisma client not initialized" },

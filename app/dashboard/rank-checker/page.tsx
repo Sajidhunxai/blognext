@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, Loader2, CheckCircle, XCircle, TrendingUp, Calendar, Link as LinkIcon, Trash2, Copy, Check } from "lucide-react";
+import { Search, Loader2, CheckCircle, XCircle, TrendingUp, Calendar, Link as LinkIcon, Trash2, Copy, Check, RefreshCw } from "lucide-react";
 
 interface Post {
   id: string;
@@ -33,6 +33,8 @@ export default function RankCheckerPage() {
   const [copiedTitle, setCopiedTitle] = useState(false);
   const [keywordSuggestions, setKeywordSuggestions] = useState<string[]>([]);
   const [isClient, setIsClient] = useState(false);
+  const [refreshingIds, setRefreshingIds] = useState<Set<string>>(new Set());
+  const [refreshingAll, setRefreshingAll] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
@@ -134,6 +136,64 @@ export default function RankCheckerPage() {
       fetchRankChecks(); // Refresh the list
     } catch (err: any) {
       setError(err.message || "Failed to delete rank check");
+    }
+  };
+
+  const handleRefresh = async (id: string) => {
+    setRefreshingIds(prev => new Set(prev).add(id));
+    setError("");
+    setSuccess("");
+
+    try {
+      const response = await fetch(`/api/rank-check?id=${id}`, {
+        method: "PUT",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to refresh rank check");
+      }
+
+      setSuccess(`Rank check updated: ${data.message || "Success"}`);
+      fetchRankChecks(); // Refresh the list
+    } catch (err: any) {
+      setError(err.message || "Failed to refresh rank check");
+    } finally {
+      setRefreshingIds(prev => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }
+  };
+
+  const handleRefreshAll = async () => {
+    if (!confirm(`Are you sure you want to refresh all ${rankChecks.length} rank checks? This may take a while.`)) {
+      return;
+    }
+
+    setRefreshingAll(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      const response = await fetch("/api/rank-check?all=true", {
+        method: "PUT",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to refresh rank checks");
+      }
+
+      setSuccess(data.message || `Updated ${data.updated || 0} rank checks`);
+      fetchRankChecks(); // Refresh the list
+    } catch (err: any) {
+      setError(err.message || "Failed to refresh rank checks");
+    } finally {
+      setRefreshingAll(false);
     }
   };
 
@@ -399,13 +459,32 @@ export default function RankCheckerPage() {
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold text-gray-900">Rank Check History</h2>
-          <button
-            onClick={fetchRankChecks}
-            disabled={loading}
-            className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 transition"
-          >
-            {loading ? "Refreshing..." : "Refresh"}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleRefreshAll}
+              disabled={refreshingAll || loading || rankChecks.length === 0}
+              className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center gap-2"
+            >
+              {refreshingAll ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Refreshing All...</span>
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="w-4 h-4" />
+                  <span>Refresh All</span>
+                </>
+              )}
+            </button>
+            <button
+              onClick={fetchRankChecks}
+              disabled={loading || refreshingAll}
+              className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 transition"
+            >
+              {loading ? "Refreshing..." : "Refresh List"}
+            </button>
+          </div>
         </div>
 
         {loading && rankChecks.length === 0 ? (
@@ -479,13 +558,28 @@ export default function RankCheckerPage() {
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <button
-                        onClick={() => handleDelete(check.id)}
-                        className="text-red-600 hover:text-red-800 transition"
-                        title="Delete"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleRefresh(check.id)}
+                          disabled={refreshingIds.has(check.id) || refreshingAll}
+                          className="text-blue-600 hover:text-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                          title="Refresh"
+                        >
+                          {refreshingIds.has(check.id) ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <RefreshCw className="w-4 h-4" />
+                          )}
+                        </button>
+                        <button
+                          onClick={() => handleDelete(check.id)}
+                          disabled={refreshingIds.has(check.id) || refreshingAll}
+                          className="text-red-600 hover:text-red-800 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                          title="Delete"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
