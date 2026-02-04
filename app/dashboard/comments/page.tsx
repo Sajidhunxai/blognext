@@ -164,7 +164,7 @@ export default function CommentsPage() {
                         </span>
                       </div>
                       <Link
-                        href={`/posts/${comment.post.slug}`}
+                        href={`/post/${comment.post.slug}`}
                         className="text-sm text-blue-600 hover:underline"
                       >
                         On: {comment.post.title}

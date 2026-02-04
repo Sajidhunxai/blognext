@@ -52,7 +52,7 @@ export function insertInternalLink(
   anchorText?: string
 ): string {
   // Check if link already exists
-  const linkPattern = new RegExp(`<a[^>]+href=["']/posts/${targetSlug.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}["'][^>]*>`, 'gi');
+  const linkPattern = new RegExp(`<a[^>]+href=["']/post/${targetSlug.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}["'][^>]*>`, 'gi');
   if (linkPattern.test(content)) {
     return content; // Link already exists
   }
@@ -126,7 +126,7 @@ export function insertInternalLink(
   }
   
   // Create the link HTML
-  const linkHtml = ` <a href="/posts/${targetSlug}" title="${targetTitle}">${linkText}</a> `;
+  const linkHtml = ` <a href="/post/${targetSlug}" title="${targetTitle}">${linkText}</a> `;
   
   // Insert the link
   return content.substring(0, bestPosition) + linkHtml + content.substring(bestPosition);
@@ -294,8 +294,8 @@ export function removeExternalLinks(content: string): string {
   const linkRegex = /<a\s+[^>]*href\s*=\s*["']([^"']+)["'][^>]*>([^<]*)<\/a>/gi;
   
   return content.replace(linkRegex, (match, href, anchorText) => {
-    // Check if it's an internal link (starts with /posts/)
-    if (href.startsWith('/posts/')) {
+    // Check if it's an internal link (starts with /post/)
+    if (href.startsWith('/post/')) {
       return match; // Keep internal links
     }
     

@@ -268,6 +268,7 @@ export default function DashboardLayout({
                       src={siteLogo}
                       alt="Site Logo"
                       className="h-12 sm:h-12 w-auto object-contain"
+                      style={{ height: '3rem', width: 'auto' }}
                       onError={(e) => {
                         // Hide image if it fails to load
                         e.currentTarget.style.display = 'none';

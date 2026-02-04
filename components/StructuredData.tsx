@@ -81,11 +81,11 @@ export default function StructuredData({ post, siteUrl, siteName = "PKR Games" }
   const softwareSchema = post.downloadLink ? {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    "@id": `${siteUrl}/posts/${post.slug}`,
+    "@id": `${siteUrl}/post/${post.slug}`,
     name: post.title,
     description: post.metaDescription || post.content.substring(0, 200).replace(/<[^>]*>/g, ''),
     image: post.featuredImage || post.ogImage || `${siteUrl}/og-default.jpg`,
-    url: `${siteUrl}/posts/${post.slug}`,
+    url: `${siteUrl}/post/${post.slug}`,
     applicationCategory: post.category?.name || "Game",
     operatingSystem: post.requirements || "Android",
     ...(post.rating && post.ratingCount && post.ratingCount > 0 && {
@@ -125,7 +125,7 @@ export default function StructuredData({ post, siteUrl, siteName = "PKR Games" }
   const articleSchema = {
     "@context": "https://schema.org",
     "@type": post.downloadLink ? "Article" : "BlogPosting",
-    "@id": `${siteUrl}/posts/${post.slug}`,
+    "@id": `${siteUrl}/post/${post.slug}`,
     headline: post.title,
     description: post.metaDescription || post.content.substring(0, 200).replace(/<[^>]*>/g, ''),
     image: {
@@ -150,7 +150,7 @@ export default function StructuredData({ post, siteUrl, siteName = "PKR Games" }
     },
     mainEntityOfPage: {
       "@type": "WebPage",
-      "@id": `${siteUrl}/posts/${post.slug}`,
+      "@id": `${siteUrl}/post/${post.slug}`,
     },
     keywords: post.keywords?.join(", ") || "",
     articleSection: post.category?.name || "General",
@@ -241,7 +241,7 @@ export default function StructuredData({ post, siteUrl, siteName = "PKR Games" }
         "@type": "ListItem",
         position: post.category ? 3 : 2,
         name: post.title,
-        item: `${siteUrl}/posts/${post.slug}`,
+        item: `${siteUrl}/post/${post.slug}`,
       },
     ],
   };

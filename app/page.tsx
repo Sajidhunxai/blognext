@@ -308,7 +308,7 @@ export default async function Home({
                   {posts.map((post, index) => (
                     <Link
                       key={post.id}
-                      href={`/posts/${post.slug}`}
+                      href={`/post/${post.slug}`}
                       className="bg-white dark:bg-gray-800 rounded-lg border-2 dark:border-gray-700 p-4 hover:shadow-lg transition-shadow "
                     >
                       <div className="relative mb-3">
@@ -372,7 +372,7 @@ export default async function Home({
                 {posts.map((post, index) => (
                 <Link
                   key={post.id}
-                  href={`/posts/${post.slug}`}
+                  href={`/post/${post.slug}`}
                     className="bg-white dark:bg-gray-800 rounded-lg border-2 dark:border-gray-700 p-4 hover:shadow-lg transition-shadow "
                 >
                     <div className="relative mb-3">

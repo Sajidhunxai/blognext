@@ -146,9 +146,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Post routes - exclude posts with redirects
   const postRoutes: MetadataRoute.Sitemap = posts
-    .filter((post) => !hasRedirect(`/posts/${post.slug}`))
+    .filter((post) => !hasRedirect(`/post/${post.slug}`))
     .map((post) => ({
-      url: `${siteUrl}/posts/${post.slug}`,
+      url: `${siteUrl}/post/${post.slug}`,
       lastModified: post.updatedAt || post.createdAt,
       changeFrequency: 'weekly' as const,
       priority: 0.8,

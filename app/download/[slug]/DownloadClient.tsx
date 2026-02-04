@@ -39,7 +39,7 @@ export default function DownloadClient({ post: initialPost }: DownloadClientProp
     <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back Button */}
         <Link
-          href={`/posts/${initialPost.slug}`}
+          href={`/post/${initialPost.slug}`}
           className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-lg text-theme-text font-medium transition hover:opacity-90 bg-error"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

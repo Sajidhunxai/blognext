@@ -153,12 +153,6 @@ model Settings {
   darkModeBackgroundColor  String?  @default("#0a0a0a") // Dark mode background
   darkModeTextColor        String?  @default("#ededed") // Dark mode text
   
-  // Watermark Settings
-  enableWatermark          Boolean? @default(false) // Enable watermark on uploaded images
-  watermarkImage           String?  // Watermark image URL (logo/text image)
-  watermarkPosition        String?  @default("bottom_right") // Position: bottom_right, bottom_left, top_right, top_left, center
-  watermarkOpacity         Int?     @default(70) // Opacity 0-100
-  watermarkScale           Int?     @default(15) // Scale percentage of image width (10-50)
   
   // Custom Scripts and CSS
   headerScript       String?  // Scripts to add in <head>

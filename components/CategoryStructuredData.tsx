@@ -60,9 +60,9 @@ export default function CategoryStructuredData({
         position: index + 1,
         item: {
           "@type": "WebPage",
-          "@id": `${siteUrl}/posts/${post.slug}`,
+          "@id": `${siteUrl}/post/${post.slug}`,
           name: post.title,
-          url: `${siteUrl}/posts/${post.slug}`,
+          url: `${siteUrl}/post/${post.slug}`,
           ...(post.featuredImage && {
             image: post.featuredImage,
           }),

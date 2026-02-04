@@ -16,8 +16,9 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Skip if it matches known routes (posts, pages, category, download)
+  // Skip if it matches known routes (post, posts, pages, category, download)
   if (
+    pathname.startsWith("/post/") ||
     pathname.startsWith("/posts/") ||
     pathname.startsWith("/pages/") ||
     pathname.startsWith("/category/") ||

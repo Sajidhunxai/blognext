@@ -283,7 +283,7 @@ export default function InternalLinksPage() {
                               {post.title}
                             </div>
                             <div className="text-xs text-gray-500 mt-1">
-                              /posts/{post.slug}
+                              /post/{post.slug}
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
@@ -302,7 +302,7 @@ export default function InternalLinksPage() {
                                 {post.links.slice(0, 3).map((link, index) => (
                                   <Link
                                     key={index}
-                                    href={`/posts/${link.post?.slug || link.slug}`}
+                                    href={`/post/${link.post?.slug || link.slug}`}
                                     target="_blank"
                                     className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded hover:bg-blue-200 transition"
                                     title={link.post?.title || link.slug}
@@ -344,7 +344,7 @@ export default function InternalLinksPage() {
                                 </button>
                               )}
                               <Link
-                                href={`/posts/${post.slug}`}
+                                href={`/post/${post.slug}`}
                                 target="_blank"
                                 className="text-gray-600 hover:text-gray-900"
                               >
@@ -375,7 +375,7 @@ export default function InternalLinksPage() {
                                     </code>
                                     <span className="text-gray-400">→</span>
                                     <Link
-                                      href={`/posts/${link.post?.slug || link.slug}`}
+                                      href={`/post/${link.post?.slug || link.slug}`}
                                       target="_blank"
                                       className="text-blue-600 hover:text-blue-800 hover:underline font-medium"
                                     >

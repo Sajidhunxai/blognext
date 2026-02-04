@@ -12,7 +12,7 @@ export function normalizeUrl(url: string): string {
  * Constructs a canonical URL by joining base URL with path
  * Handles trailing slashes properly to avoid double slashes
  * @param baseUrl - The base URL (e.g., https://example.com or https://example.com/)
- * @param path - The path to append (e.g., /posts/slug or posts/slug)
+ * @param path - The path to append (e.g., /post/slug or post/slug)
  * @returns The properly formatted canonical URL
  */
 export function buildCanonicalUrl(baseUrl: string, path: string): string {

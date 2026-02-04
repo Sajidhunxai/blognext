@@ -121,10 +121,10 @@ export async function GET(req: NextRequest) {
 
       return `    <item>
       <title>${escapeXml(post.title)}</title>
-      <link>${process.env.NEXTAUTH_URL || "http://localhost:3000"}/posts/${post.slug}</link>
+      <link>${process.env.NEXTAUTH_URL || "http://localhost:3000"}/post/${post.slug}</link>
       <pubDate>${pubDate}</pubDate>
       <dc:creator><![CDATA[${escapeXml(post.author.name || post.author.email)}]]></dc:creator>
-      <guid isPermaLink="false">${process.env.NEXTAUTH_URL || "http://localhost:3000"}/posts/${post.slug}</guid>
+      <guid isPermaLink="false">${process.env.NEXTAUTH_URL || "http://localhost:3000"}/post/${post.slug}</guid>
       <description></description>
       <content:encoded><![CDATA[${post.content}]]></content:encoded>
       <excerpt:encoded><![CDATA[${escapeXml(post.metaDescription || "")}]]></excerpt:encoded>

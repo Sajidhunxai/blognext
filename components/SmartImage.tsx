@@ -75,7 +75,6 @@ export default function SmartImage({
         priority={priority}
         quality={typeof quality === 'number' ? quality : undefined}
         sizes={sizes || (width ? `${width}px` : '100vw')}
-        fetchPriority={fetchPriority}
       />
     );
   }
@@ -96,7 +95,11 @@ export default function SmartImage({
         loading={priority ? "eager" : "lazy"}
         fetchPriority={fetchPriority}
         sizes={sizes || (width ? `${width}px` : '100vw')}
-        style={{ width: width ? `${width}px` : '100%', height: height ? `${height}px` : 'auto' }}
+        style={{ 
+          width: width ? `${width}px` : '100%', 
+          height: height ? `${height}px` : 'auto',
+          ...(width && !height ? { height: 'auto' } : {})
+        }}
       />
     );
   }
@@ -110,7 +113,11 @@ export default function SmartImage({
       className={className}
       loading={priority ? "eager" : "lazy"}
       fetchPriority={fetchPriority}
-      style={{ width: width ? `${width}px` : '100%', height: height ? `${height}px` : 'auto' }}
+      style={{ 
+        width: width ? `${width}px` : '100%', 
+        height: height ? `${height}px` : 'auto',
+        ...(width && !height ? { height: 'auto' } : {})
+      }}
     />
   );
 }

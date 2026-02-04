@@ -174,11 +174,6 @@ export async function PUT(req: NextRequest) {
     if (data.infoColor !== undefined) updateData.infoColor = data.infoColor;
     if (data.darkModeBackgroundColor !== undefined) updateData.darkModeBackgroundColor = data.darkModeBackgroundColor;
     if (data.darkModeTextColor !== undefined) updateData.darkModeTextColor = data.darkModeTextColor;
-    if (data.enableWatermark !== undefined) updateData.enableWatermark = data.enableWatermark;
-    if (data.watermarkImage !== undefined) updateData.watermarkImage = data.watermarkImage;
-    if (data.watermarkPosition !== undefined) updateData.watermarkPosition = data.watermarkPosition;
-    if (data.watermarkOpacity !== undefined) updateData.watermarkOpacity = data.watermarkOpacity;
-    if (data.watermarkScale !== undefined) updateData.watermarkScale = data.watermarkScale;
     if (data.headerScript !== undefined) updateData.headerScript = data.headerScript;
     if (data.footerScript !== undefined) updateData.footerScript = data.footerScript;
     if (data.headerCSS !== undefined) updateData.headerCSS = data.headerCSS;

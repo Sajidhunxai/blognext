@@ -31,14 +31,9 @@ interface Settings {
   errorColor: string | null;
   warningColor: string | null;
   infoColor: string | null;
-  darkModeBackgroundColor: string | null;
-  darkModeTextColor: string | null;
-  enableWatermark: boolean;
-  watermarkImage: string | null;
-  watermarkPosition: string | null;
-  watermarkOpacity: number | null;
-  watermarkScale: number | null;
-  headerScript: string | null;
+    darkModeBackgroundColor: string | null;
+    darkModeTextColor: string | null;
+    headerScript: string | null;
   footerScript: string | null;
   headerCSS: string | null;
   footerCSS: string | null;
@@ -85,14 +80,9 @@ const defaultSettings: Settings = {
   errorColor: "#dc2626",
   warningColor: "#f59e0b",
   infoColor: "#3b82f6",
-  darkModeBackgroundColor: "#272626",
-  darkModeTextColor: "#ededed",
-  enableWatermark: false,
-  watermarkImage: null,
-  watermarkPosition: "bottom_right",
-  watermarkOpacity: 70,
-  watermarkScale: 15,
-  headerScript: null,
+    darkModeBackgroundColor: "#272626",
+    darkModeTextColor: "#ededed",
+    headerScript: null,
   footerScript: null,
   headerCSS: null,
   footerCSS: null,

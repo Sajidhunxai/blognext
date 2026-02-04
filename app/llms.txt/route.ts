@@ -121,7 +121,7 @@ export async function GET() {
       sections.push('');
       posts.forEach((post) => {
         sections.push(`### ${post.metaTitle || post.title}`);
-        sections.push(`URL: ${siteUrl}/posts/${post.slug}`);
+        sections.push(`URL: ${siteUrl}/post/${post.slug}`);
         if (post.metaDescription) {
           sections.push(`Description: ${post.metaDescription}`);
         }

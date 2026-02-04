@@ -294,7 +294,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
                     {posts.map((post, index) => (
                       <Link
                         key={post.id}
-                        href={`/posts/${post.slug}`}
+                        href={`/post/${post.slug}`}
                         className="bg-white rounded-lg border-2 p-4 hover:shadow-lg transition-shadow "
                       >
                         <div className="relative mb-3">

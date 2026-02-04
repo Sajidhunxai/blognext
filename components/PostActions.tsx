@@ -50,7 +50,7 @@ export default function PostActions({ postId, postSlug }: PostActionsProps) {
         <span className="hidden sm:inline">Edit</span>
       </Link>
       <Link
-        href={`/posts/${postSlug}`}
+        href={`/post/${postSlug}`}
         className="text-gray-600 hover:text-gray-900 transition flex items-center gap-1 text-sm"
         target="_blank"
         title="View post"
