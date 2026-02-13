@@ -7,8 +7,22 @@ import Link from "next/link";
 import StructuredData from "@/components/StructuredData";
 import SmartImage from "@/components/SmartImage";
 import StarRating from "@/components/StarRating";
+import PostFAQSection from "@/components/PostFAQSection";
+import { extractFAQsFromContent } from "@/lib/faq";
 import dynamic from "next/dynamic";
 import FrontendLayout from "@/components/FrontendLayout";
+
+const DESCRIPTION_WORD_LIMIT = 100;
+
+function getWordCount(html: string): number {
+  const text = html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+  return text ? text.split(/\s+/).length : 0;
+}
+
+/** Collapsed max-height scales with word limit (~0.125rem per word, min 6rem) */
+function getExpandableMaxHeight(wordLimit: number): string {
+  return `${Math.max(6, wordLimit * 0.125)}rem`;
+}
 
 const CommentsSection = dynamic(() => import("@/components/CommentsSection"), {
   ssr: false,
@@ -182,15 +196,28 @@ export default async function PostPage({ params }: Props) {
   };
   const socialMedia = settings.socialMedia as any || {};
 
-  // Get related posts
-  const relatedPosts = await prisma.post.findMany({
-    where: {
-      published: true,
-      id: { not: post.id },
-    },
-    take: 6,
-    orderBy: { createdAt: "desc" },
-  });
+  // Related posts: prefer same category for SEO ("More from X"); fill with latest if needed
+  const postsByCategory = post.categoryId
+    ? await prisma.post.findMany({
+        where: { published: true, id: { not: post.id }, categoryId: post.categoryId },
+        take: 6,
+        orderBy: { createdAt: "desc" },
+      })
+    : [];
+  const needMore = 6 - postsByCategory.length;
+  const extraPosts =
+    needMore > 0
+      ? await prisma.post.findMany({
+          where: {
+            published: true,
+            id: { notIn: [post.id, ...postsByCategory.map((p) => p.id)] },
+          },
+          take: needMore,
+          orderBy: { createdAt: "desc" },
+        })
+      : [];
+  const relatedPosts = [...postsByCategory, ...extraPosts].slice(0, 6);
+  const faqs = extractFAQsFromContent(post.content);
 
   return (
     <>
@@ -231,20 +258,40 @@ export default async function PostPage({ params }: Props) {
         siteName={settings.siteName}
       />
       <FrontendLayout>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
-          {/* Breadcrumbs */}
-          <nav className="text-sm mb-4 text-gray-600 dark:text-gray-400">
-            <ColoredLink href="/" hoverColor="#111827" className="dark:hover:!text-gray-200">
-              Home
-            </ColoredLink>
-            <span className="mx-2">/</span>
-            <span className="dark:text-gray-300">{post.metaTitle}</span>
+        <article className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+          {/* Breadcrumb - SEO friendly with category */}
+          <nav aria-label="Breadcrumb" className="mb-6">
+            <ol className="flex flex-wrap items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400">
+              <li>
+                <ColoredLink href="/" hoverColor="#111827" className="dark:hover:!text-gray-200">
+                  Home
+                </ColoredLink>
+              </li>
+              {post.category && (
+                <>
+                  <li aria-hidden className="text-gray-400 dark:text-gray-500">/</li>
+                  <li>
+                    <ColoredLink
+                      href={`/category/${post.category.slug}`}
+                      hoverColor="#111827"
+                      className="dark:hover:!text-gray-200"
+                    >
+                      {post.category.name}
+                    </ColoredLink>
+                  </li>
+                </>
+              )}
+              <li aria-hidden className="text-gray-400 dark:text-gray-500">/</li>
+              <li className="text-gray-900 dark:text-gray-200 font-medium truncate max-w-[12rem] sm:max-w-xs" aria-current="page">
+                {post.metaTitle || post.title}
+              </li>
+            </ol>
           </nav>
 
           <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
-            {/* Left Sidebar - Appears first on mobile */}
-            <aside className="w-full lg:w-80 flex-shrink-0 order-1 lg:order-1">
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6 shadow-sm">
+            {/* Left Sidebar - Sticky on desktop for better CTA visibility */}
+            <aside className="w-full lg:w-80 flex-shrink-0 order-1 lg:order-1 lg:self-start lg:sticky lg:top-24">
+              <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-sm border border-gray-100 dark:border-gray-700/50">
                 {/* App Icon */}
                 <div className="relative mb-4 sm:mb-6">
                   {post.featuredImage ? (
@@ -357,107 +404,197 @@ export default async function PostPage({ params }: Props) {
             </aside>
 
             {/* Main Content */}
-            <div className="flex-1 order-2 lg:order-2">
-              {/* Title */}
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-                {post.title}
-              </h1>
-
-              {/* Version */}
-              {post.appVersion && (
-                <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 mb-3">v{post.appVersion}</p>
-              )}
-
-              {/* Tags */}
-              {post.keywords && post.keywords.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {post.keywords.map((keyword, index) => (
-                    <span
-                      key={index}
-                      className="px-3 py-1 bg-button rounded-full text-xs sm:text-sm font-medium text-button hover:bg-secondary"
-                      style={{ 
-                        backgroundColor: colors.primary,
-                        opacity: 0.9
-                      }}
-                    >
-                      {keyword}
-                    </span>
-                  ))}
-                </div>
-              )}
-
-              {/* Short Description / Intro */}
-              {post.metaDescription && (
-                <p className="text-gray-700 dark:text-gray-300 text-base sm:text-lg mb-6 leading-relaxed">
-                  {post.metaDescription}
-                </p>
-              )}
-
-              {/* Social Share Buttons */}
-              <SocialShareButtons 
-                url={buildCanonicalUrl(siteUrl, `/post/${post.slug}`)}
-                title={post.title}
-              />
-
-              {/* Description Section */}
-              <div className="mb-8">
-                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">DESCRIPTION</h2>
-                <div 
-                  className="content-area text-sm sm:text-base dark:text-gray-300"
-                  dangerouslySetInnerHTML={{ __html: post.content }}
-                />
-              </div>
-
-              {/* Related Apps */}
-              {relatedPosts.length > 0 && (
-                <div className="mt-8 sm:mt-12">
-                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4 sm:mb-6">Related Apps</h2>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
-                    {relatedPosts.slice(0, 6).map((relatedPost) => (
-            <Link
-                        key={relatedPost.id}
-                        href={`/post/${relatedPost.slug}`}
-                        className="bg-white dark:bg-gray-800 rounded-lg p-4 hover:shadow-lg transition shadow-sm"
+            <div className="flex-1 order-2 lg:order-2 min-w-0">
+              {/* Title & meta */}
+              <header className="mb-6">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2 tracking-tight">
+                  {post.title}
+                </h1>
+                {post.appVersion && (
+                  <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 mb-3">v{post.appVersion}</p>
+                )}
+                {post.keywords && post.keywords.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {post.keywords.map((keyword, index) => (
+                      <span
+                        key={index}
+                        className="px-3 py-1 rounded-full text-xs sm:text-sm font-medium text-button hover:bg-secondary"
+                        style={{ backgroundColor: colors.primary, opacity: 0.9 }}
                       >
-                        {relatedPost.featuredImage ? (
-                          <SmartImage
-                            src={relatedPost.featuredImage}
-                            alt={relatedPost.title}
-                            width={200}
-                            height={96}
-                            className="w-full h-24 object-cover rounded mb-2"
-                            quality={75}
-                          />
-                        ) : (
-                          <div className="w-full h-24 rounded mb-2 flex items-center justify-center text-theme-text font-bold bg-gradient-primary-error"
-                      >
-                            {relatedPost.title.charAt(0)}
-                          </div>
-                        )}
-                        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1 line-clamp-1">
-                          {relatedPost.title}
-                        </h3>
-                        {relatedPost.rating && (
-                          <StarRating 
-                            rating={relatedPost.rating} 
-                            size="xs"
-                          />
-                        )}
-            </Link>
+                        {keyword}
+                      </span>
                     ))}
                   </div>
+                )}
+                {post.metaDescription && (
+                  <p className="text-gray-700 dark:text-gray-300 text-base sm:text-lg leading-relaxed">
+                    {post.metaDescription}
+                  </p>
+                )}
+              </header>
+
+              {/* At a glance - SEO & scannability (dynamic from DB) */}
+              {/* {(post.developer || post.appSize || post.appVersion || post.requirements || post.downloads) && (
+                <section aria-label="App details" className="mb-6 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/80 dark:bg-gray-800/40 p-4 sm:p-5">
+                  <dl className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2 text-sm">
+                    {post.developer && (
+                      <>
+                        <dt className="text-gray-500 dark:text-gray-400 font-medium">Developer</dt>
+                        <dd className="text-gray-900 dark:text-gray-100 sm:col-span-2">{post.developer}</dd>
+                      </>
+                    )}
+                    {post.appVersion && (
+                      <>
+                        <dt className="text-gray-500 dark:text-gray-400 font-medium">Version</dt>
+                        <dd className="text-gray-900 dark:text-gray-100 sm:col-span-2">{post.appVersion}</dd>
+                      </>
+                    )}
+                    {post.appSize && (
+                      <>
+                        <dt className="text-gray-500 dark:text-gray-400 font-medium">Size</dt>
+                        <dd className="text-gray-900 dark:text-gray-100 sm:col-span-2">{post.appSize}</dd>
+                      </>
+                    )}
+                    {post.requirements && (
+                      <>
+                        <dt className="text-gray-500 dark:text-gray-400 font-medium">Requirements</dt>
+                        <dd className="text-gray-900 dark:text-gray-100 sm:col-span-2">{post.requirements}</dd>
+                      </>
+                    )}
+                    {post.downloads && (
+                      <>
+                        <dt className="text-gray-500 dark:text-gray-400 font-medium">Downloads</dt>
+                        <dd className="text-gray-900 dark:text-gray-100 sm:col-span-2">{post.downloads}</dd>
+                      </>
+                    )}
+                  </dl>
+                </section>
+              )} */}
+
+              {/* Social Share */}
+              <section aria-label="Share" className="mb-8">
+                <SocialShareButtons
+                  url={buildCanonicalUrl(siteUrl, `/post/${post.slug}`)}
+                  title={post.title}
+                />
+              </section>
+
+              {/* Description - card style */}
+              <section aria-labelledby="desc-heading" className="mb-8 sm:mb-10">
+                <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 p-4 sm:p-6 shadow-sm">
+                  <h2 id="desc-heading" className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+                    Description
+                  </h2>
+                  {getWordCount(post.content) > DESCRIPTION_WORD_LIMIT ? (
+                    <div
+                      data-expandable-desc
+                      style={{ "--expand-desc-max-height": getExpandableMaxHeight(DESCRIPTION_WORD_LIMIT) } as React.CSSProperties}
+                    >
+                      <div className="overflow-hidden transition-[max-height] duration-300 ease-in-out max-h-[var(--expand-desc-max-height)] [[data-expandable-desc]:has(input:checked)_&]:max-h-none">
+                        <div
+                          className="content-area text-sm sm:text-base dark:text-gray-300"
+                          dangerouslySetInnerHTML={{ __html: post.content }}
+                        />
+                      </div>
+                      <div
+                        className="h-24 -mt-24 relative z-10 pointer-events-none bg-gradient-to-t from-white to-transparent dark:from-gray-800/50 [[data-expandable-desc]:has(input:checked)_&]:hidden"
+                        aria-hidden
+                      />
+                      <input type="checkbox" id={`expand-desc-${post.slug}`} className="sr-only" aria-hidden />
+                      <label
+                        htmlFor={`expand-desc-${post.slug}`}
+                        className="[[data-expandable-desc]:has(input:checked)_&]:hidden mt-3 inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium bg-primary/10 dark:bg-primary/20 text-primary hover:bg-primary/20 dark:hover:bg-primary/30 transition-colors cursor-pointer"
+                      >
+                        Read full description
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </label>
+                      <label
+                        htmlFor={`expand-desc-${post.slug}`}
+                        className="hidden [[data-expandable-desc]:has(input:checked)_&]:inline-flex mt-3 items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-pointer"
+                      >
+                        Read less
+                      </label>
+                    </div>
+                  ) : (
+                    <div
+                      className="content-area text-sm sm:text-base dark:text-gray-300"
+                      dangerouslySetInnerHTML={{ __html: post.content }}
+                    />
+                  )}
                 </div>
+              </section>
+
+              {/* FAQ from content - SEO + UX */}
+              <PostFAQSection faqs={faqs} />
+
+              {/* Related / More from category - dynamic from DB */}
+              {relatedPosts.length > 0 && (
+                <section aria-labelledby="related-heading" className="mt-8 sm:mt-12">
+                  <div className="flex flex-wrap items-center justify-between gap-3 mb-4 sm:mb-6">
+                    <h2 id="related-heading" className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
+                      {post.category && postsByCategory.length > 0
+                        ? `More from ${post.category.name}`
+                        : "Related Apps"}
+                    </h2>
+                    {post.category && (
+                      <Link
+                        href={`/category/${post.category.slug}`}
+                        className="text-sm font-medium text-primary hover:underline"
+                      >
+                        View all in {post.category.name} →
+                      </Link>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-3 sm:gap-4">
+                    {relatedPosts.map((relatedPost) => (
+                      <Link
+                        key={relatedPost.id}
+                        href={`/post/${relatedPost.slug}`}
+                        className="group bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700/50 shadow-sm hover:shadow-md hover:border-primary/30 dark:hover:border-primary/40 transition-all duration-200 flex flex-col"
+                      >
+                        <div className="aspect-[4/3] w-full rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700/50 mb-3">
+                          {relatedPost.featuredImage ? (
+                            <SmartImage
+                              src={relatedPost.featuredImage}
+                              alt={relatedPost.title}
+                              width={200}
+                              height={150}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                              quality={75}
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-theme-text text-xl font-bold bg-gradient-primary-error">
+                              {relatedPost.title.charAt(0)}
+                            </div>
+                          )}
+                        </div>
+                        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1 line-clamp-2 group-hover:text-primary transition-colors">
+                          {relatedPost.title}
+                        </h3>
+                        {relatedPost.rating != null && (
+                          <div className="mt-auto pt-2">
+                            <StarRating rating={relatedPost.rating} size="xs" />
+                          </div>
+                        )}
+                      </Link>
+                    ))}
+                  </div>
+                </section>
               )}
 
               {/* Comments Section */}
-              <CommentsSection
-                postId={post.id}
-                allowComments={post.allowComments !== undefined ? post.allowComments : true}
-                enableComments={settings.enableComments !== undefined ? settings.enableComments : true}
-              />
+              <section aria-label="Comments" className="mt-8 sm:mt-10">
+                <CommentsSection
+                  postId={post.id}
+                  allowComments={post.allowComments !== undefined ? post.allowComments : true}
+                  enableComments={settings.enableComments !== undefined ? settings.enableComments : true}
+                />
+              </section>
             </div>
           </div>
-        </div>
+        </article>
       </FrontendLayout>
     </>
   );

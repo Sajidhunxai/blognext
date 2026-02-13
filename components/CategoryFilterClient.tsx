@@ -67,18 +67,19 @@ export default function CategoryFilterClient({ categories }: CategoryFilterProps
   }
 
   return (
-    <div className="border-t-2" style={{ borderColor: colors.primary, backgroundColor: colors.background }}>
+    <div className="border-t-2 border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/95">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex flex-wrap gap-3 sm:gap-4 justify-center">
           <button
             onClick={() => handleCategoryClick(null)}
-            className={`px-4 sm:px-6 py-2 sm:py-3 rounded-full font-medium flex items-center gap-2 transition text-sm sm:text-base ${
+            className={`px-4 sm:px-6 py-2.5 sm:py-3 rounded-full font-medium flex items-center gap-2 transition-all duration-200 text-sm sm:text-base ${
               !selectedCategory
-                ? "bg-button text-button hover:bg-secondary"
-                : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+                ? "text-white shadow-md hover:opacity-90"
+                : "bg-gray-200 dark:bg-gray-700/80 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600/80"
             }`}
+            style={!selectedCategory ? { backgroundColor: colors.primary } : undefined}
           >
-            <span>▶</span> All
+            <span className="text-[10px] opacity-90">▶</span> All
           </button>
           {categories.map((category) => {
             const isActive = selectedCategory === category.slug;
@@ -86,13 +87,14 @@ export default function CategoryFilterClient({ categories }: CategoryFilterProps
               <button
                 key={category.id}
                 onClick={() => handleCategoryClick(category.slug)}
-                className={`px-4 sm:px-6 py-2 sm:py-3 rounded-full font-medium flex items-center gap-2 transition text-sm sm:text-base ${
+                className={`px-4 sm:px-6 py-2.5 sm:py-3 rounded-full font-medium flex items-center gap-2 transition-all duration-200 text-sm sm:text-base ${
                   isActive
-                    ? "bg-button text-button hover:bg-secondary"
-                    : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+                    ? "text-white shadow-md hover:opacity-90"
+                    : "bg-gray-200 dark:bg-gray-700/80 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600/80"
                 }`}
+                style={isActive ? { backgroundColor: colors.primary } : undefined}
               >
-                <span>▶</span> {category.name}
+                <span className="text-[10px] opacity-90">▶</span> {category.name}
               </button>
             );
           })}

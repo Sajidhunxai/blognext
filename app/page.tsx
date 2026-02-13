@@ -143,7 +143,7 @@ export default async function Home({
 
   // Pagination for latest posts - reduce initial load
   const page = parseInt(resolvedSearchParams?.page || "1", 10);
-  const limit = page === 1 ? 9 : 12; // Show fewer on first page to reduce requests
+  const limit = page === 1 ? 8 : 12; // Show fewer on first page to reduce requests
   const skip = (page - 1) * limit;
 
   const [posts, totalPosts] = await Promise.all([
@@ -199,17 +199,19 @@ export default async function Home({
           }}
         />
       )}
-      <div className="bg-theme-background">
+      <div className="bg-theme-background min-h-screen">
 
       {/* Hero Section */}
       <HeroBackground backgroundImage={settings.heroBackground}>
-        <div className="absolute inset-0 "></div>
-        <div className="relative max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-8">
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/20 dark:from-black/60 dark:via-black/40 dark:to-black/30" aria-hidden />
+        <div className="relative max-w-4xl mx-auto text-center px-4">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 drop-shadow-lg tracking-tight">
             {settings.heroTitle || settings.siteName}
           </h1>
           {settings.heroSubtitle && (
-            <p className="text-xl text-gray-300 mb-8">{settings.heroSubtitle}</p>
+            <p className="text-lg sm:text-xl text-gray-200 mb-8 max-w-2xl mx-auto drop-shadow-md">
+              {settings.heroSubtitle}
+            </p>
           )}
 
           {/* Social Media Icons */}
@@ -284,73 +286,76 @@ export default async function Home({
       </Suspense>
 
       {/* Content Section */}
-      <main className="bg-theme-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          
-      
-
+      <main className="relative bg-gray-50/30 dark:bg-gray-900/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
           {/* Featured Categories Sections - Dynamic */}
           {featuredCategoriesWithPosts.map(({ category, posts }) => {
             if (posts.length === 0) return null;
-            
             return (
-              <section key={category.id} className="mb-12">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-primary dark:text-blue-400">{category.name} Apps</h2>
+              <section key={category.id} className="mb-14 sm:mb-16" aria-labelledby={`section-${category.slug}`}>
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+                  <h2
+                    id={`section-${category.slug}`}
+                    className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2"
+                  >
+                    <span className="w-1 h-6 sm:h-7 rounded-full bg-primary dark:shadow-[0_0_8px_rgba(220,38,38,0.4)]" aria-hidden />
+                    {category.name} Apps
+                  </h2>
                   <Link
                     href={`/category/${category.slug}`}
-                    className="text-sm font-medium text-link hover:underline"
+                    className="text-sm font-medium text-primary hover:underline inline-flex items-center gap-1"
                   >
-                    View All →
+                    View all
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
                   </Link>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-5">
                   {posts.map((post, index) => (
                     <Link
                       key={post.id}
                       href={`/post/${post.slug}`}
-                      className="bg-white dark:bg-gray-800 rounded-lg border-2 dark:border-gray-700 p-4 hover:shadow-lg transition-shadow "
+                      className="group bg-white dark:bg-gray-800/90 rounded-xl border border-gray-200 dark:border-gray-600/60 overflow-hidden shadow-sm dark:shadow-gray-950/50 hover:shadow-lg dark:hover:shadow-xl dark:hover:shadow-gray-950/30 hover:border-primary/30 dark:hover:border-primary/50 hover:-translate-y-0.5 transition-all duration-200 flex flex-col"
                     >
-                      <div className="relative mb-3">
+                      <div className="relative aspect-[4/3] overflow-hidden bg-gray-100 dark:bg-gray-700/40">
                         {post.featuredImage ? (
                           <SmartImage
                             src={post.featuredImage}
                             alt={post.title}
                             title={post.title}
-                            width={259}
-                            height={259}
-                            className="w-full h-32 object-cover rounded"
-                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 20vw, 16vw"
+                            width={280}
+                            height={210}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                             quality={85}
                             priority={index < 2}
                             fetchPriority={index < 2 ? "high" : "auto"}
                           />
                         ) : (
-                          <div className="w-full h-32 rounded flex items-center justify-center text-theme-text text-2xl font-bold bg-gradient-secondary">
+                          <div className="w-full h-full flex items-center justify-center text-theme-text text-2xl font-bold bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700">
                             {post.title.charAt(0)}
                           </div>
                         )}
                         {index < 2 && (
-                          <span className="absolute top-2 left-2 text-theme-text text-xs px-2 py-1 rounded bg-primary">
+                          <span className="absolute top-2 left-2 text-white text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded-md bg-primary shadow-sm">
                             {index === 0 ? "UPDATED" : "NEW"}
                           </span>
                         )}
                       </div>
-                      <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 line-clamp-1">
-                        {post.title}
-                      </h3>
-                      <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
-                        Version: {post.appVersion || (post.downloadLink ? "V1.0" : "N/A")}
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-500 mb-2">{settings.siteName}</p>
-                      {post.rating && (
-                        <StarRating 
-                          rating={post.rating} 
-                          showNumber 
-                          size="xs" 
-                          ratingCount={post.ratingCount || 0}
-                        />
-                      )}
+                      <div className="p-3 sm:p-4 flex flex-col flex-1 min-w-0">
+                        <h3 className="font-semibold text-gray-900 dark:text-gray-100 line-clamp-2 text-sm sm:text-base mb-1 group-hover:text-primary transition-colors">
+                          {post.title}
+                        </h3>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                          v{post.appVersion || (post.downloadLink ? "1.0" : "—")} · {settings.siteName}
+                        </p>
+                        {post.rating != null && (
+                          <div className="mt-auto pt-1">
+                            <StarRating rating={post.rating} showNumber size="xs" ratingCount={post.ratingCount || 0} />
+                          </div>
+                        )}
+                      </div>
                     </Link>
                   ))}
                 </div>
@@ -359,78 +364,76 @@ export default async function Home({
           })}
 
           {/* Latest Apps Section */}
-          <section>
-            <h2 className="text-2xl font-bold text-center mb-8 text-primary dark:text-blue-400">Latest Apps</h2>
+          <section aria-labelledby="latest-heading" className="mb-14 sm:mb-16">
+            <h2
+              id="latest-heading"
+              className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2 mb-6"
+            >
+              <span className="w-1 h-6 sm:h-7 rounded-full bg-primary dark:shadow-[0_0_8px_rgba(220,38,38,0.4)]" aria-hidden />
+              Latest Apps
+            </h2>
 
-          {posts.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-gray-400 dark:text-gray-500 text-lg">No posts yet. Check back soon!</p>
-            </div>
-          ) : (
-            <>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+            {posts.length === 0 ? (
+              <div className="text-center py-16 rounded-2xl border border-dashed border-gray-300 dark:border-gray-600/80 bg-gray-50/50 dark:bg-gray-800/40">
+                <p className="text-gray-500 dark:text-gray-400 text-base">No apps yet. Check back soon!</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-5">
                 {posts.map((post, index) => (
-                <Link
-                  key={post.id}
-                  href={`/post/${post.slug}`}
-                    className="bg-white dark:bg-gray-800 rounded-lg border-2 dark:border-gray-700 p-4 hover:shadow-lg transition-shadow "
-                >
-                    <div className="relative mb-3">
+                  <Link
+                    key={post.id}
+                    href={`/post/${post.slug}`}
+                    className="group bg-white dark:bg-gray-800/90 rounded-xl border border-gray-200 dark:border-gray-600/60 overflow-hidden shadow-sm dark:shadow-gray-950/50 hover:shadow-lg dark:hover:shadow-xl dark:hover:shadow-gray-950/30 hover:border-primary/30 dark:hover:border-primary/50 hover:-translate-y-0.5 transition-all duration-200 flex flex-col"
+                  >
+                    <div className="relative aspect-[4/3] overflow-hidden bg-gray-100 dark:bg-gray-700/40">
                       {post.featuredImage ? (
                         <SmartImage
                           src={post.featuredImage}
                           alt={post.title}
                           title={post.title}
-                          width={259}
-                          height={259}
-                          className="w-full h-32 object-cover rounded"
-                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 20vw, 16vw"
+                          width={280}
+                          height={210}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                           quality={85}
-                          priority={index < 2}
-                          fetchPriority={index < 2 ? "high" : "auto"}
+                          priority={index < 3}
+                          fetchPriority={index < 3 ? "high" : "auto"}
                         />
                       ) : (
-                        <div className="w-full h-32 dark:text-white rounded flex items-center justify-center text-theme-text text-2xl font-bold bg-gradient-secondary"
-                        >
+                        <div className="w-full h-full flex items-center justify-center text-theme-text text-2xl font-bold bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700">
                           {post.title.charAt(0)}
                         </div>
                       )}
                       {index < 2 && (
-                        <span className="absolute top-2 left-2 text-theme-text text-xs px-2 py-1 rounded bg-primary"
-                        >
+                        <span className="absolute top-2 left-2 text-white text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded-md bg-primary shadow-sm">
                           {index === 0 ? "UPDATED" : "NEW"}
                         </span>
                       )}
                     </div>
-                    <h3 className="font-semibold  dark:text-white  text-gray-900 mb-1 line-clamp-1">
-                      {post.title}
-                    </h3>
-                    <p className="text-xs text-gray-600 mb-2">
-                      Version: {post.appVersion || (post.downloadLink ? "V1.0" : "N/A")}
-                    </p>
-                    {post.rating && (
-                      <StarRating 
-                        rating={post.rating} 
-                        showNumber 
-                        size="xs" 
-                        ratingCount={post.ratingCount || 0}
-                      />
-                    )}
+                    <div className="p-3 sm:p-4 flex flex-col flex-1 min-w-0">
+                      <h3 className="font-semibold text-gray-900 dark:text-gray-100 line-clamp-2 text-sm sm:text-base mb-1 group-hover:text-primary transition-colors">
+                        {post.title}
+                      </h3>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                        v{post.appVersion || (post.downloadLink ? "1.0" : "—")} · {settings.siteName}
+                      </p>
+                      {post.rating != null && (
+                        <div className="mt-auto pt-1">
+                          <StarRating rating={post.rating} showNumber size="xs" ratingCount={post.ratingCount || 0} />
+                        </div>
+                      )}
+                    </div>
                   </Link>
                 ))}
-                  </div>
-              {/* {totalPages > 1 && (
-                <PaginationWrapper currentPage={page} totalPages={totalPages} />
-              )} */}
-            </>
-          )}
+              </div>
+            )}
           </section>
         </div>
       </main>
 
       {/* Why Choose Us Section - Before Footer */}
       {(settings.whyChooseTitle || (settings.whyChooseFeatures && Array.isArray(settings.whyChooseFeatures) && settings.whyChooseFeatures.length > 0)) && (
-        <section className="py-12 sm:py-16 bg-theme-background">
+        <section className="py-12 sm:py-16 bg-gray-50/50 dark:bg-gray-900/40">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {(settings.whyChooseTitle || settings.whyChooseSubtitle) && (
               <div className="text-center mb-10 sm:mb-12">
@@ -440,7 +443,7 @@ export default async function Home({
                   </h2>
                 )}
                 {settings.whyChooseSubtitle && (
-                  <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                  <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
                     {settings.whyChooseSubtitle}
                   </p>
                 )}
@@ -481,7 +484,7 @@ export default async function Home({
                   };
 
                   return (
-                    <div key={index} className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow">
+                    <div key={index} className="bg-white dark:bg-gray-800/90 dark:border dark:border-gray-600/50 rounded-xl p-6 shadow-md dark:shadow-gray-950/50 hover:shadow-lg dark:hover:shadow-xl dark:hover:shadow-gray-950/30 transition-shadow">
                       <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4" style={{ backgroundColor: colorValue + '20' }}>
                         <svg className="w-6 h-6" style={{ color: colorValue }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           {getIcon()}

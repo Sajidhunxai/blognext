@@ -38,44 +38,10 @@ interface StructuredDataProps {
   siteName?: string;
 }
 
+import { extractFAQsFromContent } from "@/lib/faq";
+
 export default function StructuredData({ post, siteUrl, siteName = "PKR Games" }: StructuredDataProps) {
-  // Extract FAQs from content (looking for common FAQ patterns)
-  const extractFAQs = (content: string) => {
-    const faqs: Array<{ question: string; answer: string }> = [];
-    
-    // Try to find FAQ sections in HTML
-    const faqPatterns = [
-      /<h[2-4][^>]*>(.*?faq.*?)<\/h[2-4]>/gi,
-      /<h[2-4][^>]*>([^<]*\?[^<]*)<\/h[2-4]>\s*<p[^>]*>([^<]+)<\/p>/gi,
-    ];
-
-    // Simple FAQ extraction (can be enhanced based on your content structure)
-    const questionRegex = /<h[2-4][^>]*>([^<]*\?[^<]*)<\/h[2-4]>/g;
-    let match;
-    const questions: string[] = [];
-    while ((match = questionRegex.exec(content)) !== null) {
-      questions.push(match[1].replace(/<[^>]*>/g, '').trim());
-    }
-
-    // For each question, try to find the following paragraph as answer
-    questions.forEach((question, index) => {
-      const questionIndex = content.indexOf(question);
-      if (questionIndex !== -1) {
-        const afterQuestion = content.substring(questionIndex + question.length);
-        const answerMatch = afterQuestion.match(/<p[^>]*>([^<]+)<\/p>/);
-        if (answerMatch && answerMatch[1]) {
-          faqs.push({
-            question,
-            answer: answerMatch[1].replace(/<[^>]*>/g, '').trim().substring(0, 500),
-          });
-        }
-      }
-    });
-
-    return faqs;
-  };
-
-  const faqs = extractFAQs(post.content);
+  const faqs = extractFAQsFromContent(post.content);
 
   // SoftwareApplication Schema (for apps/games)
   const softwareSchema = post.downloadLink ? {

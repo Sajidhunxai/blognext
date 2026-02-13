@@ -59,7 +59,7 @@ export default async function FrontendLayout({ children }: FrontendLayoutProps) 
     <div className="min-h-screen bg-theme-background ">
       <NavigationLoader />
       {/* Header */}
-      <header className="border-b dark:border-gray-700">
+      <header className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/95">
         <div className="max-w-7xl p-2  mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link href="/" className="flex  items-center gap-3 hover:opacity-80 transition">
@@ -108,7 +108,7 @@ export default async function FrontendLayout({ children }: FrontendLayoutProps) 
       <main>{children}</main>
 
       {/* Footer */}
-      <footer className="border-t py-6 sm:py-8 mt-8 sm:mt-12 dark:border-gray-700">
+      <footer className="border-t border-gray-200 dark:border-gray-800 py-6 sm:py-8  bg-gray-50/50 mt-0 dark:bg-gray-900/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6 mb-6">
             <div className="font-bold text-lg sm:text-xl m-auto sm:m-0 text-black dark:text-gray-300" >{settings.siteName}</div>
@@ -129,7 +129,7 @@ export default async function FrontendLayout({ children }: FrontendLayoutProps) 
               })}
             </div>
           </div>
-          <div className="text-center text-xs sm:text-sm" style={{ color: colors.text === "#ffffff" ? "#6b7280" : "#9ca3af" }}>
+          <div className="text-center text-xs sm:text-sm text-gray-500 dark:text-gray-400">
             © {new Date().getFullYear()} | All right reserved | {settings.siteName}
           </div>
         </div>

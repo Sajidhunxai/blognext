@@ -56,9 +56,8 @@ export default function MobileMenu({ menuItems, showDashboard = false }: MobileM
   return (
     <>
       <button
-        className="md:hidden p-2 rounded-lg hover:bg-black/10 transition focus:outline-none focus:ring-2 focus:ring-offset-2 z-50 relative"
+        className="md:hidden p-2 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 transition focus:outline-none focus:ring-2 focus:ring-offset-2 text-gray-700 dark:text-gray-300 relative"
         style={{ 
-          color: colors.text,
           '--tw-ring-color': colors.primary
         } as React.CSSProperties}
         aria-label="Toggle menu"
