@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import RichTextEditor from "./RichTextEditor";
 import ImageUpload from "./ImageUpload";
+import FaqEditor, { type FaqItem } from "./FaqEditor";
 
 interface Post {
   id: string;
@@ -17,6 +18,9 @@ interface Post {
   metaTitle?: string | null;
   metaDescription?: string | null;
   keywords?: string[];
+  focusKeyword?: string | null;
+  noIndex?: boolean;
+  faqs?: FaqItem[] | null;
   featuredImage?: string | null;
   featuredImageAlt?: string | null;
   ogImage?: string | null;
@@ -50,6 +54,9 @@ export default function EditPostForm({ post }: { post: Post }) {
   const [metaTitle, setMetaTitle] = useState(post.metaTitle || "");
   const [metaDescription, setMetaDescription] = useState(post.metaDescription || "");
   const [keywords, setKeywords] = useState(post.keywords?.join(", ") || "");
+  const [focusKeyword, setFocusKeyword] = useState(post.focusKeyword || "");
+  const [noIndex, setNoIndex] = useState(post.noIndex ?? false);
+  const [faqs, setFaqs] = useState<FaqItem[]>(Array.isArray(post.faqs) ? post.faqs : []);
   const [featuredImage, setFeaturedImage] = useState(post.featuredImage || "");
   const [featuredImageAlt, setFeaturedImageAlt] = useState(post.featuredImageAlt || "");
   const [downloadLink, setDownloadLink] = useState(post.downloadLink || "");
@@ -101,6 +108,9 @@ export default function EditPostForm({ post }: { post: Post }) {
           metaTitle: metaTitle || title,
           metaDescription,
           keywords: keywords.split(",").map((k) => k.trim()).filter(Boolean),
+          focusKeyword: focusKeyword.trim() || null,
+          noIndex,
+          faqs: faqs.filter((f) => f.question.trim() && f.answer.trim()).map((f) => ({ question: f.question.trim(), answer: f.answer.trim() })),
           featuredImage,
           featuredImageAlt,
           downloadLink,
@@ -398,6 +408,39 @@ export default function EditPostForm({ post }: { post: Post }) {
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
                     placeholder="keyword1, keyword2, keyword3"
                   />
+                </div>
+
+                <div>
+                  <label htmlFor="focusKeyword" className="block text-sm font-medium text-gray-700 mb-2">
+                    Focus keyphrase (optional)
+                  </label>
+                  <input
+                    id="focusKeyword"
+                    type="text"
+                    value={focusKeyword}
+                    onChange={(e) => setFocusKeyword(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                    placeholder="e.g. best android game 2024"
+                  />
+                  <p className="mt-1 text-xs text-gray-500">Target keyword for this post (helps SEO tools)</p>
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    id="noIndex"
+                    type="checkbox"
+                    checked={noIndex}
+                    onChange={(e) => setNoIndex(e.target.checked)}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="noIndex" className="ml-2 block text-sm text-gray-700">
+                    No index (hide from search engines)
+                  </label>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">FAQs</label>
+                  <FaqEditor value={faqs} onChange={setFaqs} />
                 </div>
 
                 <div className="space-y-4">

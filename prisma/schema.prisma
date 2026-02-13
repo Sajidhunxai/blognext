@@ -48,6 +48,9 @@ model Post {
   metaTitle       String?
   metaDescription String?
   keywords        String[]
+  focusKeyword    String?   // Target keyphrase for SEO (e.g. "best android game")
+  noIndex         Boolean   @default(false) // Exclude from search engine indexing
+  faqs            Json?     // [{ question: string, answer: string }] for FAQ schema & section
   ogImage         String?
   ogImageAlt      String?
   featuredImage   String?

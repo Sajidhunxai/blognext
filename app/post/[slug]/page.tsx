@@ -126,15 +126,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       canonical: buildCanonicalUrl(siteUrl, `/post/${post.slug}`),
     },
     robots: {
-      index: post.published === true,
+      index: post.published === true && !post.noIndex,
       follow: true,
-      googleBot: {
-        index: post.published === true,
-        follow: true,
-        'max-video-preview': -1,
-        'max-image-preview': 'large',
-        'max-snippet': -1,
-      },
     },
   };
 }
@@ -217,7 +210,7 @@ export default async function PostPage({ params }: Props) {
         })
       : [];
   const relatedPosts = [...postsByCategory, ...extraPosts].slice(0, 6);
-  const faqs = extractFAQsFromContent(post.content);
+  const faqs = Array.isArray(post.faqs) && post.faqs.length > 0 ? post.faqs : extractFAQsFromContent(post.content);
 
   return (
     <>
@@ -230,6 +223,7 @@ export default async function PostPage({ params }: Props) {
           updatedAt: post.updatedAt,
           metaDescription: post.metaDescription,
           keywords: post.keywords,
+          faqs: post.faqs as Array<{ question: string; answer: string }> | null,
           featuredImage: post.featuredImage,
           ogImage: post.ogImage,
           downloadLink: post.downloadLink,

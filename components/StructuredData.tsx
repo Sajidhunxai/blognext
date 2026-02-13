@@ -33,6 +33,7 @@ interface StructuredDataProps {
       createdAt: Date;
       rating?: number;
     }>;
+    faqs?: Array<{ question: string; answer: string }> | null;
   };
   siteUrl: string;
   siteName?: string;
@@ -41,7 +42,9 @@ interface StructuredDataProps {
 import { extractFAQsFromContent } from "@/lib/faq";
 
 export default function StructuredData({ post, siteUrl, siteName = "PKR Games" }: StructuredDataProps) {
-  const faqs = extractFAQsFromContent(post.content);
+  const faqsFromDb = Array.isArray(post.faqs) && post.faqs.length > 0 ? post.faqs : null;
+  const faqsExtracted = extractFAQsFromContent(post.content);
+  const faqs = faqsFromDb ?? faqsExtracted;
 
   // SoftwareApplication Schema (for apps/games)
   const softwareSchema = post.downloadLink ? {

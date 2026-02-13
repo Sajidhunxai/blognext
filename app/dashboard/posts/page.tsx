@@ -18,12 +18,13 @@ export default async function PostsPage({ searchParams }: Props) {
   // Build where clause for filtering
   const where: any = {};
   
-  if (searchParams?.search) {
-    // MongoDB with Prisma: use regex for case-insensitive search
+  if (searchParams?.search?.trim()) {
+    // Escape regex metacharacters so Prisma's MongoDB insensitive mode works safely
+    const term = searchParams.search.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     where.title = {
-      $regex: searchParams.search,
-      $options: "i",
-    } as any;
+      contains: term,
+      mode: "insensitive",
+    };
   }
   
   if (searchParams?.status === "published") {

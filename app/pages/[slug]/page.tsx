@@ -68,13 +68,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     robots: {
       index: page.published,
       follow: true,
-      googleBot: {
-        index: page.published,
-        follow: true,
-        'max-video-preview': -1,
-        'max-image-preview': 'large',
-        'max-snippet': -1,
-      },
     },
   };
 }
