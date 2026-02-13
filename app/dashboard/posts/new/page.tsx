@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import RichTextEditor from "@/components/RichTextEditor";
 import ImageUpload from "@/components/ImageUpload";
+import FaqEditor, { type FaqItem } from "@/components/FaqEditor";
 
 interface Category {
   id: string;
@@ -24,6 +25,9 @@ export default function NewPostPage() {
   const [metaTitle, setMetaTitle] = useState("");
   const [metaDescription, setMetaDescription] = useState("");
   const [keywords, setKeywords] = useState("");
+  const [focusKeyword, setFocusKeyword] = useState("");
+  const [noIndex, setNoIndex] = useState(false);
+  const [faqs, setFaqs] = useState<FaqItem[]>([]);
   const [featuredImage, setFeaturedImage] = useState("");
   const [featuredImageAlt, setFeaturedImageAlt] = useState("");
   const [downloadLink, setDownloadLink] = useState("");

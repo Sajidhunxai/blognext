@@ -210,7 +210,10 @@ export default async function PostPage({ params }: Props) {
         })
       : [];
   const relatedPosts = [...postsByCategory, ...extraPosts].slice(0, 6);
-  const faqs = Array.isArray(post.faqs) && post.faqs.length > 0 ? post.faqs : extractFAQsFromContent(post.content);
+  const faqs: { question: string; answer: string }[] =
+    Array.isArray(post.faqs) && post.faqs.length > 0
+      ? (post.faqs as { question: string; answer: string }[])
+      : extractFAQsFromContent(post.content);
 
   return (
     <>

@@ -7,7 +7,7 @@ import RichTextEditor from "./RichTextEditor";
 import ImageUpload from "./ImageUpload";
 import FaqEditor, { type FaqItem } from "./FaqEditor";
 
-interface Post {
+export interface Post {
   id: string;
   title: string;
   content: string;

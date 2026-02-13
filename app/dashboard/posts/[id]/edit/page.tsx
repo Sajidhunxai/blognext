@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import EditPostForm from "@/components/EditPostForm";
+import EditPostForm, { type Post } from "@/components/EditPostForm";
 
 export default async function EditPostPage({
   params,
@@ -15,13 +15,18 @@ export default async function EditPostPage({
     redirect("/login");
   }
 
-  const post = await prisma.post.findUnique({
+  const row = await prisma.post.findUnique({
     where: { id: params.id },
   });
 
-  if (!post) {
+  if (!row) {
     redirect("/dashboard");
   }
+
+  const post: Post = {
+    ...row,
+    faqs: Array.isArray(row.faqs) ? (row.faqs as { question: string; answer: string }[]) : null,
+  };
 
   return <EditPostForm post={post} />;
 }
