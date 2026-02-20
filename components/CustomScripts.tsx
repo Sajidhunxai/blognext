@@ -92,21 +92,7 @@ export default function CustomScripts({
     }
   }, [headerCSS]);
 
-  // Inject footer CSS
-  useEffect(() => {
-    if (footerCSS) {
-      const styleId = "custom-footer-css";
-      let styleElement = document.getElementById(styleId);
-      
-      if (!styleElement) {
-        styleElement = document.createElement("style");
-        styleElement.id = styleId;
-        document.body.appendChild(styleElement);
-      }
-      
-      styleElement.textContent = footerCSS;
-    }
-  }, [footerCSS]);
+  // footerCSS is repurposed for ads.txt content (served at /ads.txt) — not injected as CSS
 
   // Inject header scripts (supports external src and inline code)
   useEffect(() => {

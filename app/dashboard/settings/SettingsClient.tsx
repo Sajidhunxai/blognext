@@ -820,7 +820,7 @@ export default function SettingsClient({ initialSettings, pages: initialPages }:
                   { key: 'headerScript', label: 'Header Scripts (added in <head>)', placeholder: '<script src="https://..."></script> or inline <script>...</script>', desc: 'Scripts are injected into <head>. Use <script src="..."></script> for external files or <script>code</script> for inline.' },
                   { key: 'footerScript', label: 'Footer Scripts (added before </body>)', placeholder: '<!-- Add scripts here -->', desc: 'Scripts will be added before the closing </body> tag' },
                   { key: 'headerCSS', label: 'Header CSS (added in <head>)', placeholder: '/* Add custom CSS here */', desc: 'CSS will be added in a <style> tag in the <head> section' },
-                  { key: 'footerCSS', label: 'Footer CSS (added before </body>)', placeholder: '/* Add custom CSS here */', desc: 'CSS will be added in a <style> tag before the closing </body> tag' },
+                  { key: 'footerCSS', label: 'Ads.txt (served at /ads.txt)', placeholder: 'google.com, pub-0000000000000000, DIRECT, f08c47adec1234567', desc: 'Content for your site’s ads.txt. Served at https://yoursite.com/ads.txt (one line per record).' },
                 ].map(({ key, label, placeholder, desc }) => (
                   <div key={key}>
                     <label className="block text-sm font-medium text-gray-700 mb-2">

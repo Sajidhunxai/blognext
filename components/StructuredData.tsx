@@ -98,7 +98,7 @@ export default function StructuredData({ post, siteUrl, siteName = "PKR Games" }
   // to avoid conflicts with Google's review snippets requirements
   const articleSchema = {
     "@context": "https://schema.org",
-    "@type": post.downloadLink ? "Article" : "BlogPosting",
+    "@type": post.downloadLink ? "Article" : "SoftwareApplication",
     "@id": `${siteUrl}/post/${post.slug}`,
     headline: post.title,
     description: post.metaDescription || post.content.substring(0, 200).replace(/<[^>]*>/g, ''),
