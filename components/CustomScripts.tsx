@@ -9,70 +9,66 @@ interface CustomScriptsProps {
   footerCSS?: string | null;
 }
 
+type ParsedScript =
+  | { type: "inline"; content: string }
+  | { type: "external"; src: string };
+
 /**
- * Extracts JavaScript code from script tags or returns the code as-is
- * Handles multiple script tags and removes any HTML
- * This function is safe to use outside of DOM context
+ * Parses script input into inline code and/or external script URLs.
+ * Supports: <script src="..."></script>, <script>code</script>, and raw inline code.
  */
-function extractScriptContent(script: string): string | null {
-  if (!script || typeof script !== 'string') {
-    return null;
+function parseScripts(script: string): ParsedScript[] {
+  if (!script || typeof script !== "string") {
+    return [];
   }
-  
-  let content = script.trim();
-  
-  if (!content) {
-    return null;
+  const raw = script.trim();
+  if (!raw) return [];
+
+  const result: ParsedScript[] = [];
+
+  // 1. External scripts: <script src="..."></script> or <script src='...'></script>
+  const srcRegex = /<script[^>]*\ssrc\s*=\s*["']([^"']+)["'][^>]*>\s*<\/script>/gi;
+  let match: RegExpExecArray | null;
+  srcRegex.lastIndex = 0;
+  while ((match = srcRegex.exec(raw)) !== null) {
+    const src = match[1].trim();
+    if (src) result.push({ type: "external", src });
   }
-  
-  // First, try to extract content from script tags
-  const scriptTagRegex = /<script[^>]*>([\s\S]*?)<\/script>/gi;
-  const scriptMatches: string[] = [];
-  let match;
-  
-  // Reset regex lastIndex to ensure we start from the beginning
-  scriptTagRegex.lastIndex = 0;
-  
-  while ((match = scriptTagRegex.exec(content)) !== null) {
-    if (match[1]) {
-      scriptMatches.push(match[1].trim());
+
+  // 2. Inline scripts: <script ...>content</script> (content may be empty but we only keep non-empty)
+  const inlineTagRegex = /<script[^>]*>([\s\S]*?)<\/script>/gi;
+  inlineTagRegex.lastIndex = 0;
+  while ((match = inlineTagRegex.exec(raw)) !== null) {
+    const content = match[1]
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&amp;/g, "&")
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .trim();
+    if (content && !/^\s*$/.test(content)) {
+      result.push({ type: "inline", content });
     }
   }
-  
-  if (scriptMatches.length > 0) {
-    // Use extracted content from script tags
-    content = scriptMatches
-      .filter(code => code.length > 0)
-      .join("\n");
-  } else {
-    // If no script tags found, assume it's raw JavaScript
-    // But still remove any HTML tags that might be present
-    content = content.replace(/<[^>]+>/g, '').trim();
+
+  // 3. If no script tags found, treat whole input as inline (strip HTML)
+  if (result.length === 0) {
+    const content = raw
+      .replace(/<[^>]+>/g, "")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&amp;/g, "&")
+      .trim();
+    if (content && !content.startsWith("<")) {
+      result.push({ type: "inline", content });
+    }
   }
-  
-  // Decode common HTML entities without using DOM
-  content = content
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&amp;/g, '&')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&nbsp;/g, ' ')
-    .trim();
-  
-  // Final cleanup: remove any remaining HTML-like patterns
-  content = content
-    .replace(/<script[^>]*>/gi, '')
-    .replace(/<\/script>/gi, '')
-    .trim();
-  
-  // Return null if content is empty or looks like HTML
-  if (!content || content.length === 0 || content.startsWith('<')) {
-    return null;
-  }
-  
-  return content;
+
+  return result;
 }
+
+const HEADER_SCRIPT_DATA_ID = "custom-header-script";
+const FOOTER_SCRIPT_DATA_ID = "custom-footer-script";
 
 export default function CustomScripts({
   headerScript,
@@ -112,71 +108,61 @@ export default function CustomScripts({
     }
   }, [footerCSS]);
 
-  // Inject header script
+  // Inject header scripts (supports external src and inline code)
   useEffect(() => {
-    if (headerScript && typeof window !== 'undefined') {
-      try {
-        const scriptContent = extractScriptContent(headerScript);
-        if (scriptContent && scriptContent.length > 0) {
-          const scriptId = "custom-header-script";
-          
-          // Remove existing script if present
-          const existingScript = document.getElementById(scriptId);
-          if (existingScript) {
-            existingScript.remove();
-          }
-          
-          // Create new script element
-          const scriptElement = document.createElement("script");
-          scriptElement.id = scriptId;
-          scriptElement.type = "text/javascript";
-          
-          // Use textContent to safely set the script content
-          // This prevents any HTML from being parsed
-          scriptElement.textContent = scriptContent;
-          
-          // Append to head
-          document.head.appendChild(scriptElement);
+    if (!headerScript || typeof window === "undefined") return;
+    try {
+      const parsed = parseScripts(headerScript);
+      if (parsed.length === 0) return;
+
+      // Remove previously injected header scripts
+      document.querySelectorAll(`[data-${HEADER_SCRIPT_DATA_ID}]`).forEach((el) => el.remove());
+
+      const head = document.head;
+      parsed.forEach((item, index) => {
+        const el = document.createElement("script");
+        el.setAttribute(`data-${HEADER_SCRIPT_DATA_ID}`, String(index));
+        el.type = "text/javascript";
+        if (item.type === "external") {
+          el.src = item.src;
+        } else {
+          el.textContent = item.content;
         }
-      } catch (error) {
-        console.error("Error injecting header script:", error, {
-          scriptPreview: headerScript.substring(0, 100)
-        });
-      }
+        head.appendChild(el);
+      });
+    } catch (error) {
+      console.error("Error injecting header script:", error, {
+        scriptPreview: headerScript.substring(0, 100),
+      });
     }
   }, [headerScript]);
 
-  // Inject footer script
+  // Inject footer scripts (supports external src and inline code)
   useEffect(() => {
-    if (footerScript && typeof window !== 'undefined') {
-      try {
-        const scriptContent = extractScriptContent(footerScript);
-        if (scriptContent && scriptContent.length > 0) {
-          const scriptId = "custom-footer-script";
-          
-          // Remove existing script if present
-          const existingScript = document.getElementById(scriptId);
-          if (existingScript) {
-            existingScript.remove();
-          }
-          
-          // Create new script element
-          const scriptElement = document.createElement("script");
-          scriptElement.id = scriptId;
-          scriptElement.type = "text/javascript";
-          
-          // Use textContent to safely set the script content
-          // This prevents any HTML from being parsed
-          scriptElement.textContent = scriptContent;
-          
-          // Append to body
-          document.body.appendChild(scriptElement);
+    if (!footerScript || typeof window === "undefined") return;
+    try {
+      const parsed = parseScripts(footerScript);
+      if (parsed.length === 0) return;
+
+      // Remove previously injected footer scripts
+      document.querySelectorAll(`[data-${FOOTER_SCRIPT_DATA_ID}]`).forEach((el) => el.remove());
+
+      const body = document.body;
+      parsed.forEach((item, index) => {
+        const el = document.createElement("script");
+        el.setAttribute(`data-${FOOTER_SCRIPT_DATA_ID}`, String(index));
+        el.type = "text/javascript";
+        if (item.type === "external") {
+          el.src = item.src;
+        } else {
+          el.textContent = item.content;
         }
-      } catch (error) {
-        console.error("Error injecting footer script:", error, {
-          scriptPreview: footerScript.substring(0, 100)
-        });
-      }
+        body.appendChild(el);
+      });
+    } catch (error) {
+      console.error("Error injecting footer script:", error, {
+        scriptPreview: footerScript.substring(0, 100),
+      });
     }
   }, [footerScript]);
 

@@ -817,7 +817,7 @@ export default function SettingsClient({ initialSettings, pages: initialPages }:
               
               <div className="space-y-6">
                 {[
-                  { key: 'headerScript', label: 'Header Scripts (added in <head>)', placeholder: '<!-- Add scripts here -->', desc: 'Scripts will be added in the <head> section' },
+                  { key: 'headerScript', label: 'Header Scripts (added in <head>)', placeholder: '<script src="https://..."></script> or inline <script>...</script>', desc: 'Scripts are injected into <head>. Use <script src="..."></script> for external files or <script>code</script> for inline.' },
                   { key: 'footerScript', label: 'Footer Scripts (added before </body>)', placeholder: '<!-- Add scripts here -->', desc: 'Scripts will be added before the closing </body> tag' },
                   { key: 'headerCSS', label: 'Header CSS (added in <head>)', placeholder: '/* Add custom CSS here */', desc: 'CSS will be added in a <style> tag in the <head> section' },
                   { key: 'footerCSS', label: 'Footer CSS (added before </body>)', placeholder: '/* Add custom CSS here */', desc: 'CSS will be added in a <style> tag before the closing </body> tag' },
