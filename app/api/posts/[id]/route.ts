@@ -29,6 +29,7 @@ export async function PUT(
       faqs,
       featuredImage,
       featuredImageAlt,
+      screenshots,
       downloadLink,
       developer,
       appSize,
@@ -75,6 +76,7 @@ export async function PUT(
         faqs: Array.isArray(faqs) ? faqs : undefined,
         featuredImage,
         featuredImageAlt,
+        screenshots: Array.isArray(screenshots) ? screenshots : undefined,
         ogImage: featuredImage, // Open Graph image uses featured image
         ogImageAlt: featuredImageAlt, // Open Graph alt uses featured image alt
         downloadLink,

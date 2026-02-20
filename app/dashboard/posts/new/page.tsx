@@ -6,6 +6,7 @@ import Link from "next/link";
 import RichTextEditor from "@/components/RichTextEditor";
 import ImageUpload from "@/components/ImageUpload";
 import FaqEditor, { type FaqItem } from "@/components/FaqEditor";
+import ScreenshotEditor from "@/components/ScreenshotEditor";
 
 interface Category {
   id: string;
@@ -30,6 +31,7 @@ export default function NewPostPage() {
   const [faqs, setFaqs] = useState<FaqItem[]>([]);
   const [featuredImage, setFeaturedImage] = useState("");
   const [featuredImageAlt, setFeaturedImageAlt] = useState("");
+  const [screenshots, setScreenshots] = useState<string[]>([]);
   const [downloadLink, setDownloadLink] = useState("");
   const [developer, setDeveloper] = useState("");
   const [appSize, setAppSize] = useState("");
@@ -101,6 +103,7 @@ export default function NewPostPage() {
           faqs: faqs.filter((f) => f.question.trim() && f.answer.trim()).map((f) => ({ question: f.question.trim(), answer: f.answer.trim() })),
           featuredImage,
           featuredImageAlt,
+          screenshots,
           downloadLink,
           developer,
           appSize,
@@ -177,6 +180,38 @@ export default function NewPostPage() {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
                 placeholder="post-url-slug"
               />
+            </div>
+
+            {/* Featured Image & Screenshots - at top for visibility */}
+            <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+              <h2 className="text-lg font-semibold text-gray-900 mb-3">Featured Image & Screenshots</h2>
+              <div className="space-y-4">
+                <ImageUpload
+                  id="featuredImage"
+                  value={featuredImage}
+                  onChange={setFeaturedImage}
+                  label="Featured Image (also used for Open Graph)"
+                  placeholder="https://example.com/image.jpg or upload"
+                />
+                <div>
+                  <label htmlFor="featuredImageAlt" className="block text-sm font-medium text-gray-700 mb-2">
+                    Featured Image Alt Text
+                  </label>
+                  <input
+                    id="featuredImageAlt"
+                    type="text"
+                    value={featuredImageAlt}
+                    onChange={(e) => setFeaturedImageAlt(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                    placeholder="Descriptive alt text for image"
+                  />
+                </div>
+                <ScreenshotEditor
+                  value={screenshots}
+                  onChange={setScreenshots}
+                  label="Screenshots"
+                />
+              </div>
             </div>
 
             <div>
@@ -379,30 +414,6 @@ export default function NewPostPage() {
                   />
                 </div>
 
-                <div className="space-y-4">
-                  <ImageUpload
-                    id="featuredImage"
-                    value={featuredImage}
-                    onChange={setFeaturedImage}
-                    label="Featured Image (also used for Open Graph)"
-                    placeholder="https://example.com/image.jpg or upload"
-                  />
-                  
-                  <div>
-                    <label htmlFor="featuredImageAlt" className="block text-sm font-medium text-gray-700 mb-2">
-                      Featured Image Alt Text
-                    </label>
-                    <input
-                      id="featuredImageAlt"
-                      type="text"
-                      value={featuredImageAlt}
-                      onChange={(e) => setFeaturedImageAlt(e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-                      placeholder="Descriptive alt text for image"
-                    />
-                    <p className="mt-1 text-xs text-gray-500">This image will be used for both the featured image and Open Graph (social media sharing)</p>
-                  </div>
-                </div>
               </div>
             </div>
 

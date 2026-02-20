@@ -8,6 +8,7 @@ interface StructuredDataProps {
     metaDescription?: string | null;
     keywords?: string[];
     featuredImage?: string | null;
+    screenshots?: string[];
     ogImage?: string | null;
     downloadLink?: string | null;
     rating?: number | null;
@@ -54,6 +55,9 @@ export default function StructuredData({ post, siteUrl, siteName = "PKR Games" }
     name: post.title,
     description: post.metaDescription || post.content.substring(0, 200).replace(/<[^>]*>/g, ''),
     image: post.featuredImage || post.ogImage || `${siteUrl}/og-default.jpg`,
+    ...(Array.isArray(post.screenshots) && post.screenshots.length > 0 && {
+      screenshot: post.screenshots[0],
+    }),
     url: `${siteUrl}/post/${post.slug}`,
     applicationCategory: post.category?.name || "Game",
     operatingSystem: post.requirements || "Android",

@@ -91,6 +91,7 @@ export async function POST(req: NextRequest) {
       faqs,
       featuredImage,
       featuredImageAlt,
+      screenshots,
       downloadLink,
       developer,
       appSize,
@@ -137,6 +138,7 @@ export async function POST(req: NextRequest) {
         faqs: Array.isArray(faqs) ? faqs : null,
         featuredImage,
         featuredImageAlt,
+        screenshots: Array.isArray(screenshots) ? screenshots : [],
         ogImage: featuredImage, // Open Graph image uses featured image
         ogImageAlt: featuredImageAlt, // Open Graph alt uses featured image alt
         downloadLink,

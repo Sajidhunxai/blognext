@@ -228,6 +228,7 @@ export default async function PostPage({ params }: Props) {
           keywords: post.keywords,
           faqs: post.faqs as Array<{ question: string; answer: string }> | null,
           featuredImage: post.featuredImage,
+          screenshots: post.screenshots,
           ogImage: post.ogImage,
           downloadLink: post.downloadLink,
           rating: post.rating,
@@ -287,7 +288,7 @@ export default async function PostPage({ params }: Props) {
 
           <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
             {/* Left Sidebar - Sticky on desktop for better CTA visibility */}
-            <aside className="w-full lg:w-80 flex-shrink-0 order-1 lg:order-1 lg:self-start lg:sticky lg:top-24">
+            <aside className="w-full lg:w-96 flex-shrink-0 order-1 lg:order-1 lg:self-start lg:sticky lg:top-24">
               <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-sm border border-gray-100 dark:border-gray-700/50">
                 {/* App Icon */}
                 <div className="relative mb-4 sm:mb-6">
@@ -297,7 +298,7 @@ export default async function PostPage({ params }: Props) {
                       alt={post.title}
                       width={320}
                       height={320}
-                      className="w-full rounded-lg"
+                      className="w-full rounded-lg object-contain"
                       priority
                       quality={90}
                       sizes="(max-width: 768px) 100vw, 320px"
@@ -309,6 +310,32 @@ export default async function PostPage({ params }: Props) {
                   )}
                   <span className="absolute top-2 left-2 text-theme-text text-xs px-2 py-1 rounded font-bold bg-primary">NEW</span>
                 </div>
+
+                {/* Screenshots - under featured image */}
+                {Array.isArray(post.screenshots) && post.screenshots.length > 0 && (
+                  <div className="mb-4 space-y-2">
+                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Screenshots</p>
+                    <div className="flex gap-2 overflow-x-auto pb-1">
+                      {post.screenshots.map((src, idx) => (
+                        <a
+                          key={idx}
+                          href={`/download/${post.slug}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-600 hover:opacity-90 transition"
+                        >
+                          <SmartImage
+                            src={src}
+                            alt={`${post.title} screenshot ${idx + 1}`}
+                            className=" h-auto object-contain"
+                            height={200}
+                            quality={100}
+                          />
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Download Button */}
                 {post.downloadLink && (

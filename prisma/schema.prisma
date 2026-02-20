@@ -55,6 +55,7 @@ model Post {
   ogImageAlt      String?
   featuredImage   String?
   featuredImageAlt String?
+  screenshots     String[]  @default([]) // App screenshots (URLs) displayed under featured image
   downloadLink    String?
   
   // App Details

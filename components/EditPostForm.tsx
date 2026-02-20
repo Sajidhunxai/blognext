@@ -6,6 +6,7 @@ import Link from "next/link";
 import RichTextEditor from "./RichTextEditor";
 import ImageUpload from "./ImageUpload";
 import FaqEditor, { type FaqItem } from "./FaqEditor";
+import ScreenshotEditor from "./ScreenshotEditor";
 
 export interface Post {
   id: string;
@@ -23,6 +24,7 @@ export interface Post {
   faqs?: FaqItem[] | null;
   featuredImage?: string | null;
   featuredImageAlt?: string | null;
+  screenshots?: string[];
   ogImage?: string | null;
   ogImageAlt?: string | null;
   downloadLink?: string | null;
@@ -59,6 +61,9 @@ export default function EditPostForm({ post }: { post: Post }) {
   const [faqs, setFaqs] = useState<FaqItem[]>(Array.isArray(post.faqs) ? post.faqs : []);
   const [featuredImage, setFeaturedImage] = useState(post.featuredImage || "");
   const [featuredImageAlt, setFeaturedImageAlt] = useState(post.featuredImageAlt || "");
+  const [screenshots, setScreenshots] = useState<string[]>(
+    Array.isArray(post.screenshots) ? post.screenshots : []
+  );
   const [downloadLink, setDownloadLink] = useState(post.downloadLink || "");
   const [developer, setDeveloper] = useState(post.developer || "");
   const [appSize, setAppSize] = useState(post.appSize || "");
@@ -113,6 +118,7 @@ export default function EditPostForm({ post }: { post: Post }) {
           faqs: faqs.filter((f) => f.question.trim() && f.answer.trim()).map((f) => ({ question: f.question.trim(), answer: f.answer.trim() })),
           featuredImage,
           featuredImageAlt,
+          screenshots,
           downloadLink,
           developer,
           appSize,
@@ -208,6 +214,38 @@ export default function EditPostForm({ post }: { post: Post }) {
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
               />
+            </div>
+
+            {/* Featured Image & Screenshots - at top for visibility */}
+            <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+              <h2 className="text-lg font-semibold text-gray-900 mb-3">Featured Image & Screenshots</h2>
+              <div className="space-y-4">
+                <ImageUpload
+                  id="featuredImage"
+                  value={featuredImage}
+                  onChange={setFeaturedImage}
+                  label="Featured Image (also used for Open Graph)"
+                  placeholder="https://example.com/image.jpg or upload"
+                />
+                <div>
+                  <label htmlFor="featuredImageAlt" className="block text-sm font-medium text-gray-700 mb-2">
+                    Featured Image Alt Text
+                  </label>
+                  <input
+                    id="featuredImageAlt"
+                    type="text"
+                    value={featuredImageAlt}
+                    onChange={(e) => setFeaturedImageAlt(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                    placeholder="Descriptive alt text for image"
+                  />
+                </div>
+                <ScreenshotEditor
+                  value={screenshots}
+                  onChange={setScreenshots}
+                  label="Screenshots"
+                />
+              </div>
             </div>
 
             <div>
@@ -441,31 +479,6 @@ export default function EditPostForm({ post }: { post: Post }) {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">FAQs</label>
                   <FaqEditor value={faqs} onChange={setFaqs} />
-                </div>
-
-                <div className="space-y-4">
-                  <ImageUpload
-                    id="featuredImage"
-                    value={featuredImage}
-                    onChange={setFeaturedImage}
-                    label="Featured Image (also used for Open Graph)"
-                    placeholder="https://example.com/image.jpg or upload"
-                  />
-                  
-                  <div>
-                    <label htmlFor="featuredImageAlt" className="block text-sm font-medium text-gray-700 mb-2">
-                      Featured Image Alt Text
-                    </label>
-                    <input
-                      id="featuredImageAlt"
-                      type="text"
-                      value={featuredImageAlt}
-                      onChange={(e) => setFeaturedImageAlt(e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-                      placeholder="Descriptive alt text for image"
-                    />
-                    <p className="mt-1 text-xs text-gray-500">This image will be used for both the featured image and Open Graph (social media sharing)</p>
-                  </div>
                 </div>
               </div>
             </div>
