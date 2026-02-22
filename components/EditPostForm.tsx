@@ -7,6 +7,7 @@ import RichTextEditor from "./RichTextEditor";
 import ImageUpload from "./ImageUpload";
 import FaqEditor, { type FaqItem } from "./FaqEditor";
 import ScreenshotEditor from "./ScreenshotEditor";
+import PostTranslationsTabs from "./PostTranslationsTabs";
 
 export interface Post {
   id: string;
@@ -188,6 +189,21 @@ export default function EditPostForm({ post }: { post: Post }) {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            <PostTranslationsTabs
+              postId={post.id}
+              isNewPost={false}
+              englishData={{
+                title,
+                content,
+                metaTitle: metaTitle || title,
+                metaDescription,
+                keywords: keywords.split(",").map((k) => k.trim()).filter(Boolean),
+                focusKeyword,
+                faqs,
+                developer,
+                requirements,
+              }}
+            >
             <div>
               <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
                 Title
@@ -554,6 +570,7 @@ export default function EditPostForm({ post }: { post: Post }) {
                 Cancel
               </Link>
             </div>
+            </PostTranslationsTabs>
           </form>
         </div>
       </main>

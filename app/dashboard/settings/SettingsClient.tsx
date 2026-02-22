@@ -72,11 +72,6 @@ export default function SettingsClient({ initialSettings, pages: initialPages }:
   const [success, setSuccess] = useState("");
   const [pages, setPages] = useState<Page[]>(initialPages);
   const [settings, setSettings] = useState<SettingsState>(initialSettings);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -286,14 +281,6 @@ export default function SettingsClient({ initialSettings, pages: initialPages }:
         </div>
       </nav>
       
-      {!mounted && (
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-gray-500 text-lg">Loading settings...</div>
-        </div>
-      )}
-
-      {mounted && (
-
       <main className="max-w-4xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 md:p-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-8">Site Settings</h1>
@@ -867,7 +854,6 @@ export default function SettingsClient({ initialSettings, pages: initialPages }:
           </form>
         </div>
       </main>
-      )}
     </div>
   );
 }

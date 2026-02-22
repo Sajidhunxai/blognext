@@ -20,9 +20,14 @@ export default function RichTextEditor({
   placeholder = "Write your content here...",
   id,
 }: RichTextEditorProps) {
+  const [mounted, setMounted] = useState(false);
   const [isHtmlMode, setIsHtmlMode] = useState(false);
   const [htmlContent, setHtmlContent] = useState(value);
   const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const editor = useEditor({
     extensions: [
@@ -158,6 +163,14 @@ export default function RichTextEditor({
       }
     };
   };
+
+  if (!mounted) {
+    return (
+      <div className="h-[300px] border border-gray-300 rounded-lg bg-white flex items-center justify-center text-gray-500">
+        Loading editor...
+      </div>
+    );
+  }
 
   if (!editor) {
     return (

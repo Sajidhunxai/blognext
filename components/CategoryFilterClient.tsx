@@ -14,6 +14,7 @@ interface Category {
 
 interface CategoryFilterProps {
   categories: Category[];
+  basePath?: string;
 }
 
 const defaultColors = {
@@ -29,14 +30,15 @@ const defaultColors = {
   info: "#3b82f6",
 };
 
-export default function CategoryFilterClient({ categories }: CategoryFilterProps) {
+export default function CategoryFilterClient({ categories, basePath = "" }: CategoryFilterProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   
-  // Check if we're on a category page
-  const isCategoryPage = pathname?.startsWith("/category/");
-  const categorySlugFromPath = isCategoryPage ? pathname?.split("/category/")[1]?.split("/")[0] : null;
+  // Check if we're on a category page (with or without locale prefix)
+  const pathWithoutLocale = basePath ? pathname?.replace(basePath, "") || pathname : pathname;
+  const isCategoryPage = pathWithoutLocale?.startsWith("/category/");
+  const categorySlugFromPath = isCategoryPage ? pathWithoutLocale?.split("/category/")[1]?.split("/")[0] : null;
   const selectedCategoryFromQuery = searchParams?.get("category");
   
   // Use category from path if on category page, otherwise from query params
@@ -54,11 +56,9 @@ export default function CategoryFilterClient({ categories }: CategoryFilterProps
 
   const handleCategoryClick = (categorySlug: string | null) => {
     if (categorySlug) {
-      // Navigate to category page
-      router.push(`/category/${categorySlug}`);
+      router.push(`${basePath}/category/${categorySlug}`);
     } else {
-      // Navigate to homepage
-      router.push("/");
+      router.push(basePath || "/");
     }
   };
 

@@ -22,14 +22,15 @@ model User {
 }
 
 model Category {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  name        String   @unique
-  slug        String   @unique
-  description String?
-  featured    Boolean  @default(false) // Featured categories for homepage
-  posts       Post[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  name         String   @unique
+  slug         String   @unique
+  description  String?
+  featured     Boolean  @default(false) // Featured categories for homepage
+  posts        Post[]
+  translations CategoryTranslation[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model Post {
@@ -72,6 +73,7 @@ model Post {
   
   comments        Comment[]
   rankChecks      RankCheck[]
+  translations    PostTranslation[]
   
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -90,6 +92,7 @@ model Page {
   featuredImage   String?
   featuredImageAlt String?
   
+  translations    PageTranslation[]
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
@@ -164,7 +167,8 @@ model Settings {
   headerCSS          String?  // CSS to add in <head>
   footerCSS          String?  // CSS to add before </body>
   
-  updatedAt       DateTime @updatedAt
+  translations       SettingsTranslation[]
+  updatedAt          DateTime @updatedAt
 }
 
 model Redirect {
@@ -191,5 +195,87 @@ model RankCheck {
   @@index([keyword])
   @@index([postId])
   @@index([checkedAt])
+}
+
+// ============ Translation models for i18n (en, ur, hi) ============
+
+model PostTranslation {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  postId          String   @db.ObjectId
+  post            Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  locale          String   // "ur" | "hi" (English is source in Post)
+  title           String
+  content         String
+  metaTitle       String?
+  metaDescription String?
+  keywords        String[]
+  focusKeyword    String?
+  faqs            Json?    // [{ question: string, answer: string }]
+  ogImageAlt      String?
+  featuredImageAlt String?
+  developer       String?
+  requirements    String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([postId, locale])
+  @@index([postId])
+  @@index([locale])
+}
+
+model PageTranslation {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  pageId          String   @db.ObjectId
+  page            Page     @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  locale          String
+  title           String
+  content         String
+  metaTitle       String?
+  metaDescription String?
+  featuredImageAlt String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([pageId, locale])
+  @@index([pageId])
+  @@index([locale])
+}
+
+model CategoryTranslation {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  categoryId  String   @db.ObjectId
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  locale      String
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([categoryId, locale])
+  @@index([categoryId])
+  @@index([locale])
+}
+
+model SettingsTranslation {
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  settingsId         String   @db.ObjectId
+  settings           Settings @relation(fields: [settingsId], references: [id], onDelete: Cascade)
+  locale             String
+  siteName           String?
+  heroTitle          String?
+  heroSubtitle       String?
+  metaTitle          String?
+  metaDescription    String?
+  whyChooseTitle     String?
+  whyChooseSubtitle  String?
+  whyChooseFeatures  Json?    // Translated feature array
+  headerMenu         Json?    // Translated menu items
+  footerLinks        Json?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@unique([settingsId, locale])
+  @@index([settingsId])
+  @@index([locale])
 }
 

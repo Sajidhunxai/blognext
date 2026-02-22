@@ -14,6 +14,7 @@ interface Category {
 
 interface CategoryFilterProps {
   categories: Category[];
+  basePath?: string; // e.g. "/ur" or "/hi" for locale-prefixed routes
 }
 
 // Dynamically import the client component to avoid SSR issues
@@ -21,7 +22,7 @@ const CategoryFilterClient = dynamic(() => import("./CategoryFilterClient"), {
   ssr: false,
 });
 
-export default function CategoryFilter({ categories }: CategoryFilterProps) {
+export default function CategoryFilter({ categories, basePath = "" }: CategoryFilterProps) {
   const [mounted, setMounted] = useState(false);
   
   useEffect(() => {
@@ -36,6 +37,6 @@ export default function CategoryFilter({ categories }: CategoryFilterProps) {
     return null;
   }
   
-  return <CategoryFilterClient categories={categories} />;
+  return <CategoryFilterClient categories={categories} basePath={basePath} />;
 }
 

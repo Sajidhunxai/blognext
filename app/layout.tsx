@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import "./globals.css";
 import { getSettings } from "@/lib/settings";
+import { htmlLang } from "@/lib/i18n/config";
 import { normalizeUrl } from "@/lib/url";
 import ClientThemeProvider from "@/components/ClientThemeProvider";
 import CustomScripts from "@/components/CustomScripts";
@@ -80,6 +82,9 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const settings = await getSettings();
+  const headersList = await headers();
+  const locale = (headersList.get("x-locale") || "en") as "en" | "ur" | "hi";
+  const lang = htmlLang[locale] || "en";
   
   const initialColors = {
     primary: settings.primaryColor || undefined,
@@ -118,7 +123,7 @@ export default async function RootLayout({
   }
   
   return (
-    <html lang="en">
+    <html lang={lang}>
       <head>
         {/* Preconnect to critical origins for faster loading */}
         {siteDomain && (

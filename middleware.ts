@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { isLocalePrefix } from "@/lib/i18n/config";
 
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
@@ -16,6 +17,27 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Detect locale: /ur/*, /hi/* use prefix; everything else is English
+  const segments = pathname.split("/").filter(Boolean);
+  const locale =
+    segments.length > 0 && isLocalePrefix(segments[0]) ? segments[0] : "en";
+
+  // Skip redirect check for locale-prefixed known content routes
+  const innerPath = locale !== "en" ? "/" + segments.slice(1).join("/") : pathname;
+  const isContentRoute =
+    innerPath === "/" ||
+    innerPath.startsWith("/post/") ||
+    innerPath.startsWith("/posts/") ||
+    innerPath.startsWith("/pages/") ||
+    innerPath.startsWith("/category/") ||
+    innerPath.startsWith("/download/");
+
+  if (isContentRoute && locale !== "en") {
+    const response = NextResponse.next();
+    response.headers.set("x-locale", locale);
+    return response;
+  }
+
   // Skip if it matches known routes (post, posts, pages, category, download)
   if (
     pathname.startsWith("/post/") ||
@@ -24,12 +46,16 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/category/") ||
     pathname.startsWith("/download/")
   ) {
-    return NextResponse.next();
+    const response = NextResponse.next();
+    response.headers.set("x-locale", "en");
+    return response;
   }
 
   // Skip root path
   if (pathname === "/") {
-    return NextResponse.next();
+    const response = NextResponse.next();
+    response.headers.set("x-locale", "en");
+    return response;
   }
 
   // Check redirect via API route
@@ -84,7 +110,9 @@ export async function middleware(request: NextRequest) {
     console.error("Error checking redirects in middleware:", error);
   }
 
-  return NextResponse.next();
+  const response = NextResponse.next();
+  response.headers.set("x-locale", locale);
+  return response;
 }
 
 export const config = {
