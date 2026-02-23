@@ -3,6 +3,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getSettingsWithLocale, getCategoriesWithLocale, getPostsWithLocale } from "@/lib/i18n/content";
 import { addLocalePrefix, type Locale } from "@/lib/i18n/config";
+import { getTranslation } from "@/lib/i18n/translations";
 import FrontendLayout from "@/components/FrontendLayout";
 import StarRating from "@/components/StarRating";
 import SmartImage from "@/components/SmartImage";
@@ -46,7 +47,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export const revalidate = 300;
+export const revalidate = 600;
 
 export default async function LocaleHomePage({ params, searchParams }: Props) {
   const locale = params.locale as Locale;
@@ -142,13 +143,13 @@ export default async function LocaleHomePage({ params, searchParams }: Props) {
                 <section key={category.id} className="mb-14">
                   <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
                     <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
-                      {category.name} Apps
+                      {category.name} {getTranslation(locale, "apps")}
                     </h2>
                     <Link
                       href={addLocalePrefix(`/category/${category.slug}`, locale)}
                       className="text-sm font-medium text-primary hover:underline"
                     >
-                      View all →
+                      {getTranslation(locale, "viewAll")} →
                     </Link>
                   </div>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-5">
@@ -193,11 +194,11 @@ export default async function LocaleHomePage({ params, searchParams }: Props) {
 
             <section className="mb-14">
               <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
-                Latest Apps
+                {getTranslation(locale, "latestApps")}
               </h2>
               {posts.length === 0 ? (
                 <div className="text-center py-16 rounded-2xl border border-dashed border-gray-300 dark:border-gray-600">
-                  <p className="text-gray-500 dark:text-gray-400">No apps yet.</p>
+                  <p className="text-gray-500 dark:text-gray-400">{getTranslation(locale, "noAppsYet")}</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-5">

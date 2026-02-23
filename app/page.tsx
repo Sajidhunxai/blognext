@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getSettings } from "@/lib/settings";
 import { normalizeUrl } from "@/lib/url";
+import { getTranslation } from "@/lib/i18n/translations";
 import Image from "next/image";
 import FrontendLayout from "@/components/FrontendLayout";
 import StarRating from "@/components/StarRating";
@@ -65,7 +66,7 @@ type SearchParams = {
 };
 
 // Cache homepage for better performance
-export const revalidate = 300; // Revalidate every 5 minutes
+export const revalidate = 600; // Revalidate every 10 minutes
 
 export default async function Home({
   searchParams,
@@ -292,13 +293,13 @@ export default async function Home({
                     className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2"
                   >
                     <span className="w-1 h-6 sm:h-7 rounded-full bg-primary dark:shadow-[0_0_8px_rgba(220,38,38,0.4)]" aria-hidden />
-                    {category.name} Apps
+                    {category.name} {getTranslation("en", "apps")}
                   </h2>
                   <Link
                     href={`/category/${category.slug}`}
                     className="text-sm font-medium text-primary hover:underline inline-flex items-center gap-1"
                   >
-                    View all
+                    {getTranslation("en", "viewAll")}
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
@@ -332,7 +333,7 @@ export default async function Home({
                         )}
                         {index < 2 && (
                           <span className="absolute top-2 left-2 text-white text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded-md bg-primary shadow-sm">
-                            {index === 0 ? "UPDATED" : "NEW"}
+                            {index === 0 ? getTranslation("en", "updated") : getTranslation("en", "new")}
                           </span>
                         )}
                       </div>
@@ -363,12 +364,12 @@ export default async function Home({
               className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2 mb-6"
             >
               <span className="w-1 h-6 sm:h-7 rounded-full bg-primary dark:shadow-[0_0_8px_rgba(220,38,38,0.4)]" aria-hidden />
-              Latest Apps
+              {getTranslation("en", "latestApps")}
             </h2>
 
             {posts.length === 0 ? (
               <div className="text-center py-16 rounded-2xl border border-dashed border-gray-300 dark:border-gray-600/80 bg-gray-50/50 dark:bg-gray-800/40">
-                <p className="text-gray-500 dark:text-gray-400 text-base">No apps yet. Check back soon!</p>
+                <p className="text-gray-500 dark:text-gray-400 text-base">{getTranslation("en", "noAppsCheckBack")}</p>
               </div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-5">

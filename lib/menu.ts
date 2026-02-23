@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache";
 import { prisma } from "./prisma";
 
 // Convert text to URL-friendly slug
@@ -70,7 +71,7 @@ export async function getMenuUrl(menuItem: string): Promise<string> {
 
 type MenuItem = string | { label: string; url: string };
 
-export async function resolveMenuItems(menuItems: MenuItem[]): Promise<Array<{ label: string; url: string }>> {
+async function resolveMenuItemsUncached(menuItems: MenuItem[]): Promise<Array<{ label: string; url: string }>> {
   const resolved = await Promise.all(
     menuItems.map(async (item, index) => {
       // Handle new object format
@@ -119,5 +120,16 @@ export async function resolveMenuItems(menuItems: MenuItem[]): Promise<Array<{ l
     })
   );
   return resolved;
+}
+
+/** Resolve menu items with 5 min cache to reduce DB load. Invalidated when settings change. */
+export async function resolveMenuItems(menuItems: MenuItem[]): Promise<Array<{ label: string; url: string }>> {
+  const key = JSON.stringify(menuItems);
+  const getCached = unstable_cache(
+    () => resolveMenuItemsUncached(menuItems),
+    ["menu", key],
+    { revalidate: 300, tags: ["menu"] }
+  );
+  return getCached();
 }
 

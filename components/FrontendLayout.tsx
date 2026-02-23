@@ -1,8 +1,11 @@
 import { ReactNode } from "react";
 import Link from "next/link";
+import { headers } from "next/headers";
 import { getSettings } from "@/lib/settings";
 import { resolveMenuItems } from "@/lib/menu";
 import { getSafeServerSession } from "@/lib/session";
+import { addLocalePrefix, type Locale } from "@/lib/i18n/config";
+import { getTranslation } from "@/lib/i18n/translations";
 import dynamic from "next/dynamic";
 
 const NavigationLoader = dynamic(() => import("@/components/NavigationLoader"), {
@@ -25,6 +28,10 @@ const ThemeToggle = dynamic(() => import("@/components/ThemeToggle"), {
   ssr: false,
 });
 
+const LanguageSwitcher = dynamic(() => import("@/components/LanguageSwitcher"), {
+  ssr: false,
+});
+
 const Logo = dynamic(() => import("@/components/Logo"), {
   ssr: false,
   loading: () => null,
@@ -35,12 +42,17 @@ interface FrontendLayoutProps {
 }
 
 export default async function FrontendLayout({ children }: FrontendLayoutProps) {
-  // Use safe session retrieval that handles JWT decryption errors gracefully
-  // This prevents crashes when NEXTAUTH_SECRET changes or cookies are corrupted
+  const headersList = await headers();
+  const locale = (headersList.get("x-locale") || "en") as Locale;
+
   const session = await getSafeServerSession();
   const settings = await getSettings();
   const headerMenu = Array.isArray(settings.headerMenu) ? settings.headerMenu : (settings.headerMenu ? [settings.headerMenu] : []);
-  const menuItems = await resolveMenuItems(headerMenu);
+  const resolvedItems = await resolveMenuItems(headerMenu);
+  const menuItems = resolvedItems.map((item) => ({
+    ...item,
+    url: addLocalePrefix(item.url.startsWith("/") ? item.url : `/${item.url}`, locale),
+  }));
   
   const colors = {
     primary: settings.primaryColor || "#dc2626",
@@ -62,7 +74,7 @@ export default async function FrontendLayout({ children }: FrontendLayoutProps) 
       <header className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/95">
         <div className="max-w-7xl p-2  mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link href="/" className="flex  items-center gap-3 hover:opacity-80 transition">
+            <Link href={addLocalePrefix("/", locale)} className="flex  items-center gap-3 hover:opacity-80 transition">
               {settings.logo ? (
                 <Logo
                   lightLogo={settings.logo}
@@ -91,14 +103,14 @@ export default async function FrontendLayout({ children }: FrontendLayoutProps) 
                 ))}
                 {session && (
                   <NavLink href="/dashboard">
-                    Dashboard
+                    {getTranslation(locale, "dashboard")}
                   </NavLink>
                 )}
               </nav>
-              {/* Theme Toggle */}
+              <LanguageSwitcher currentLocale={locale} variant="dropdown" />
               <ThemeToggle />
               {/* Mobile Menu */}
-              <MobileMenu menuItems={menuItems} showDashboard={!!session} />
+              <MobileMenu menuItems={menuItems} showDashboard={!!session} locale={locale} />
             </div>
           </div>
         </div>
@@ -130,7 +142,7 @@ export default async function FrontendLayout({ children }: FrontendLayoutProps) 
             </div>
           </div>
           <div className="text-center text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-            © {new Date().getFullYear()} | All right reserved | {settings.siteName}
+            © {new Date().getFullYear()} | {getTranslation(locale, "allRightsReserved")} | {settings.siteName}
           </div>
         </div>
       </footer>

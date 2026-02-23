@@ -1,10 +1,27 @@
 import { MetadataRoute } from 'next';
 import { prisma } from '@/lib/prisma';
 import { getSettings } from '@/lib/settings';
+import { locales } from '@/lib/i18n/config';
 
 // Mark as dynamic to prevent build-time execution
 export const dynamic = 'force-dynamic';
-export const revalidate = 3600; // Revalidate every hour
+export const revalidate = 7200; // Revalidate every 2 hours
+
+/** Build hreflang alternates for a base path (e.g. /post/slug). English has no prefix. */
+function buildAlternates(siteUrl: string, basePath: string): Record<string, string> {
+  const result: Record<string, string> = {};
+  for (const locale of locales) {
+    const path = locale === 'en' ? basePath : `/${locale}${basePath}`;
+    result[locale] = `${siteUrl}${path}`;
+  }
+  return result;
+}
+
+/** Get full URL for a locale (en = no prefix, ur/hi = /ur, /hi) */
+function localeUrl(siteUrl: string, basePath: string, locale: (typeof locales)[number]): string {
+  const path = locale === 'en' ? basePath : `/${locale}${basePath}`;
+  return `${siteUrl}${path}`;
+}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Use canonical domain: https://www.appmarka.com
@@ -133,46 +150,81 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
            activeRedirects.has(`${withoutTrailing}/`);
   };
 
-  // Static routes - check if homepage has redirect
+  // Homepage routes - one entry per locale with hreflang alternates
+  const homepageBase = '/';
   const staticRoutes: MetadataRoute.Sitemap = [];
-  if (!hasRedirect('/')) {
-    staticRoutes.push({
-      url: siteUrl,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 1,
-    });
+  const alternatesHome = buildAlternates(siteUrl, homepageBase);
+  for (const locale of locales) {
+    const path = locale === 'en' ? homepageBase : `/${locale}${homepageBase}`;
+    if (!hasRedirect(path)) {
+      staticRoutes.push({
+        url: localeUrl(siteUrl, homepageBase, locale),
+        lastModified: new Date(),
+        changeFrequency: 'daily' as const,
+        priority: 1,
+        alternates: { languages: alternatesHome },
+      });
+    }
   }
 
-  // Post routes - exclude posts with redirects
-  const postRoutes: MetadataRoute.Sitemap = posts
-    .filter((post) => !hasRedirect(`/post/${post.slug}`))
-    .map((post) => ({
-      url: `${siteUrl}/post/${post.slug}`,
-      lastModified: post.updatedAt || post.createdAt,
-      changeFrequency: 'weekly' as const,
-      priority: 0.8,
-    }));
+  // Post routes - one entry per locale per post, with hreflang alternates
+  const postRoutes: MetadataRoute.Sitemap = [];
+  for (const post of posts) {
+    const basePath = `/post/${post.slug}`;
+    if (hasRedirect(basePath) || hasRedirect(`/ur${basePath}`) || hasRedirect(`/hi${basePath}`)) continue;
+    const alternates = buildAlternates(siteUrl, basePath);
+    const lastMod = post.updatedAt || post.createdAt;
+    for (const locale of locales) {
+      const path = locale === 'en' ? basePath : `/${locale}${basePath}`;
+      if (hasRedirect(path)) continue;
+      postRoutes.push({
+        url: localeUrl(siteUrl, basePath, locale),
+        lastModified: lastMod,
+        changeFrequency: 'weekly' as const,
+        priority: 0.8,
+        alternates: { languages: alternates },
+      });
+    }
+  }
 
-  // Page routes - exclude pages with redirects
-  const pageRoutes: MetadataRoute.Sitemap = pages
-    .filter((page) => !hasRedirect(`/pages/${page.slug}`))
-    .map((page) => ({
-      url: `${siteUrl}/pages/${page.slug}`,
-      lastModified: page.updatedAt || page.createdAt,
-      changeFrequency: 'monthly' as const,
-      priority: 0.6,
-    }));
+  // Page routes - one entry per locale per page, with hreflang alternates
+  const pageRoutes: MetadataRoute.Sitemap = [];
+  for (const page of pages) {
+    const basePath = `/pages/${page.slug}`;
+    if (hasRedirect(basePath) || hasRedirect(`/ur${basePath}`) || hasRedirect(`/hi${basePath}`)) continue;
+    const alternates = buildAlternates(siteUrl, basePath);
+    const lastMod = page.updatedAt || page.createdAt;
+    for (const locale of locales) {
+      const path = locale === 'en' ? basePath : `/${locale}${basePath}`;
+      if (hasRedirect(path)) continue;
+      pageRoutes.push({
+        url: localeUrl(siteUrl, basePath, locale),
+        lastModified: lastMod,
+        changeFrequency: 'monthly' as const,
+        priority: 0.6,
+        alternates: { languages: alternates },
+      });
+    }
+  }
 
-  // Category routes - exclude categories with redirects
-  const categoryRoutes: MetadataRoute.Sitemap = categories
-    .filter((category) => !hasRedirect(`/category/${category.slug}`))
-    .map((category) => ({
-      url: `${siteUrl}/category/${category.slug}`,
-      lastModified: new Date(),
-      changeFrequency: 'daily' as const,
-      priority: 0.7,
-    }));
+  // Category routes - one entry per locale per category, with hreflang alternates
+  const categoryRoutes: MetadataRoute.Sitemap = [];
+  for (const category of categories) {
+    const basePath = `/category/${category.slug}`;
+    if (hasRedirect(basePath) || hasRedirect(`/ur${basePath}`) || hasRedirect(`/hi${basePath}`)) continue;
+    const alternates = buildAlternates(siteUrl, basePath);
+    for (const locale of locales) {
+      const path = locale === 'en' ? basePath : `/${locale}${basePath}`;
+      if (hasRedirect(path)) continue;
+      categoryRoutes.push({
+        url: localeUrl(siteUrl, basePath, locale),
+        lastModified: new Date(),
+        changeFrequency: 'daily' as const,
+        priority: 0.7,
+        alternates: { languages: alternates },
+      });
+    }
+  }
 
   return [...staticRoutes, ...postRoutes, ...pageRoutes, ...categoryRoutes];
 }

@@ -32,10 +32,14 @@ export async function middleware(request: NextRequest) {
     innerPath.startsWith("/category/") ||
     innerPath.startsWith("/download/");
 
+  const forwardLocale = (loc: string) => {
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set("x-locale", loc);
+    return NextResponse.next({ request: { headers: requestHeaders } });
+  };
+
   if (isContentRoute && locale !== "en") {
-    const response = NextResponse.next();
-    response.headers.set("x-locale", locale);
-    return response;
+    return forwardLocale(locale);
   }
 
   // Skip if it matches known routes (post, posts, pages, category, download)
@@ -46,16 +50,28 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/category/") ||
     pathname.startsWith("/download/")
   ) {
-    const response = NextResponse.next();
-    response.headers.set("x-locale", "en");
-    return response;
+    return forwardLocale("en");
   }
 
   // Skip root path
   if (pathname === "/") {
-    const response = NextResponse.next();
-    response.headers.set("x-locale", "en");
-    return response;
+    return forwardLocale("en");
+  }
+
+  // Skip redirect API for bot/noise paths to reduce CPU
+  const isLikelyBotNoise =
+    pathname.includes("wp-") ||
+    pathname.includes("wp/") ||
+    pathname.includes(".php") ||
+    pathname.includes("xmlrpc") ||
+    pathname.includes("wp-content") ||
+    pathname.includes("wp-includes") ||
+    pathname.includes("administrator") ||
+    pathname.includes(".env") ||
+    pathname.includes("config.") ||
+    pathname.length > 120;
+  if (isLikelyBotNoise) {
+    return forwardLocale(locale);
   }
 
   // Check redirect via API route
@@ -110,21 +126,17 @@ export async function middleware(request: NextRequest) {
     console.error("Error checking redirects in middleware:", error);
   }
 
-  const response = NextResponse.next();
-  response.headers.set("x-locale", locale);
-  return response;
+  return forwardLocale(locale);
 }
 
 export const config = {
   matcher: [
     /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
+     * Match all request paths except:
+     * - api, _next/static, _next/image, favicon.ico
+     * - Static files: sitemap.xml, robots.txt, manifest, ads.txt, llms.txt
      */
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
+    "/((?!api|_next/static|_next/image|favicon\\.ico|sitemap\\.xml|robots\\.txt|manifest\\.webmanifest|ads\\.txt|llms\\.txt).*)",
   ],
 };
 

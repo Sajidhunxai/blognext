@@ -13,7 +13,7 @@ const NavigationLoader = dynamic(() => import("@/components/NavigationLoader"), 
 });
 
 // Cache metadata for better performance
-export const revalidate = 300;
+export const revalidate = 600;
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettings();

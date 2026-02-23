@@ -224,8 +224,9 @@ export async function PUT(req: NextRequest) {
       });
     }
 
-    // Revalidate the settings cache so changes are immediately visible
+    // Revalidate the settings cache and menu (header menu) so changes are immediately visible
     revalidateTag('settings');
+    revalidateTag('menu');
 
     // Obfuscate sensitive fields and add security headers
     const safeSettings = obfuscateResponse(settings);
@@ -387,8 +388,9 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Revalidate cache
+    // Revalidate cache and menu
     revalidateTag('settings');
+    revalidateTag('menu');
 
     return secureResponse({
       success: true,

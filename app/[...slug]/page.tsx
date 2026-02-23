@@ -2,6 +2,7 @@ import { redirect, permanentRedirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
+import { unstable_cache } from "next/cache";
 
 type Props = {
   params: { slug: string[] };
@@ -10,95 +11,32 @@ type Props = {
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-// Check redirect in metadata generation to catch it early
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const pathname = `/${params.slug.join("/")}`;
-  
-  try {
-    if (prisma && 'redirect' in prisma) {
-      let redirectRecord = await (prisma as any).redirect.findFirst({
-        where: {
-          from: pathname,
-          active: true,
-        },
-      });
-
-      if (!redirectRecord) {
-        redirectRecord = await (prisma as any).redirect.findFirst({
-          where: {
-            from: `${pathname}/`,
-            active: true,
-          },
-        });
-      }
-
-      if (redirectRecord) {
-        let destination = redirectRecord.to;
-        if (!destination.startsWith("http")) {
-          if (!destination.startsWith("/")) {
-            destination = `/${destination}`;
-          }
-        }
-        
-        // Redirect immediately
-        if (redirectRecord.type === 301) {
-          permanentRedirect(destination);
-        } else {
-          redirect(destination);
-        }
-      }
-    }
-  } catch (error) {
-    // Continue to page component
+async function findRedirectForPath(pathname: string) {
+  if (!prisma || !('redirect' in prisma)) return null;
+  let r = await (prisma as any).redirect.findFirst({ where: { from: pathname, active: true } });
+  if (r) return r;
+  r = await (prisma as any).redirect.findFirst({ where: { from: `${pathname}/`, active: true } });
+  if (r) return r;
+  if (pathname.startsWith('/')) {
+    r = await (prisma as any).redirect.findFirst({ where: { from: pathname.slice(1), active: true } });
   }
+  return r;
+}
 
-  return {
-    title: "Page Not Found",
-  };
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  return { title: "Page Not Found" };
 }
 
 export default async function CatchAllPage({ params }: Props) {
-  // Reconstruct the path from the slug array
   const pathname = `/${params.slug.join("/")}`;
 
   try {
-    // Check if a redirect exists for this path
-    if (!prisma) {
-      notFound();
-    }
-
-    if (!('redirect' in prisma)) {
-      notFound();
-    }
-
-    // Try exact match first
-    let redirectRecord = await (prisma as any).redirect.findFirst({
-      where: {
-        from: pathname,
-        active: true,
-      },
-    });
-
-    // If no exact match, try with trailing slash
-    if (!redirectRecord) {
-      redirectRecord = await (prisma as any).redirect.findFirst({
-        where: {
-          from: `${pathname}/`,
-          active: true,
-        },
-      });
-    }
-
-    // Also try without leading slash (in case it was stored incorrectly)
-    if (!redirectRecord) {
-      const pathWithoutSlash = pathname.startsWith('/') ? pathname.slice(1) : pathname;
-      redirectRecord = await (prisma as any).redirect.findFirst({
-        where: {
-          from: pathWithoutSlash,
-          active: true,
-        },
-      });
-    }
+    const getCached = unstable_cache(
+      () => findRedirectForPath(pathname),
+      ['catchall-redirect', pathname],
+      { revalidate: 300, tags: ['redirects'] }
+    );
+    const redirectRecord = await getCached();
 
     if (redirectRecord) {
       // Determine if destination is absolute or relative

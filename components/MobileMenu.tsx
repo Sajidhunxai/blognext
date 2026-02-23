@@ -2,8 +2,11 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useTheme } from "@/contexts/ThemeContext";
 import { X, Home, LayoutDashboard } from "lucide-react";
+import { getTranslation } from "@/lib/i18n/translations";
+import { locales, localeNames, getPathWithoutLocale, addLocalePrefix, type Locale } from "@/lib/i18n/config";
 
 interface MenuItem {
   label: string;
@@ -13,6 +16,7 @@ interface MenuItem {
 interface MobileMenuProps {
   menuItems: MenuItem[];
   showDashboard?: boolean;
+  locale?: Locale;
 }
 
 const defaultColors = {
@@ -28,8 +32,10 @@ const defaultColors = {
   info: "#3b82f6",
 };
 
-export default function MobileMenu({ menuItems, showDashboard = false }: MobileMenuProps) {
+export default function MobileMenu({ menuItems, showDashboard = false, locale = "en" }: MobileMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
+  const pathWithoutLocale = getPathWithoutLocale(pathname || "/");
   let colors = defaultColors;
   
   try {
@@ -98,6 +104,26 @@ export default function MobileMenu({ menuItems, showDashboard = false }: MobileM
 
         {/* Menu Content */}
         <nav className="flex flex-col h-full justify-start items-center px-6 py-20">
+          {/* Language switcher */}
+          <div className="flex gap-2 mb-6">
+            {locales.map((loc) => {
+              const href = addLocalePrefix(pathWithoutLocale, loc);
+              const isActive = loc === locale;
+              return (
+                <Link
+                  key={loc}
+                  href={href}
+                  onClick={() => setIsOpen(false)}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                    isActive ? "bg-primary text-white" : "bg-white/10 hover:bg-white/20"
+                  }`}
+                  style={{ color: isActive ? undefined : colors.text }}
+                >
+                  {localeNames[loc]}
+                </Link>
+              );
+            })}
+          </div>
           <div className="w-full max-w-md space-y-3">
             {menuItems.map((item, index) => (
               <Link
@@ -143,7 +169,7 @@ export default function MobileMenu({ menuItems, showDashboard = false }: MobileM
                 onClick={() => setIsOpen(false)}
               >
                 <LayoutDashboard className="w-5 h-5 flex-shrink-0" />
-                <span className="text-lg font-semibold">Dashboard</span>
+                <span className="text-lg font-semibold">{getTranslation(locale, "dashboard")}</span>
                 <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
