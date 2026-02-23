@@ -112,12 +112,12 @@ export default function CommentsSection({ postId, allowComments, enableComments 
   }
 
   return (
-    <div className="mt-8 sm:mt-12 bg-white rounded-lg p-4 sm:p-6 lg:p-8">
-      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">LEAVE A REPLY</h2>
+    <div className="mt-8 sm:mt-12 bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6 lg:p-8">
+      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-6">LEAVE A REPLY</h2>
 
       {message && (
         <div
-          className={`mb-4 px-4 py-3 rounded-lg ${
+          className={`mb-4 px-4 py-3 rounded-lg dark:bg-gray-700 dark:text-white ${
             message.type === "success" ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"
           }`}
         >
@@ -127,7 +127,7 @@ export default function CommentsSection({ postId, allowComments, enableComments 
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-white mb-2">
             Comment *
           </label>
           <textarea
@@ -144,7 +144,7 @@ export default function CommentsSection({ postId, allowComments, enableComments 
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-white mb-2">
               Name *
             </label>
             <input
@@ -159,7 +159,7 @@ export default function CommentsSection({ postId, allowComments, enableComments 
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-white mb-2">
               Email *
             </label>
             <input
@@ -175,7 +175,7 @@ export default function CommentsSection({ postId, allowComments, enableComments 
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-white mb-2">
             Website
           </label>
           <input
@@ -194,7 +194,7 @@ export default function CommentsSection({ postId, allowComments, enableComments 
             id="save-info"
             className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
           />
-          <label htmlFor="save-info" className="ml-2 text-sm text-gray-700">
+          <label htmlFor="save-info" className="ml-2 text-sm text-gray-700 dark:text-white">
             Save my name, email, and website in this browser for the next time I comment.
           </label>
         </div>
@@ -210,14 +210,14 @@ export default function CommentsSection({ postId, allowComments, enableComments 
       {/* Comments List */}
       {comments.length > 0 && (
         <div className="mt-12 border-t border-gray-200 pt-8">
-          <h3 className="text-xl font-bold text-gray-900 mb-6">
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
             Comments ({comments.length})
           </h3>
           <div className="space-y-6">
             {comments.map((comment) => (
               <div key={comment.id} className="border-b border-gray-200 pb-6 last:border-0">
                 <div className="flex items-center gap-2 mb-2">
-                  <h4 className="font-semibold text-gray-900">{comment.authorName}</h4>
+                  <h4 className="font-semibold text-gray-900 dark:text-white">{comment.authorName}</h4>
                   {comment.authorWebsite && (
                     <a
                       href={comment.authorWebsite}
@@ -228,11 +228,11 @@ export default function CommentsSection({ postId, allowComments, enableComments 
                       {comment.authorWebsite}
                     </a>
                   )}
-                  <span className="text-sm text-gray-500">
+                  <span className="text-sm text-gray-500 dark:text-white">
                     {new Date(comment.createdAt).toLocaleDateString()}
                   </span>
                 </div>
-                <p className="text-gray-700 whitespace-pre-wrap">{comment.content}</p>
+                <p className="text-gray-700 dark:text-white whitespace-pre-wrap">{comment.content}</p>
               </div>
             ))}
           </div>

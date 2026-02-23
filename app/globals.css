@@ -102,7 +102,19 @@ textarea::placeholder {
   }
 
   .text-link {
-    color: var(--color-link, #3b82f6);
+    color: #000;
+    cursor: pointer;
+  }
+  .text-link:hover {
+    color: var(--color-primary, #dc2626);
+  }
+  .dark .text-link {
+    color: #ffffff;
+    cursor: pointer;
+
+  }
+  .dark .text-link:hover {
+    color: var(--color-primary, #dc2626);
   }
 
   .text-success {
@@ -173,6 +185,7 @@ textarea::placeholder {
     color: #d1d5db;
   }
 
+
   /* Light mode hover - subtle primary color tint */
   .btn-link:hover {
     color: var(--color-text, #171717);
@@ -181,7 +194,7 @@ textarea::placeholder {
 
   /* Dark mode hover - more visible primary color tint */
   .dark .btn-link:hover {
-    color: var(--color-text, #ffffff);
+    color:  #ffffff;
     background-color: rgba(var(--color-primary-r, 220), var(--color-primary-g, 38), var(--color-primary-b, 38), 0.25);
   }
 

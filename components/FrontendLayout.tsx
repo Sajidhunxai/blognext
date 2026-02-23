@@ -49,9 +49,26 @@ export default async function FrontendLayout({ children }: FrontendLayoutProps) 
   const settings = await getSettings();
   const headerMenu = Array.isArray(settings.headerMenu) ? settings.headerMenu : (settings.headerMenu ? [settings.headerMenu] : []);
   const resolvedItems = await resolveMenuItems(headerMenu);
+
+  /** Normalise a menu URL to a relative path, then add locale prefix. */
+  const normaliseMenuUrl = (url: string): string => {
+    if (!url) return addLocalePrefix("/", locale);
+    // Absolute URL — extract just the pathname so locale prefix works correctly
+    if (url.startsWith("http://") || url.startsWith("https://")) {
+      try {
+        const { pathname } = new URL(url);
+        return addLocalePrefix(pathname || "/", locale);
+      } catch {
+        return addLocalePrefix("/", locale);
+      }
+    }
+    // Relative path — ensure it starts with /
+    return addLocalePrefix(url.startsWith("/") ? url : `/${url}`, locale);
+  };
+
   const menuItems = resolvedItems.map((item) => ({
     ...item,
-    url: addLocalePrefix(item.url.startsWith("/") ? item.url : `/${item.url}`, locale),
+    url: normaliseMenuUrl(item.url),
   }));
   
   const colors = {
@@ -128,15 +145,13 @@ export default async function FrontendLayout({ children }: FrontendLayoutProps) 
               {settings.footerLinks.map((link: string | { label: string; url: string }, index: number) => {
                 const linkObj = typeof link === "string" ? { label: link, url: "#" } : link;
                 return (
-                  <ColoredLink
+                  <Link
                     key={index}
                     href={linkObj.url}
-                    defaultColor={colors.text === "#ffffff" ? "#9ca3af" : "#6b7280"}
-                    hoverColor={colors.text}
-                    className="text-sm"
+                    className="text-sm text-link"
                   >
                     {linkObj.label}
-                  </ColoredLink>
+                  </Link>
                 );
               })}
             </div>

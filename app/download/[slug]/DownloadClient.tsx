@@ -6,9 +6,10 @@ import { useTheme } from "@/contexts/ThemeContext";
 
 interface DownloadClientProps {
   post: any;
+  backHref?: string;
 }
 
-export default function DownloadClient({ post: initialPost }: DownloadClientProps) {
+export default function DownloadClient({ post: initialPost, backHref }: DownloadClientProps) {
   const { colors } = useTheme();
   const [countdown, setCountdown] = useState(5);
   const [redirecting, setRedirecting] = useState(false);
@@ -39,8 +40,8 @@ export default function DownloadClient({ post: initialPost }: DownloadClientProp
     <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back Button */}
         <Link
-          href={`/post/${initialPost.slug}`}
-          className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-lg text-theme-text font-medium transition hover:opacity-90 bg-error"
+          href={backHref ?? `/post/${initialPost.slug}`}
+          className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-lg font-medium transition hover:opacity-90 bg-error"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -49,7 +50,8 @@ export default function DownloadClient({ post: initialPost }: DownloadClientProp
         </Link>
 
         {/* Title */}
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+        <div className="flex justify-between align-middle items-center">
+        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
           {initialPost.title}
         </h1>
 
@@ -62,33 +64,34 @@ export default function DownloadClient({ post: initialPost }: DownloadClientProp
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <span className="text-sm text-gray-600">Verified</span>
+          <span className="text-sm text-gray-600 dark:text-white">Verified</span>
         </div>
 
+        </div>
         {/* App Details Card */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">App Details</h2>
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">App Details</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <span className="text-sm text-gray-600 font-medium">Package name:</span>
-              <p className="text-gray-900 mt-1">{initialPost.title}</p>
+              <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">Package name:</span>
+              <p className="text-gray-900 dark:text-gray-100 mt-1">{initialPost.title}</p>
             </div>
             {initialPost.appVersion && (
               <div>
-                <span className="text-sm text-gray-600 font-medium">Version:</span>
-                <p className="text-gray-900 mt-1">{initialPost.appVersion}</p>
+                <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">Version:</span>
+                <p className="text-gray-900 dark:text-gray-100 mt-1">{initialPost.appVersion}</p>
               </div>
             )}
             {initialPost.appSize && (
               <div>
-                <span className="text-sm text-gray-600 font-medium">Size:</span>
-                <p className="text-gray-900 mt-1">{initialPost.appSize}</p>
+                <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">Size:</span>
+                <p className="text-gray-900 dark:text-gray-100 mt-1">{initialPost.appSize}</p>
               </div>
             )}
             {initialPost.requirements && (
               <div>
-                <span className="text-sm text-gray-600 font-medium">Requirements:</span>
-                <p className="text-gray-900 mt-1">{initialPost.requirements}</p>
+                <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">Requirements:</span>
+                <p className="text-gray-900 dark:text-gray-100 mt-1">{initialPost.requirements}</p>
               </div>
             )}
           </div>
@@ -96,7 +99,7 @@ export default function DownloadClient({ post: initialPost }: DownloadClientProp
 
         {/* Download Section */}
         <div className="mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Download links</h2>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Download links</h2>
           
           <a
             href={initialPost.downloadLink}
@@ -114,7 +117,7 @@ export default function DownloadClient({ post: initialPost }: DownloadClientProp
           </a>
 
           {countdown > 0 && !redirecting && (
-            <p className="text-center text-sm text-gray-600 mt-2">
+            <p className="text-center text-sm text-gray-600 dark:text-gray-400 mt-2">
               Auto-redirecting in {countdown} seconds...
             </p>
           )}
@@ -127,16 +130,16 @@ export default function DownloadClient({ post: initialPost }: DownloadClientProp
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <span className="text-sm text-gray-600">Verified Download</span>
+            <span className="text-sm text-gray-600 dark:text-gray-400">Verified Download</span>
           </div>
         </div>
 
         {/* Installation Instructions */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
             How to install {initialPost.title} APK?
           </h2>
-          <ol className="list-decimal list-inside space-y-3 text-gray-700">
+          <ol className="list-decimal list-inside space-y-3 text-gray-700 dark:text-gray-300">
             <li>Tap the downloaded {initialPost.title.split(" ")[0]} APK file.</li>
             <li>Touch install.</li>
             <li>Follow the steps on the screen.</li>
@@ -145,7 +148,7 @@ export default function DownloadClient({ post: initialPost }: DownloadClientProp
 
         {/* Manual Redirect Link */}
         <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600 mb-2">
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
             If you are not redirected automatically,{" "}
             <a
               href={initialPost.downloadLink}
