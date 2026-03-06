@@ -381,12 +381,12 @@ export default function EditPageForm({ page }: { page: Page }) {
                   {translationLoading ? (
                     <p className="text-gray-500">Loading translation…</p>
                   ) : (
-                    <div className="space-y-6" dir={localeInfo.dir}>
-                      {translationSuccess === activeTab && (
-                        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
-                          Translation saved successfully!
-                        </div>
-                      )}
+                  <div className="space-y-6">
+                  {translationSuccess === activeTab && (
+                    <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+                      Translation saved successfully!
+                    </div>
+                  )}
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -394,6 +394,7 @@ export default function EditPageForm({ page }: { page: Page }) {
                         </label>
                         <input
                           type="text"
+                          dir="auto"
                           value={t.title}
                           onChange={(e) => updateTranslation(activeTab, "title", e.target.value)}
                           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
@@ -421,6 +422,7 @@ export default function EditPageForm({ page }: { page: Page }) {
                             </label>
                             <input
                               type="text"
+                              dir="auto"
                               value={t.metaTitle}
                               onChange={(e) => updateTranslation(activeTab, "metaTitle", e.target.value)}
                               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
@@ -432,6 +434,7 @@ export default function EditPageForm({ page }: { page: Page }) {
                               Meta Description
                             </label>
                             <textarea
+                              dir="auto"
                               value={t.metaDescription}
                               onChange={(e) => updateTranslation(activeTab, "metaDescription", e.target.value)}
                               rows={3}
@@ -447,6 +450,7 @@ export default function EditPageForm({ page }: { page: Page }) {
                             </label>
                             <input
                               type="text"
+                              dir="auto"
                               value={t.featuredImageAlt}
                               onChange={(e) => updateTranslation(activeTab, "featuredImageAlt", e.target.value)}
                               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"

@@ -2,7 +2,12 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { getSettingsWithLocale } from "@/lib/i18n/content";
+import {
+  getCategoryWithLocale,
+  getCategoriesWithLocale,
+  getPostsWithLocale,
+  getSettingsWithLocale,
+} from "@/lib/i18n/content";
 import { addLocalePrefix, type Locale } from "@/lib/i18n/config";
 import { buildCanonicalUrl } from "@/lib/url";
 import FrontendLayout from "@/components/FrontendLayout";
@@ -26,21 +31,9 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const locale = params.locale as Locale;
+  const category = await getCategoryWithLocale(params.slug, locale);
 
-  let category = null;
-  try {
-    if (prisma && "category" in prisma) {
-      category = await (prisma as any).category.findUnique({
-        where: { slug: params.slug },
-      });
-    }
-  } catch (error) {
-    console.error("Error fetching category:", error);
-  }
-
-  if (!category) {
-    return { title: "Category Not Found" };
-  }
+  if (!category) return { title: "Category Not Found" };
 
   const settings = await getSettingsWithLocale(locale);
   const siteUrl =
@@ -51,8 +44,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const title = `${category.name} - ${settings?.siteName}`;
   const description =
-    category.description ||
-    `Browse and download the best ${category.name.toLowerCase()} apps and games. Find the latest ${category.name.toLowerCase()} applications with reviews, ratings, and direct download links.`;
+    (category as any).description ||
+    `Browse and download the best ${category.name.toLowerCase()} apps and games.`;
 
   let postCount = 0;
   try {
@@ -68,7 +61,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       ? `${description} Browse our collection of ${postCount}+ ${category.name.toLowerCase()} apps.`
       : description;
 
-  const canonicalPath = addLocalePrefix(`/category/${category.slug}`, locale);
+  const canonicalPath = addLocalePrefix(`/category/${(category as any).slug}`, locale);
 
   return {
     metadataBase: new URL(siteUrl),
@@ -77,7 +70,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     keywords: [
       category.name.toLowerCase(),
       `${category.name.toLowerCase()} apps`,
-      `${category.name.toLowerCase()} games`,
       "download",
       "android apps",
       "mobile apps",
@@ -101,9 +93,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: enhancedDescription,
       images: settings?.logo ? [settings.logo] : [],
     },
-    alternates: {
-      canonical: buildCanonicalUrl(siteUrl, canonicalPath),
-    },
+    alternates: { canonical: buildCanonicalUrl(siteUrl, canonicalPath) },
     robots: { index: true, follow: true },
     category: category.name,
   };
@@ -112,47 +102,31 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function LocaleCategoryPage({ params, searchParams }: Props) {
   const locale = params.locale as Locale;
 
-  let category = null;
-  try {
-    if (prisma && "category" in prisma) {
-      category = await (prisma as any).category.findUnique({
-        where: { slug: params.slug },
-      });
-    }
-  } catch (error) {
-    console.error("Error fetching category:", error);
-  }
-
+  // Fetch the category with its translation merged in
+  const category = await getCategoryWithLocale(params.slug, locale);
   if (!category) notFound();
 
-  const settings = await getSettingsWithLocale(locale);
-
-  let categories: any[] = [];
-  try {
-    if (prisma && "category" in prisma) {
-      categories = await (prisma as any).category.findMany({
-        orderBy: { name: "asc" },
-        include: { _count: { select: { posts: true } } },
-      });
-    }
-  } catch (error) {
-    console.error("Error fetching categories:", error);
-  }
+  const [settings, categories] = await Promise.all([
+    getSettingsWithLocale(locale),
+    getCategoriesWithLocale(locale),
+  ]);
 
   const page = parseInt(searchParams?.page || "1", 10);
   const limit = 12;
   const skip = (page - 1) * limit;
 
+  // Fetch posts with translated titles
   const [posts, totalPosts] = await Promise.all([
-    prisma.post.findMany({
-      where: { published: true, categoryId: category.id },
+    getPostsWithLocale({
+      where: { published: true, categoryId: (category as any).id },
       skip,
       take: limit,
       orderBy: { createdAt: "desc" },
-      include: { category: { select: { name: true, slug: true } } },
+      includeCategory: true,
+      locale,
     }),
     prisma.post.count({
-      where: { published: true, categoryId: category.id },
+      where: { published: true, categoryId: (category as any).id },
     }),
   ]);
 

@@ -26,21 +26,18 @@ export default function NavLink({ href, children, isActive, className = "" }: Na
   } else {
     const normalizedPathname = normalizePath(pathname || "");
     const normalizedHref = normalizePath(href);
-    
-    // Check for exact match
+
+    // Paths with only one non-empty segment are "root-like" (/, /ur, /hi)
+    // and should only match exactly — never via startsWith.
+    const hrefDepth = normalizedHref.split("/").filter(Boolean).length;
+    const isRootLike = hrefDepth <= 1;
+
     if (normalizedPathname === normalizedHref) {
       active = true;
-    } 
-    // For non-root paths, check if pathname starts with href + "/"
-    // This handles cases like /category/apps matching /category
-    else if (normalizedHref !== "/" && normalizedPathname.startsWith(normalizedHref + "/")) {
+    } else if (!isRootLike && normalizedPathname.startsWith(normalizedHref + "/")) {
+      // Only use prefix matching for deeper paths (e.g. /category matching /category/apps)
       active = true;
-    }
-    // Special case: if href is "/" and pathname is also "/"
-    else if (normalizedHref === "/" && normalizedPathname === "/") {
-      active = true;
-    }
-    else {
+    } else {
       active = false;
     }
   }
