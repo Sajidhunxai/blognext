@@ -516,6 +516,7 @@ export default async function PostPage({ params }: Props) {
                     >
                       <div className="overflow-hidden transition-[max-height] duration-300 ease-in-out max-h-[var(--expand-desc-max-height)] [[data-expandable-desc]:has(input:checked)_&]:max-h-none">
                         <div
+                          dir="auto"
                           className="content-area text-sm sm:text-base dark:text-gray-300"
                           dangerouslySetInnerHTML={{ __html: post.content }}
                         />
@@ -543,6 +544,7 @@ export default async function PostPage({ params }: Props) {
                     </div>
                   ) : (
                     <div
+                      dir="auto"
                       className="content-area text-sm sm:text-base dark:text-gray-300"
                       dangerouslySetInnerHTML={{ __html: post.content }}
                     />

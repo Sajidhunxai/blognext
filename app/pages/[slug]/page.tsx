@@ -125,6 +125,7 @@ export default async function PagePage({ params }: Props) {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <article className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 sm:p-8 md:p-10">
           <div 
+            dir="auto"
             className="content-area text-base sm:text-lg dark:text-gray-300"
             dangerouslySetInnerHTML={{ __html: page.content }}
           />

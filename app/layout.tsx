@@ -6,6 +6,8 @@ import { htmlLang } from "@/lib/i18n/config";
 import { normalizeUrl } from "@/lib/url";
 import ClientThemeProvider from "@/components/ClientThemeProvider";
 import CustomScripts from "@/components/CustomScripts";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import dynamic from "next/dynamic";
 
 const NavigationLoader = dynamic(() => import("@/components/NavigationLoader"), {
@@ -152,6 +154,8 @@ export default async function RootLayout({
           />
           <NavigationLoader />
           {children}
+          <Analytics />
+          <SpeedInsights />
         </ClientThemeProvider>
       </body>
     </html>

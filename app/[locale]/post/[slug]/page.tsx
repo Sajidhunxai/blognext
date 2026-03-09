@@ -332,6 +332,7 @@ export default async function LocalePostPage({ params }: Props) {
                     <div data-expandable-desc style={{ "--expand-desc-max-height": getExpandableMaxHeight(DESCRIPTION_WORD_LIMIT) } as React.CSSProperties}>
                       <div className="overflow-hidden transition-[max-height] duration-300 ease-in-out max-h-[var(--expand-desc-max-height)] [[data-expandable-desc]:has(input:checked)_&]:max-h-none">
                         <div
+                          dir="auto"
                           className="content-area text-sm sm:text-base dark:text-gray-300"
                           dangerouslySetInnerHTML={{ __html: (post as any).content }}
                         />
@@ -346,6 +347,7 @@ export default async function LocalePostPage({ params }: Props) {
                     </div>
                   ) : (
                     <div
+                      dir="auto"
                       className="content-area text-sm sm:text-base dark:text-gray-300"
                       dangerouslySetInnerHTML={{ __html: (post as any).content }}
                     />
