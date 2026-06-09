@@ -164,12 +164,18 @@ export default async function CategoryPage({ params, searchParams }: Props) {
       skip,
       take: limit,
       orderBy: { createdAt: "desc" },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        featuredImage: true,
+        appVersion: true,
+        downloadLink: true,
+        rating: true,
+        ratingCount: true,
+        createdAt: true,
         category: {
-          select: {
-            name: true,
-            slug: true,
-          },
+          select: { name: true, slug: true },
         },
       },
     }),
@@ -211,9 +217,13 @@ export default async function CategoryPage({ params, searchParams }: Props) {
           slug: post.slug,
           featuredImage: post.featuredImage,
           createdAt: post.createdAt,
+          rating: post.rating,
+          ratingCount: post.ratingCount,
+          appVersion: post.appVersion,
         }))}
         siteUrl={siteUrl}
         siteName={settings.siteName}
+        totalPosts={totalPosts}
       />
       <FrontendLayout>
         <div className="bg-theme-background">
@@ -253,31 +263,33 @@ export default async function CategoryPage({ params, searchParams }: Props) {
           </Suspense>
 
           {/* Content Section */}
-          <main
-            className="bg-theme-background"
-          >
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-              <div className="flex items-center justify-between mb-8">
+          <main className="bg-white dark:bg-gray-950">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
+
+              {/* Section header */}
+              <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
                 <div>
-                  <h2 className="text-2xl sm:text-3xl font-bold text-theme-text mb-2 dark:text-white">
-                    {category.name}
+                  <h2 className="section-title text-2xl sm:text-3xl text-gray-900 dark:text-white">
+                    {category.name} Apps
                   </h2>
-                  <p className="text-gray-400 text-sm sm:text-base">
-                    Browse our collection of {totalPosts}{" "}
-                    {totalPosts === 1 ? "app" : "apps"} in {category.name}
+                  <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+                    {totalPosts} {totalPosts === 1 ? "app" : "apps"} · updated regularly
                   </p>
                 </div>
+                {/* Sort/filter hint */}
+                <span className="text-xs text-gray-400 dark:text-gray-500 italic">
+                  Sorted by latest update
+                </span>
               </div>
 
               {posts.length === 0 ? (
-                <div className="text-center py-12">
-                  <p className="text-gray-400 text-lg">
-                    No posts in this category yet. Check back soon!
+                <div className="text-center py-16">
+                  <div className="text-5xl mb-4">📭</div>
+                  <p className="text-gray-400 text-lg mb-4">
+                    No apps in this category yet. Check back soon!
                   </p>
-                  <Link
-                    href="/"
-                    className="mt-4 inline-block px-6 py-3 text-theme-text rounded-lg font-medium hover:opacity-90 transition bg-primary"
-                  >
+                  <Link href="/"
+                    className="inline-block px-6 py-3 text-white rounded-xl font-semibold hover:opacity-90 transition bg-primary">
                     Browse All Apps
                   </Link>
                 </div>
@@ -288,68 +300,99 @@ export default async function CategoryPage({ params, searchParams }: Props) {
                       <Link
                         key={post.id}
                         href={`/post/${post.slug}`}
-                        className="bg-white rounded-lg border-2 p-4 hover:shadow-lg transition-shadow "
+                        className="group bg-white dark:bg-gray-800 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700/50 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 flex flex-col"
                       >
-                        <div className="relative mb-3">
+                        {/* Thumbnail */}
+                        <div className="relative aspect-square overflow-hidden bg-gray-100 dark:bg-gray-700">
                           {post.featuredImage ? (
                             <SmartImage
                               src={post.featuredImage}
                               alt={post.title}
-                              width={259}
-                              height={259}
-                              className="w-full h-32 object-cover rounded"
-                              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 20vw, 16vw"
+                              width={200}
+                              height={200}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"
                               quality={85}
                             />
                           ) : (
                             <div
-                              className="w-full h-32 rounded flex items-center justify-center text-theme-text text-2xl font-bold"
-                              style={{
-                                background: `linear-gradient(to bottom right, ${colors.secondary}, ${colors.secondary}dd)`,
-                              }}
+                              className="w-full h-full flex items-center justify-center text-white text-3xl font-bold"
+                              style={{ background: `linear-gradient(135deg, ${colors.primary}, ${colors.secondary})` }}
                             >
                               {post.title.charAt(0)}
                             </div>
                           )}
-                          {index < 2 && (
-                            <span
-                              className="absolute top-2 left-2 text-theme-text text-xs px-2 py-1 rounded bg-primary"
-                            >
-                              {index === 0 ? "UPDATED" : "NEW"}
+                          {index < 3 && (
+                            <span className="absolute top-2 left-2 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow bg-primary">
+                              {index === 0 ? "🔥 HOT" : "NEW"}
+                            </span>
+                          )}
+                          {post.downloadLink && (
+                            <span className="absolute bottom-2 right-2 bg-black/50 rounded-full p-1.5">
+                              <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                              </svg>
                             </span>
                           )}
                         </div>
-                        <h3 className="font-semibold text-gray-900 mb-1 line-clamp-1">
-                          {post.title}
-                        </h3>
-                        <p className="text-xs text-gray-600 mb-2">
-                          Version:{" "}
-                          {post.appVersion ||
-                            (post.downloadLink ? "V1.0" : "N/A")}
-                        </p>
-                        <p className="text-xs text-gray-500 mb-2">
-                          {settings.siteName}
-                        </p>
-                        {post.rating && (
-                          <StarRating 
-                            rating={post.rating} 
-                            showNumber 
-                            size="xs" 
-                            ratingCount={post.ratingCount || 0}
-                          />
-                        )}
+
+                        {/* Card body */}
+                        <div className="p-3 flex flex-col flex-1">
+                          <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-xs sm:text-sm line-clamp-2 leading-snug mb-1.5 group-hover:text-primary transition-colors">
+                            {post.title}
+                          </h3>
+                          <div className="flex items-center justify-between mt-auto">
+                            <span className="text-[10px] text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-full">
+                              {(post as any).appVersion ? `v${(post as any).appVersion}` : "APK"}
+                            </span>
+                            {post.rating && (
+                              <span className="text-[10px] text-yellow-600 dark:text-yellow-400 font-bold flex items-center gap-0.5">
+                                ★ {post.rating}
+                              </span>
+                            )}
+                          </div>
+                        </div>
                       </Link>
                     ))}
                   </div>
+
                   {totalPages > 1 && (
-                    <PaginationWrapper 
-                      currentPage={page} 
+                    <PaginationWrapper
+                      currentPage={page}
                       totalPages={totalPages}
                       baseUrl={`/category/${category.slug}`}
                     />
                   )}
                 </>
               )}
+
+              {/* SEO content block */}
+              <hr className="section-divider mt-16 mb-0" />
+              <div className="rounded-2xl bg-gray-50 dark:bg-gray-800/40 border border-gray-200 dark:border-gray-700 p-6 sm:p-8">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
+                  About {category.name} Apps
+                </h2>
+                <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed mb-4">
+                  {category.description ||
+                    `Explore our complete collection of ${category.name.toLowerCase()} apps and games. We curate only safe, tested APK files so you can download with confidence. Every app listed here has been reviewed for compatibility with Android devices.`}
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
+                  {[
+                    { icon: "✅", title: "Verified Safe", desc: "Every APK is scanned before listing." },
+                    { icon: "⚡", title: "Latest Versions", desc: "We update files as soon as new releases drop." },
+                    { icon: "📲", title: "Easy Install", desc: "Step-by-step guides included with every app." },
+                  ].map(({ icon, title, desc }) => (
+                    <div key={title} className="flex gap-3 items-start">
+                      <span className="text-2xl">{icon}</span>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">{title}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
             </div>
           </main>
         </div>

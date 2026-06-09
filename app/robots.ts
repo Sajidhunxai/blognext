@@ -18,6 +18,12 @@ export default function robots(): MetadataRoute.Robots {
           '/download/',
         ],
       },
+      // Google AI crawler gets full content access for AI Overviews
+      {
+        userAgent: 'Googlebot-Extended',
+        allow: '/',
+        disallow: ['/dashboard/', '/api/', '/login'],
+      },
     ],
     sitemap: `${siteUrl}/sitemap.xml`,
   };

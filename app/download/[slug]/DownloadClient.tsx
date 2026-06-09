@@ -37,6 +37,7 @@ export default function DownloadClient({ post: initialPost, backHref }: Download
   }
 
   return (
+    <div className="bg-white dark:bg-gray-950 min-h-screen">
     <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back Button */}
         <Link
@@ -163,6 +164,7 @@ export default function DownloadClient({ post: initialPost, backHref }: Download
             </a>
           </p>
         </div>
+    </div>
     </div>
   );
 }

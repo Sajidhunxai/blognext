@@ -46,3 +46,6 @@ next-env.d.ts
 
 # Prisma
 prisma/migrations/
+posts-export-fixed.json
+posts-export-final.json
+posts-export-2026-06-09.json

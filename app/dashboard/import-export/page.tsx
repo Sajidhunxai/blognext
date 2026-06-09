@@ -9,6 +9,7 @@ interface ImportResult {
   results?: {
     total: number;
     success: number;
+    updated: number;
     failed: number;
     skipped: number;
     posts: Array<{
@@ -25,7 +26,8 @@ export default function ImportExportPage() {
   const [exporting, setExporting] = useState(false);
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
   const [error, setError] = useState("");
-  const [exportFormat, setExportFormat] = useState<"xml" | "json">("xml");
+  const [exportFormat, setExportFormat] = useState<"xml" | "json">("json");
+  const [importMode, setImportMode] = useState<"append" | "update">("update");
 
   const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -38,6 +40,7 @@ export default function ImportExportPage() {
     try {
       const formData = new FormData();
       formData.append("file", file);
+      formData.append("mode", importMode);
 
       const response = await fetch("/api/posts/import", {
         method: "POST",
@@ -95,8 +98,66 @@ export default function ImportExportPage() {
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Import & Export Posts</h1>
           <p className="text-gray-600 mt-1">
-            Import posts from WordPress XML or export your posts
+            Export all posts, edit content offline, then import back to update without affecting comments or other data
           </p>
+        </div>
+      </div>
+
+      {/* Export Section */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <Download className="w-5 h-5" />
+          Export Posts
+        </h2>
+        <p className="text-gray-600 mb-4">
+          Download all posts as JSON (recommended for editing) or WordPress XML format.
+        </p>
+
+        <div className="space-y-4">
+          <div className="flex flex-wrap items-center gap-4">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="radio"
+                name="export-format"
+                value="json"
+                checked={exportFormat === "json"}
+                onChange={() => setExportFormat("json")}
+                className="w-4 h-4 text-blue-600"
+              />
+              <FileJson className="w-5 h-5 text-gray-600" />
+              <span className="text-gray-700">JSON (recommended)</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="radio"
+                name="export-format"
+                value="xml"
+                checked={exportFormat === "xml"}
+                onChange={() => setExportFormat("xml")}
+                className="w-4 h-4 text-blue-600"
+              />
+              <FileText className="w-5 h-5 text-gray-600" />
+              <span className="text-gray-700">WordPress XML</span>
+            </label>
+          </div>
+
+          <button
+            onClick={() => handleExport(exportFormat)}
+            disabled={exporting}
+            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center gap-2"
+          >
+            {exporting ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                <span>Exporting...</span>
+              </>
+            ) : (
+              <>
+                <Download className="w-5 h-5" />
+                <span>Export All Posts ({exportFormat.toUpperCase()})</span>
+              </>
+            )}
+          </button>
         </div>
       </div>
 
@@ -107,10 +168,48 @@ export default function ImportExportPage() {
           Import Posts
         </h2>
         <p className="text-gray-600 mb-4">
-          Upload a WordPress XML export file or JSON file to import posts into your site.
+          Upload your edited export file to update existing posts. Use JSON format for the easiest edit-and-reimport workflow.
         </p>
 
         <div className="space-y-4">
+          <div>
+            <p className="text-sm font-medium text-gray-700 mb-3">Import mode</p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <label className={`flex-1 border rounded-lg p-4 cursor-pointer transition ${
+                importMode === "update" ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-gray-300"
+              }`}>
+                <input
+                  type="radio"
+                  name="import-mode"
+                  value="update"
+                  checked={importMode === "update"}
+                  onChange={() => setImportMode("update")}
+                  className="sr-only"
+                />
+                <span className="font-medium text-gray-900">Update existing posts</span>
+                <p className="text-sm text-gray-600 mt-1">
+                  Match by post ID or slug and replace content. Comments, translations, and other relations stay intact.
+                </p>
+              </label>
+              <label className={`flex-1 border rounded-lg p-4 cursor-pointer transition ${
+                importMode === "append" ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-gray-300"
+              }`}>
+                <input
+                  type="radio"
+                  name="import-mode"
+                  value="append"
+                  checked={importMode === "append"}
+                  onChange={() => setImportMode("append")}
+                  className="sr-only"
+                />
+                <span className="font-medium text-gray-900">Add new only</span>
+                <p className="text-sm text-gray-600 mt-1">
+                  Import new posts and skip any that already exist. Useful for WordPress migrations.
+                </p>
+              </label>
+            </div>
+          </div>
+
           <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-500 transition-colors">
             <input
               type="file"
@@ -160,7 +259,7 @@ export default function ImportExportPage() {
                   </p>
                   {importResult.results && (
                     <div className="mt-3 space-y-2">
-                      <div className="grid grid-cols-4 gap-4 text-sm">
+                      <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 text-sm">
                         <div>
                           <span className="text-gray-600">Total:</span>
                           <span className="font-semibold ml-2">{importResult.results.total}</span>
@@ -168,6 +267,10 @@ export default function ImportExportPage() {
                         <div>
                           <span className="text-green-600">Imported:</span>
                           <span className="font-semibold ml-2">{importResult.results.success}</span>
+                        </div>
+                        <div>
+                          <span className="text-blue-600">Updated:</span>
+                          <span className="font-semibold ml-2">{importResult.results.updated}</span>
                         </div>
                         <div>
                           <span className="text-yellow-600">Skipped:</span>
@@ -202,64 +305,6 @@ export default function ImportExportPage() {
         </div>
       </div>
 
-      {/* Export Section */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <Download className="w-5 h-5" />
-          Export Posts
-        </h2>
-        <p className="text-gray-600 mb-4">
-          Export all your posts in WordPress XML format or JSON format.
-        </p>
-
-        <div className="space-y-4">
-          <div className="flex items-center gap-4">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="radio"
-                name="export-format"
-                value="xml"
-                checked={exportFormat === "xml"}
-                onChange={() => setExportFormat("xml")}
-                className="w-4 h-4 text-blue-600"
-              />
-              <FileText className="w-5 h-5 text-gray-600" />
-              <span className="text-gray-700">WordPress XML Format</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="radio"
-                name="export-format"
-                value="json"
-                checked={exportFormat === "json"}
-                onChange={() => setExportFormat("json")}
-                className="w-4 h-4 text-blue-600"
-              />
-              <FileJson className="w-5 h-5 text-gray-600" />
-              <span className="text-gray-700">JSON Format</span>
-            </label>
-          </div>
-
-          <button
-            onClick={() => handleExport(exportFormat)}
-            disabled={exporting}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center gap-2"
-          >
-            {exporting ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                <span>Exporting...</span>
-              </>
-            ) : (
-              <>
-                <Download className="w-5 h-5" />
-                <span>Export Posts ({exportFormat.toUpperCase()})</span>
-              </>
-            )}
-          </button>
-        </div>
-      </div>
-
       {/* Info Section */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
         <h3 className="text-lg font-semibold text-blue-900 mb-3 flex items-center gap-2">
@@ -270,25 +315,25 @@ export default function ImportExportPage() {
           <li className="flex items-start">
             <span className="font-semibold mr-2">•</span>
             <span>
-              <strong>Import:</strong> Supports WordPress XML export files and JSON format. Posts with existing slugs will be skipped.
+              <strong>Edit workflow:</strong> Export as JSON → edit the <code className="bg-blue-100 px-1 rounded">content</code> field (and other fields if needed) → import with &quot;Update existing posts&quot; selected.
             </span>
           </li>
           <li className="flex items-start">
             <span className="font-semibold mr-2">•</span>
             <span>
-              <strong>Export:</strong> Export all posts in WordPress-compatible XML format or JSON format for backup or migration.
+              <strong>Safe updates:</strong> Update mode only changes post fields. Comments, translations, categories, and settings are not deleted.
             </span>
           </li>
           <li className="flex items-start">
             <span className="font-semibold mr-2">•</span>
             <span>
-              <strong>WordPress XML:</strong> Includes all post data, metadata, categories, and custom fields in WordPress export format.
+              <strong>Matching:</strong> Posts are matched by <code className="bg-blue-100 px-1 rounded">id</code> first, then by <code className="bg-blue-100 px-1 rounded">slug</code>. Keep these unchanged unless you intend to rename a post.
             </span>
           </li>
           <li className="flex items-start">
             <span className="font-semibold mr-2">•</span>
             <span>
-              <strong>JSON Format:</strong> Clean JSON format with all post data, useful for programmatic access or custom migrations.
+              <strong>WordPress XML:</strong> Also supported for import from external WordPress sites (use &quot;Add new only&quot; mode).
             </span>
           </li>
         </ul>

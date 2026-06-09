@@ -1,6 +1,14 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
+import { Inter } from "next/font/google";
 import "./globals.css";
+
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
+  preload: true,
+});
 import { getSettings } from "@/lib/settings";
 import { htmlLang } from "@/lib/i18n/config";
 import { normalizeUrl } from "@/lib/url";
@@ -125,7 +133,7 @@ export default async function RootLayout({
   }
   
   return (
-    <html lang={lang}>
+    <html lang={lang} className={inter.variable}>
       <head>
         {/* Preconnect to critical origins for faster loading */}
         {siteDomain && (

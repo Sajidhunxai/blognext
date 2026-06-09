@@ -136,28 +136,122 @@ export default async function FrontendLayout({ children }: FrontendLayoutProps) 
       {/* Main Content */}
       <main>{children}</main>
 
-      {/* Footer */}
-      <footer className="border-t border-gray-200 dark:border-gray-800 py-6 sm:py-8  bg-gray-50/50 mt-0 dark:bg-gray-900/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6 mb-6">
-            <div className="font-bold text-lg sm:text-xl m-auto sm:m-0 text-black dark:text-gray-300" >{settings.siteName}</div>
-            <div className="flex flex-wrap gap-4 sm:gap-6">
-              {settings.footerLinks.map((link: string | { label: string; url: string }, index: number) => {
-                const linkObj = typeof link === "string" ? { label: link, url: "#" } : link;
+      {/* ── Footer ── */}
+      <footer className="border-t border-gray-200 dark:border-gray-800 bg-gray-900 dark:bg-gray-950 text-gray-300">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-14">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 mb-10">
+
+            {/* Brand column */}
+            <div className="sm:col-span-2 lg:col-span-1">
+              <div className="font-extrabold text-xl text-white mb-3">{settings.siteName}</div>
+              <p className="text-sm text-gray-400 leading-relaxed mb-5">
+                {settings.heroSubtitle ||
+                  `Your trusted source for safe, free Android APK downloads. Verified apps updated daily.`}
+              </p>
+              {/* Social icons */}
+              {(() => {
+                const sm = settings.socialMedia as any || {};
+                const socials = [
+                  { href: sm.facebook, bg: "#1877f2", label: "f" },
+                  { href: sm.twitter, bg: "#1d9bf0", label: "𝕏" },
+                  { href: sm.instagram, bg: "#e1306c", label: "📷" },
+                  { href: sm.youtube, bg: "#ff0000", label: "▶" },
+                  { href: sm.telegram, bg: "#26a5e4", label: "✈" },
+                ].filter(s => s.href);
+                if (!socials.length) return null;
                 return (
-                  <Link
-                    key={index}
-                    href={linkObj.url}
-                    className="text-sm text-link"
-                  >
-                    {linkObj.label}
-                  </Link>
+                  <div className="flex gap-2">
+                    {socials.map(({ href, bg, label }) => (
+                      <a key={href} href={href!} target="_blank" rel="noopener noreferrer"
+                        className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold hover:opacity-80 transition"
+                        style={{ backgroundColor: bg }}>
+                        {label}
+                      </a>
+                    ))}
+                  </div>
                 );
-              })}
+              })()}
             </div>
+
+            {/* Quick links */}
+            <div>
+              <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-4">Quick Links</h3>
+              <ul className="space-y-2.5">
+                {[
+                  { label: "Home", href: "/" },
+                  ...(menuItems.slice(0, 5).map(item => ({ label: item.label, href: item.url }))),
+                ].map(({ label, href }) => (
+                  <li key={label}>
+                    <Link href={href}
+                      className="text-sm text-gray-400 hover:text-white hover:underline transition-colors inline-flex items-center gap-1">
+                      <span className="text-primary text-xs">›</span> {label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Footer links (privacy, about etc.) */}
+            <div>
+              <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-4">Information</h3>
+              <ul className="space-y-2.5">
+                {settings.footerLinks.length > 0
+                  ? settings.footerLinks.map((link: string | { label: string; url: string }, index: number) => {
+                      const linkObj = typeof link === "string" ? { label: link, url: "#" } : link;
+                      return (
+                        <li key={index}>
+                          <Link href={linkObj.url}
+                            className="text-sm text-gray-400 hover:text-white hover:underline transition-colors inline-flex items-center gap-1">
+                            <span className="text-primary text-xs">›</span> {linkObj.label}
+                          </Link>
+                        </li>
+                      );
+                    })
+                  : [
+                      { label: "Privacy Policy", href: "/privacy-policy" },
+                      { label: "Terms of Service", href: "/terms" },
+                      { label: "DMCA", href: "/dmca" },
+                      { label: "Contact Us", href: "/contact" },
+                    ].map(({ label, href }) => (
+                      <li key={label}>
+                        <Link href={href}
+                          className="text-sm text-gray-400 hover:text-white hover:underline transition-colors inline-flex items-center gap-1">
+                          <span className="text-primary text-xs">›</span> {label}
+                        </Link>
+                      </li>
+                    ))
+                }
+              </ul>
+            </div>
+
+            {/* Trust signals */}
+            <div>
+              <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-4">Why Choose Us</h3>
+              <ul className="space-y-3">
+                {[
+                  { icon: "✅", text: "Verified safe APKs" },
+                  { icon: "⚡", text: "Daily updates" },
+                  { icon: "💸", text: "Always 100% free" },
+                  { icon: "📲", text: "Easy install guides" },
+                  { icon: "🔒", text: "No hidden trackers" },
+                ].map(({ icon, text }) => (
+                  <li key={text} className="flex items-center gap-2.5 text-sm text-gray-400">
+                    <span className="text-base">{icon}</span> {text}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
           </div>
-          <div className="text-center text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-            © {new Date().getFullYear()} | {getTranslation(locale, "allRightsReserved")} | {settings.siteName}
+
+          {/* Bottom bar */}
+          <div className="border-t border-gray-700/60 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p className="text-xs text-gray-500 text-center sm:text-left">
+              © {new Date().getFullYear()} {settings.siteName}. {getTranslation(locale, "allRightsReserved")}.
+            </p>
+            <p className="text-xs text-gray-600 text-center sm:text-right">
+              APK files are provided for informational and educational purposes only.
+            </p>
           </div>
         </div>
       </footer>

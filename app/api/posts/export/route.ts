@@ -40,19 +40,26 @@ export async function GET(req: NextRequest) {
     });
 
     if (format === "json") {
-      // Export as JSON
+      // Export as JSON (includes id for round-trip update imports)
       const jsonData = posts.map((post) => ({
+        id: post.id,
         title: post.title,
         content: post.content,
         slug: post.slug,
         published: post.published,
+        categoryId: post.categoryId,
+        allowComments: post.allowComments,
         metaTitle: post.metaTitle,
         metaDescription: post.metaDescription,
         keywords: post.keywords,
-        featuredImage: post.featuredImage,
-        featuredImageAlt: post.featuredImageAlt,
+        focusKeyword: post.focusKeyword,
+        noIndex: post.noIndex,
+        faqs: post.faqs,
         ogImage: post.ogImage,
         ogImageAlt: post.ogImageAlt,
+        featuredImage: post.featuredImage,
+        featuredImageAlt: post.featuredImageAlt,
+        screenshots: post.screenshots,
         downloadLink: post.downloadLink,
         developer: post.developer,
         appSize: post.appSize,
@@ -62,7 +69,6 @@ export async function GET(req: NextRequest) {
         googlePlayLink: post.googlePlayLink,
         rating: post.rating,
         ratingCount: post.ratingCount,
-        allowComments: post.allowComments,
         category: post.category ? {
           name: post.category.name,
           slug: post.category.slug,

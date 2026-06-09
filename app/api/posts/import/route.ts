@@ -3,6 +3,14 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { secureResponse } from "@/lib/api-security";
+import {
+  buildPostFields,
+  findExistingPost,
+  resolveCategoryId,
+  validateSlugForUpdate,
+  type ImportMode,
+  type ImportPostData,
+} from "@/lib/post-import-export";
 import { parseString } from "xml2js";
 
 export const dynamic = 'force-dynamic';
@@ -18,9 +26,14 @@ export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
     const file = formData.get("file") as File;
+    const mode = (formData.get("mode") as ImportMode) || "append";
 
     if (!file) {
       return secureResponse({ error: "No file provided" }, 400);
+    }
+
+    if (mode !== "append" && mode !== "update") {
+      return secureResponse({ error: "Invalid import mode" }, 400);
     }
 
     const fileContent = await file.text();
@@ -53,6 +66,7 @@ export async function POST(req: NextRequest) {
     const results = {
       total: 0,
       success: 0,
+      updated: 0,
       failed: 0,
       skipped: 0,
       posts: [] as Array<{ title: string; slug: string; status: string; error?: string }>,
@@ -71,7 +85,7 @@ export async function POST(req: NextRequest) {
 
         results.total = posts.length;
 
-        for (const postData of posts) {
+        for (const postData of posts as ImportPostData[]) {
           try {
             if (!postData.title || !postData.slug) {
               results.failed++;
@@ -84,64 +98,76 @@ export async function POST(req: NextRequest) {
               continue;
             }
 
-            // Check if post already exists
-            const existingPost = await prisma.post.findUnique({
-              where: { slug: postData.slug },
-            });
+            const existingPost = await findExistingPost(postData.id, postData.slug);
+            const categoryId = await resolveCategoryId(postData);
+            const fields = buildPostFields(postData, categoryId);
 
             if (existingPost) {
+              if (mode === "append") {
+                results.skipped++;
+                results.posts.push({
+                  title: postData.title,
+                  slug: postData.slug,
+                  status: "skipped",
+                });
+                continue;
+              }
+
+              const slugError = await validateSlugForUpdate(
+                postData.slug,
+                existingPost.id
+              );
+              if (slugError) {
+                results.failed++;
+                results.posts.push({
+                  title: postData.title,
+                  slug: postData.slug,
+                  status: "failed",
+                  error: slugError,
+                });
+                continue;
+              }
+
+              await prisma.post.update({
+                where: { id: existingPost.id },
+                data: {
+                  ...fields,
+                  updatedAt: postData.updatedAt
+                    ? new Date(postData.updatedAt)
+                    : new Date(),
+                },
+              });
+
+              results.updated++;
+              results.posts.push({
+                title: postData.title,
+                slug: postData.slug,
+                status: "updated",
+              });
+              continue;
+            }
+
+            if (mode === "update") {
               results.skipped++;
               results.posts.push({
                 title: postData.title,
                 slug: postData.slug,
                 status: "skipped",
+                error: "Post not found in database",
               });
               continue;
             }
 
-            // Get or create category
-            let categoryId = null;
-            if (postData.category) {
-              const category = await prisma.category.upsert({
-                where: { slug: postData.category.slug || postData.category.name?.toLowerCase().replace(/\s+/g, "-") || "uncategorized" },
-                update: {},
-                create: {
-                  name: postData.category.name || "Uncategorized",
-                  slug: postData.category.slug || postData.category.name?.toLowerCase().replace(/\s+/g, "-") || "uncategorized",
-                  description: `Imported category: ${postData.category.name || "Uncategorized"}`,
-                },
-              });
-              categoryId = category.id;
-            }
-
-            // Create post
             await prisma.post.create({
               data: {
-                title: postData.title,
-                content: postData.content || "",
-                slug: postData.slug,
-                published: postData.published !== undefined ? postData.published : true,
+                ...fields,
                 authorId: admin.id,
-                categoryId,
-                allowComments: postData.allowComments !== undefined ? postData.allowComments : true,
-                metaTitle: postData.metaTitle || null,
-                metaDescription: postData.metaDescription || null,
-                keywords: postData.keywords || [],
-                featuredImage: postData.featuredImage || null,
-                featuredImageAlt: postData.featuredImageAlt || null,
-                ogImage: postData.ogImage || null,
-                ogImageAlt: postData.ogImageAlt || null,
-                downloadLink: postData.downloadLink || null,
-                developer: postData.developer || null,
-                appSize: postData.appSize || null,
-                appVersion: postData.appVersion || null,
-                requirements: postData.requirements || null,
-                downloads: postData.downloads || null,
-                googlePlayLink: postData.googlePlayLink || null,
-                rating: postData.rating || null,
-                ratingCount: postData.ratingCount || 0,
-                createdAt: postData.createdAt ? new Date(postData.createdAt) : new Date(),
-                updatedAt: postData.updatedAt ? new Date(postData.updatedAt) : new Date(),
+                createdAt: postData.createdAt
+                  ? new Date(postData.createdAt)
+                  : new Date(),
+                updatedAt: postData.updatedAt
+                  ? new Date(postData.updatedAt)
+                  : new Date(),
               },
             });
 
@@ -339,20 +365,18 @@ export async function POST(req: NextRequest) {
               // Continue anyway - some posts might not have content initially
             }
 
-            // Check if post already exists
-            const existingPost = await prisma.post.findUnique({
-              where: { slug },
-            });
-
-            if (existingPost) {
-              results.skipped++;
-              results.posts.push({
-                title,
-                slug,
-                status: "skipped",
-              });
-              continue;
+            // Extract post id from export (MongoDB ObjectId when exported from this CMS)
+            let postId = "";
+            if (typeof item["wp:post_id"] === "string") {
+              postId = item["wp:post_id"];
+            } else if (item["wp:post_id"]?._) {
+              postId = String(item["wp:post_id"]._);
+            } else if (Array.isArray(item["wp:post_id"]) && item["wp:post_id"][0]) {
+              const firstId = item["wp:post_id"][0];
+              postId = typeof firstId === "string" ? firstId : String(firstId._ || "");
             }
+
+            const existingPost = await findExistingPost(postId || undefined, slug);
 
             // Get category from XML
             let categoryId = null;
@@ -465,27 +489,83 @@ export async function POST(req: NextRequest) {
               metaDescription = plainText.substring(0, 160);
             }
 
-            // Create post
+            const postData: ImportPostData = {
+              title,
+              content: content || "",
+              slug,
+              published,
+              categoryId,
+              allowComments: item["wp:comment_status"]?._ !== "closed",
+              metaTitle: metaFields._yoast_wpseo_title || null,
+              metaDescription: metaDescription || null,
+              keywords: [],
+              featuredImage: featuredImage || null,
+              featuredImageAlt: title || null,
+              downloadLink: metaFields.download_link || null,
+              developer: metaFields.developer || null,
+              appVersion: metaFields.app_version || null,
+              appSize: metaFields.app_size || null,
+              rating: metaFields.rating ? parseFloat(metaFields.rating) : null,
+              ratingCount: metaFields.rating_count ? parseInt(metaFields.rating_count) : 0,
+            };
+            const fields = buildPostFields(postData, categoryId);
+
+            if (existingPost) {
+              if (mode === "append") {
+                results.skipped++;
+                results.posts.push({
+                  title,
+                  slug,
+                  status: "skipped",
+                });
+                continue;
+              }
+
+              const slugError = await validateSlugForUpdate(slug, existingPost.id);
+              if (slugError) {
+                results.failed++;
+                results.posts.push({
+                  title,
+                  slug,
+                  status: "failed",
+                  error: slugError,
+                });
+                continue;
+              }
+
+              await prisma.post.update({
+                where: { id: existingPost.id },
+                data: {
+                  ...fields,
+                  updatedAt: new Date(postModified),
+                },
+              });
+
+              results.updated++;
+              results.posts.push({
+                title,
+                slug,
+                status: "updated",
+              });
+              console.log(`✓ Updated: "${title}" (${slug})`);
+              continue;
+            }
+
+            if (mode === "update") {
+              results.skipped++;
+              results.posts.push({
+                title,
+                slug,
+                status: "skipped",
+                error: "Post not found in database",
+              });
+              continue;
+            }
+
             await prisma.post.create({
               data: {
-                title,
-                content: content || "",
-                slug,
-                published,
+                ...fields,
                 authorId: admin.id,
-                categoryId,
-                allowComments: item["wp:comment_status"]?._ !== "closed",
-                metaTitle: metaFields._yoast_wpseo_title || null,
-                metaDescription: metaDescription || null,
-                keywords: [],
-                featuredImage: featuredImage || null,
-                featuredImageAlt: title || null,
-                downloadLink: metaFields.download_link || null,
-                developer: metaFields.developer || null,
-                appVersion: metaFields.app_version || null,
-                appSize: metaFields.app_size || null,
-                rating: metaFields.rating ? parseFloat(metaFields.rating) : null,
-                ratingCount: metaFields.rating_count ? parseInt(metaFields.rating_count) : 0,
                 createdAt: new Date(postDate),
                 updatedAt: new Date(postModified),
               },
@@ -522,9 +602,14 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    const actionSummary =
+      results.updated > 0
+        ? `Updated ${results.updated} posts`
+        : `Imported ${results.success} posts successfully`;
+
     return secureResponse({
       success: true,
-      message: `Imported ${results.success} posts successfully`,
+      message: actionSummary,
       results,
     });
   } catch (error: any) {

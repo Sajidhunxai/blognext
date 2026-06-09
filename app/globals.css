@@ -30,9 +30,11 @@ body {
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter, 'Inter'), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   width: 100%;
   transition: background-color 0.3s ease, color 0.3s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .dark body {
@@ -664,7 +666,290 @@ textarea::placeholder {
   color: #e5e7eb;
 }
 
-/* Responsive adjustments */
+/* ── Details/Summary accordion open arrow ── */
+details summary::-webkit-details-marker {
+  display: none;
+}
+
+details[open] > summary .chevron-icon,
+details[open] summary svg:last-child {
+  transform: rotate(180deg);
+}
+
+/* ── App Specs section inside content-area ── */
+.content-area .app-specs-table {
+  margin: 2rem 0;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+}
+
+.dark .content-area .app-specs-table {
+  border-color: #374151;
+}
+
+.content-area .app-specs-table h2 {
+  margin: 0;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background-color: var(--color-primary, #dc2626);
+  color: #ffffff;
+  border-radius: 0;
+  border-bottom: none;
+}
+
+.content-area .app-specs-table table {
+  width: 100%;
+  margin: 0;
+  border-collapse: collapse;
+}
+
+.content-area .app-specs-table th {
+  width: 40%;
+  padding: 0.625rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  background-color: #f3f4f6;
+  color: #374151;
+  border: 1px solid #e5e7eb;
+}
+
+.dark .content-area .app-specs-table th {
+  background-color: #1f2937;
+  color: #d1d5db;
+  border-color: #374151;
+}
+
+.content-area .app-specs-table td {
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  color: #111827;
+  border: 1px solid #e5e7eb;
+}
+
+.dark .content-area .app-specs-table td {
+  color: #f3f4f6;
+  border-color: #374151;
+}
+
+/* ══════════════════════════════════════════
+   VISUAL POLISH — speed-safe, CSS-only
+   ══════════════════════════════════════════ */
+
+/* ── Subtle custom scrollbar (desktop only) ── */
+@media (min-width: 768px) {
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-primary, #dc2626);
+    border-radius: 3px;
+    opacity: 0.6;
+  }
+  ::-webkit-scrollbar-thumb:hover { opacity: 1; }
+}
+
+/* ── Section title with accent line ── */
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.section-title::before {
+  content: '';
+  display: block;
+  width: 4px;
+  height: 1.5rem;
+  border-radius: 9999px;
+  background: linear-gradient(to bottom, var(--color-primary, #dc2626), var(--color-secondary, #16a34a));
+  flex-shrink: 0;
+}
+
+/* ── App card hover glow ── */
+.app-card {
+  position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.app-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: 0 0 0 0 transparent;
+  transition: box-shadow 0.25s ease;
+  pointer-events: none;
+}
+.app-card:hover::after {
+  box-shadow: 0 0 0 2px var(--color-primary, #dc2626);
+}
+.app-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px -8px rgba(0,0,0,0.15);
+}
+.dark .app-card:hover {
+  box-shadow: 0 12px 32px -8px rgba(0,0,0,0.5);
+}
+
+/* ── Image fade-out at bottom inside cards ── */
+.card-img-fade::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(to top, rgba(0,0,0,0.35), transparent);
+  pointer-events: none;
+}
+
+/* ── Badge variants ── */
+.badge-hot {
+  background: linear-gradient(135deg, #ef4444, #f97316);
+  color: #fff;
+}
+.badge-new {
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  color: #fff;
+}
+.badge-updated {
+  background: linear-gradient(135deg, var(--color-primary, #dc2626), var(--color-secondary, #16a34a));
+  color: #fff;
+}
+
+/* ── Download button shine ── */
+.btn-download {
+  position: relative;
+  overflow: hidden;
+}
+.btn-download::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    rgba(255,255,255,0) 0%,
+    rgba(255,255,255,0.25) 50%,
+    rgba(255,255,255,0) 100%
+  );
+  transform: skewX(-20deg);
+  transition: left 0.5s ease;
+  pointer-events: none;
+}
+.btn-download:hover::before {
+  left: 125%;
+}
+
+/* ── Stats bar cell ── */
+.stat-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.875rem;
+  padding: 1rem 0.75rem;
+}
+.stat-icon {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+/* ── Trust card hover border accent ── */
+.trust-card {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.trust-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  border-radius: 4px 0 0 4px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.trust-card:hover::before { opacity: 1; }
+.trust-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -6px rgba(0,0,0,0.12);
+}
+.dark .trust-card:hover {
+  box-shadow: 0 8px 24px -6px rgba(0,0,0,0.4);
+}
+
+/* ── FAQ accordion polish ── */
+.faq-item {
+  transition: box-shadow 0.2s;
+}
+.faq-item[open] {
+  box-shadow: 0 4px 20px -4px rgba(0,0,0,0.1);
+}
+.dark .faq-item[open] {
+  box-shadow: 0 4px 20px -4px rgba(0,0,0,0.4);
+}
+.faq-item summary {
+  list-style: none;
+  user-select: none;
+}
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item[open] summary .faq-chevron {
+  transform: rotate(180deg);
+}
+.faq-chevron {
+  transition: transform 0.25s ease;
+}
+
+/* ── Gradient section separator ── */
+.section-divider {
+  height: 2px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--color-primary, #dc2626) 30%,
+    var(--color-secondary, #16a34a) 70%,
+    transparent
+  );
+  opacity: 0.35;
+  border: none;
+  margin: 0;
+}
+
+/* ── Subtle background pattern for hero-like sections ── */
+.bg-dots {
+  background-image: radial-gradient(circle, rgba(0,0,0,0.06) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+.dark .bg-dots {
+  background-image: radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
+}
+
+/* ── Category card hover ring ── */
+.cat-card {
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+.cat-card:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 20px -4px rgba(0,0,0,0.12);
+}
+.dark .cat-card:hover {
+  box-shadow: 0 8px 20px -4px rgba(0,0,0,0.45);
+}
+
+/* ── Responsive adjustments ── */
 @media (max-width: 640px) {
   .content-area h1 {
     font-size: 1.875rem;
