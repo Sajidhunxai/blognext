@@ -1,3 +1,5 @@
+import { extractFAQsFromContent } from "@/lib/faq";
+
 interface StructuredDataProps {
   post: {
     title: string;
@@ -6,13 +8,13 @@ interface StructuredDataProps {
     createdAt: Date;
     updatedAt: Date;
     metaDescription?: string | null;
-    keywords?: string[];
+    keywords?: string[] | null;
     featuredImage?: string | null;
-    screenshots?: string[];
+    screenshots?: string[] | null;
     ogImage?: string | null;
     downloadLink?: string | null;
     rating?: number | null;
-    ratingCount?: number;
+    ratingCount?: number | null;
     developer?: string | null;
     appSize?: string | null;
     appVersion?: string | null;
@@ -38,80 +40,140 @@ interface StructuredDataProps {
   };
   siteUrl: string;
   siteName?: string;
+  /** Actual logo URL from settings */
+  logoUrl?: string | null;
 }
 
-import { extractFAQsFromContent } from "@/lib/faq";
+// ── helpers ────────────────────────────────────────────────────────────────
 
-export default function StructuredData({ post, siteUrl, siteName = "PKR Games" }: StructuredDataProps) {
-  const faqsFromDb = Array.isArray(post.faqs) && post.faqs.length > 0 ? post.faqs : null;
-  const faqsExtracted = extractFAQsFromContent(post.content);
-  const faqs = faqsFromDb ?? faqsExtracted;
+function stripHtml(html: string, maxLen = 250): string {
+  return html
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .substring(0, maxLen)
+    .trimEnd();
+}
 
-  // SoftwareApplication Schema (for apps/games)
-  const softwareSchema = post.downloadLink ? {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "@id": `${siteUrl}/post/${post.slug}`,
-    name: post.title,
-    description: post.metaDescription || post.content.substring(0, 200).replace(/<[^>]*>/g, ''),
-    image: post.featuredImage || post.ogImage || `${siteUrl}/og-default.jpg`,
-    ...(Array.isArray(post.screenshots) && post.screenshots.length > 0 && {
-      screenshot: post.screenshots[0],
-    }),
-    url: `${siteUrl}/post/${post.slug}`,
-    applicationCategory: post.category?.name || "Game",
-    operatingSystem: post.requirements || "Android",
-    ...(post.rating && post.ratingCount && post.ratingCount > 0 && {
-      aggregateRating: {
-        "@type": "AggregateRating",
-        ratingValue: post.rating,
-        ratingCount: post.ratingCount,
-        bestRating: 5,
-        worstRating: 1,
-      },
-    }),
-    offers: {
-      "@type": "Offer",
-      price: "0",
-      priceCurrency: "USD",
-      availability: "https://schema.org/InStock",
-      url: `${siteUrl}/download/${post.slug}`,
-    },
-    ...(post.developer && {
-      author: {
-        "@type": "Organization",
-        name: post.developer,
-      },
-    }),
-    ...(post.appVersion && { softwareVersion: post.appVersion }),
-    ...(post.appSize && { fileSize: post.appSize }),
-    ...(post.downloads && (() => {
-      const count = post.downloads.replace(/[^0-9]/g, '');
-      return count && parseInt(count, 10) > 0 ? {
-        interactionStatistic: {
-          "@type": "InteractionCounter",
-          interactionType: "https://schema.org/DownloadAction",
-          userInteractionCount: parseInt(count, 10),
+/**
+ * Map a freeform category name to a Schema.org applicationCategory value.
+ * https://schema.org/applicationCategory
+ */
+function toAppCategory(name?: string | null): string {
+  if (!name) return "GameApplication";
+  const n = name.toLowerCase();
+  if (n.includes("game") || n.includes("gaming") || n.includes("action") ||
+      n.includes("sport") || n.includes("racing") || n.includes("puzzle") ||
+      n.includes("casino") || n.includes("card") || n.includes("strategy") ||
+      n.includes("arcade") || n.includes("shooting")) return "GameApplication";
+  if (n.includes("photo") || n.includes("image") || n.includes("camera")) return "GraphicsApplication";
+  if (n.includes("music") || n.includes("audio") || n.includes("sound")) return "MultimediaApplication";
+  if (n.includes("video") || n.includes("media") || n.includes("player")) return "MultimediaApplication";
+  if (n.includes("social") || n.includes("chat") || n.includes("message")) return "SocialNetworkingApplication";
+  if (n.includes("finance") || n.includes("bank") || n.includes("money")) return "FinanceApplication";
+  if (n.includes("health") || n.includes("medical") || n.includes("fitness")) return "HealthApplication";
+  if (n.includes("education") || n.includes("learn") || n.includes("study")) return "EducationalApplication";
+  if (n.includes("utility") || n.includes("tool") || n.includes("system")) return "UtilitiesApplication";
+  if (n.includes("travel") || n.includes("map") || n.includes("navigation")) return "TravelApplication";
+  if (n.includes("news") || n.includes("magazine") || n.includes("reader")) return "NewsApplication";
+  if (n.includes("shopping") || n.includes("store") || n.includes("commerce")) return "ShoppingApplication";
+  if (n.includes("food") || n.includes("recipe") || n.includes("cook")) return "FoodApplication";
+  if (n.includes("business") || n.includes("office") || n.includes("productivity")) return "BusinessApplication";
+  return "MobileApplication";
+}
+
+function buildImage(url: string | null | undefined, fallback: string): object | string {
+  const src = url || fallback;
+  return { "@type": "ImageObject", url: src };
+}
+
+// ── Component ──────────────────────────────────────────────────────────────
+
+export default function StructuredData({
+  post,
+  siteUrl,
+  siteName = "AppMarka",
+  logoUrl,
+}: StructuredDataProps) {
+  const base = siteUrl.replace(/\/+$/, "");
+  const postUrl = `${base}/post/${post.slug}`;
+  const defaultImg = `${base}/og-default.jpg`;
+
+  const description =
+    post.metaDescription?.trim() || stripHtml(post.content);
+
+  const faqsFromDb =
+    Array.isArray(post.faqs) && post.faqs.length > 0 ? post.faqs : null;
+  const faqs = faqsFromDb ?? extractFAQsFromContent(post.content);
+
+  // ── 1. SoftwareApplication (only when post has a download link) ──────────
+  const softwareSchema = post.downloadLink
+    ? {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        // Distinct @id — use #software to separate from the Article node
+        "@id": `${postUrl}#software`,
+        name: post.title,
+        description,
+        // ImageObject, not a plain string
+        image: buildImage(post.featuredImage || post.ogImage, defaultImg),
+        ...(Array.isArray(post.screenshots) &&
+          post.screenshots.length > 0 && { screenshot: post.screenshots[0] }),
+        url: postUrl,
+        // Validated Schema.org applicationCategory value
+        applicationCategory: toAppCategory(post.category?.name),
+        // Always "Android" — requirements string goes into description
+        operatingSystem: "Android",
+        ...(post.appVersion && { softwareVersion: post.appVersion }),
+        // fileSize expects MB as a number string, e.g. "12.5"
+        ...(post.appSize && { fileSize: `${post.appSize} MB` }),
+        ...(post.developer && {
+          author: { "@type": "Organization", name: post.developer },
+        }),
+        offers: {
+          "@type": "Offer",
+          price: "0",
+          priceCurrency: "USD",
+          availability: "https://schema.org/InStock",
+          url: `${base}/download/${post.slug}`,
         },
-      } : {};
-    })()),
-  } : null;
+        ...(post.googlePlayLink && { installUrl: post.googlePlayLink }),
+        ...(post.rating &&
+          post.ratingCount &&
+          post.ratingCount > 0 && {
+            aggregateRating: {
+              "@type": "AggregateRating",
+              ratingValue: String(post.rating),
+              ratingCount: post.ratingCount,
+              bestRating: "5",
+              worstRating: "1",
+            },
+          }),
+        ...(post.downloads &&
+          (() => {
+            const n = parseInt(post.downloads!.replace(/\D/g, ""), 10);
+            return n > 0
+              ? {
+                  interactionStatistic: {
+                    "@type": "InteractionCounter",
+                    interactionType: "https://schema.org/DownloadAction",
+                    userInteractionCount: n,
+                  },
+                }
+              : {};
+          })()),
+      }
+    : null;
 
-  // Article/BlogPosting Schema
-  // Note: When SoftwareApplication schema exists, we don't include aggregateRating here
-  // to avoid conflicts with Google's review snippets requirements
+  // ── 2. Article / BlogPosting (review/editorial content) ─────────────────
   const articleSchema = {
     "@context": "https://schema.org",
-    "@type": post.downloadLink ? "Article" : "SoftwareApplication",
-    "@id": `${siteUrl}/post/${post.slug}`,
+    "@type": "Article",
+    // Different @id from softwareSchema — no collision
+    "@id": `${postUrl}#article`,
     headline: post.title,
-    description: post.metaDescription || post.content.substring(0, 200).replace(/<[^>]*>/g, ''),
-    image: {
-      "@type": "ImageObject",
-      url: post.featuredImage || post.ogImage || `${siteUrl}/og-default.jpg`,
-      width: 1200,
-      height: 630,
-    },
+    description,
+    image: buildImage(post.featuredImage || post.ogImage, defaultImg),
     datePublished: post.createdAt.toISOString(),
     dateModified: post.updatedAt.toISOString(),
     author: {
@@ -121,102 +183,98 @@ export default function StructuredData({ post, siteUrl, siteName = "PKR Games" }
     publisher: {
       "@type": "Organization",
       name: siteName,
-      logo: {
-        "@type": "ImageObject",
-        url: `${siteUrl}/logo.png`,
-      },
+      url: base,
+      ...(logoUrl && {
+        logo: { "@type": "ImageObject", url: logoUrl },
+      }),
     },
-    mainEntityOfPage: {
-      "@type": "WebPage",
-      "@id": `${siteUrl}/post/${post.slug}`,
-    },
-    keywords: post.keywords?.join(", ") || "",
-    articleSection: post.category?.name || "General",
-    // Only include aggregateRating in Article schema if SoftwareApplication schema doesn't exist
-    // This prevents conflicts with Google's review snippets for SoftwareApplication
-    ...(!post.downloadLink && post.rating && post.ratingCount && {
-      aggregateRating: {
-        "@type": "AggregateRating",
-        ratingValue: post.rating,
-        ratingCount: post.ratingCount,
-        bestRating: 5,
-        worstRating: 1,
-      },
+    mainEntityOfPage: { "@type": "WebPage", "@id": postUrl },
+    ...(post.keywords && post.keywords.length > 0 && {
+      keywords: post.keywords,
     }),
+    ...(post.category && { articleSection: post.category.name }),
+    // Include aggregateRating on Article only when no separate SoftwareApplication schema
+    ...(!post.downloadLink &&
+      post.rating &&
+      post.ratingCount &&
+      post.ratingCount > 0 && {
+        aggregateRating: {
+          "@type": "AggregateRating",
+          ratingValue: String(post.rating),
+          ratingCount: post.ratingCount,
+          bestRating: "5",
+          worstRating: "1",
+        },
+      }),
   };
 
-  // Review Schema (from comments with ratings)
-  // Only output when no SoftwareApplication to avoid "invalid object type for parent_node" (two product-like types)
-  const reviewSchema = !softwareSchema && post.comments && post.comments.length > 0 && post.comments.some(c => c.rating) ? {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    name: post.title,
-    image: post.featuredImage || post.ogImage || `${siteUrl}/og-default.jpg`,
-    description: post.metaDescription || post.content.substring(0, 200).replace(/<[^>]*>/g, ''),
-    // Only include aggregateRating if SoftwareApplication schema doesn't exist
-    ...(!post.downloadLink && post.rating && post.ratingCount && post.ratingCount > 0 && {
-      aggregateRating: {
-        "@type": "AggregateRating",
-        ratingValue: post.rating,
-        ratingCount: post.ratingCount,
-        bestRating: 5,
-        worstRating: 1,
-      },
-    }),
-    review: post.comments
-      .filter(comment => comment.rating && comment.rating > 0)
-      .slice(0, 10) // Limit to top 10 reviews
-      .map(comment => ({
-        "@type": "Review",
-        reviewRating: {
-          "@type": "Rating",
-          ratingValue: comment.rating,
-          bestRating: 5,
-          worstRating: 1,
-        },
-        author: {
-          "@type": "Person",
-          name: comment.author,
-        },
-        datePublished: comment.createdAt.toISOString(),
-        reviewBody: comment.content.substring(0, 500),
-      })),
-  } : null;
+  // ── 3. Review schema — only emitted when there are rated comments ────────
+  // Attached directly to SoftwareApplication via `review` property to avoid
+  // orphaned Product nodes that confuse Google's parser.
+  const ratedComments = (post.comments ?? []).filter(
+    (c) => c.rating && c.rating > 0,
+  );
+  const reviewNodes =
+    ratedComments.length > 0
+      ? ratedComments.slice(0, 10).map((c) => ({
+          "@type": "Review",
+          reviewRating: {
+            "@type": "Rating",
+            ratingValue: String(c.rating),
+            bestRating: "5",
+            worstRating: "1",
+          },
+          author: { "@type": "Person", name: c.author },
+          datePublished: c.createdAt.toISOString(),
+          reviewBody: c.content.substring(0, 500),
+        }))
+      : null;
 
-  // FAQ Schema (only valid Question/Answer pairs for Google)
-  const faqItems = faqs.filter(faq => faq.question?.trim() && faq.answer?.trim());
-  const faqSchema = faqItems.length > 0 ? {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: faqItems.map(faq => ({
-      "@type": "Question",
-      name: faq.question.trim(),
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: faq.answer.trim(),
-      },
-    })),
-  } : null;
+  // Inject reviews into softwareSchema if it exists, else into articleSchema
+  if (reviewNodes) {
+    if (softwareSchema) {
+      (softwareSchema as any).review = reviewNodes;
+    } else {
+      (articleSchema as any).review = reviewNodes;
+    }
+  }
 
-  // BreadcrumbList Schema (item must be valid URL string per Google)
-  const baseUrl = siteUrl.replace(/\/$/, "");
-  const postUrl = `${baseUrl}/post/${post.slug}`;
+  // ── 4. FAQPage ───────────────────────────────────────────────────────────
+  const validFaqs = faqs.filter((f) => f.question?.trim() && f.answer?.trim());
+  const faqSchema =
+    validFaqs.length > 0
+      ? {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "@id": `${postUrl}#faq`,
+          mainEntity: validFaqs.map((f) => ({
+            "@type": "Question",
+            name: f.question.trim(),
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: f.answer.trim(),
+            },
+          })),
+        }
+      : null;
+
+  // ── 5. BreadcrumbList ────────────────────────────────────────────────────
   const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
+    "@id": `${postUrl}#breadcrumb`,
     itemListElement: [
-      {
-        "@type": "ListItem",
-        position: 1,
-        name: "Home",
-        item: baseUrl,
-      },
-      ...(post.category ? [{
-        "@type": "ListItem",
-        position: 2,
-        name: post.category.name,
-        item: `${baseUrl}/category/${post.category.slug}`,
-      }] : []),
+      { "@type": "ListItem", position: 1, name: "Home", item: base },
+      ...(post.category
+        ? [
+            {
+              "@type": "ListItem",
+              position: 2,
+              name: post.category.name,
+              item: `${base}/category/${post.category.slug}`,
+            },
+          ]
+        : []),
       {
         "@type": "ListItem",
         position: post.category ? 3 : 2,
@@ -226,20 +284,18 @@ export default function StructuredData({ post, siteUrl, siteName = "PKR Games" }
     ],
   };
 
-  // Combine all schemas
   const schemas = [
     articleSchema,
     ...(softwareSchema ? [softwareSchema] : []),
-    ...(reviewSchema ? [reviewSchema] : []),
     ...(faqSchema ? [faqSchema] : []),
     breadcrumbSchema,
   ];
 
   return (
     <>
-      {schemas.map((schema, index) => (
+      {schemas.map((schema, i) => (
         <script
-          key={index}
+          key={i}
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
         />
@@ -247,4 +303,3 @@ export default function StructuredData({ post, siteUrl, siteName = "PKR Games" }
     </>
   );
 }
-

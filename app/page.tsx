@@ -188,12 +188,10 @@ export default async function Home({
     url: siteUrl,
     description: settings.heroSubtitle || `Download the best games and apps from ${settings.siteName}`,
     inLanguage: "en-US",
+    // Modern SearchAction format: target is a plain URL template string (not EntryPoint object)
     potentialAction: {
       "@type": "SearchAction",
-      target: {
-        "@type": "EntryPoint",
-        urlTemplate: `${siteUrl}/?search={search_term_string}`,
-      },
+      target: `${siteUrl}/?search={search_term_string}`,
       "query-input": "required name=search_term_string",
     },
   };

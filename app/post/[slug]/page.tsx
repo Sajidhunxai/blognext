@@ -106,7 +106,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: metaTitle,
       description: metaDescription,
       url: buildCanonicalUrl(siteUrl, `/post/${post.slug}`),
-      siteName: settings.siteName || "PKR Games",
+      siteName: settings.siteName || settings.siteTitle || "AppMarka",
       images: [
         {
           url: ogImage,
@@ -265,7 +265,8 @@ export default async function PostPage({ params }: Props) {
           })),
         }} 
         siteUrl={siteUrl}
-        siteName={settings.siteName}
+        siteName={settings.siteName || undefined}
+        logoUrl={settings.logo || null}
       />
       <FrontendLayout>
         <article className="bg-white dark:bg-gray-950 min-h-screen">
