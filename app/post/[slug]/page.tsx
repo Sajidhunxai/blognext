@@ -3,6 +3,7 @@ import { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { getSettings } from "@/lib/settings";
 import { buildCanonicalUrl } from "@/lib/url";
+import { optimizeCloudinaryUrl } from "@/lib/cloudinary";
 import Link from "next/link";
 import StructuredData from "@/components/StructuredData";
 import SmartImage from "@/components/SmartImage";
@@ -43,6 +44,9 @@ const SocialShareButtons = dynamic(() => import("@/components/SocialShareButtons
 const TableOfContents = dynamic(() => import("@/components/TableOfContents"), {
   ssr: false,
 });
+
+// Cache post pages — rebuild every 6 h; stale pages still served instantly
+export const revalidate = 21600;
 
 type Props = {
   params: { slug: string };
@@ -227,8 +231,25 @@ export default async function PostPage({ params }: Props) {
       ? (post.faqs as { question: string; answer: string }[])
       : extractFAQsFromContent(post.content);
 
+  // Compute the LCP image URL server-side so React 18 can hoist the
+  // <link rel="preload"> into <head> before any JS runs.
+  // This eliminates the 1,800 ms+ "resource load delay" reported by Lighthouse.
+  const lcpImageUrl = post.featuredImage
+    ? optimizeCloudinaryUrl(post.featuredImage, 400, 280, 85)
+    : null;
+
   return (
     <>
+      {/* Server-side preload for LCP image — visible to the browser preload scanner */}
+      {lcpImageUrl && (
+        <link
+          rel="preload"
+          as="image"
+          href={lcpImageUrl}
+          // @ts-ignore — fetchpriority is valid HTML; TypeScript types lag behind
+          fetchpriority="high"
+        />
+      )}
       <StructuredData 
         post={{
           title: post.title,

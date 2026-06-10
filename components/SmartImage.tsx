@@ -17,11 +17,13 @@ interface SmartImageProps {
   fetchPriority?: "high" | "low" | "auto";
 }
 
-// List of configured hostnames in next.config.js
-const CONFIGURED_HOSTNAMES = [
-  'res.cloudinary.com',
-  // Add other configured hostnames here
-];
+function isCloudinaryUrl(src: string): boolean {
+  try {
+    return new URL(src).hostname === "res.cloudinary.com";
+  } catch {
+    return false;
+  }
+}
 
 export default function SmartImage({
   src,
@@ -31,60 +33,53 @@ export default function SmartImage({
   height,
   className = "",
   priority = false,
-  quality = 90,
+  quality = 85,
   sizes,
   fetchPriority,
 }: SmartImageProps) {
-  const isCloudinary = useMemo(() => {
-    try {
-      const url = new URL(src);
-      return CONFIGURED_HOSTNAMES.includes(url.hostname);
-    } catch {
-      return false;
-    }
-  }, [src]);
+  const cloudinary = useMemo(() => isCloudinaryUrl(src), [src]);
 
-  const isConfiguredDomain = useMemo(() => {
-    try {
-      const url = new URL(src);
-      return CONFIGURED_HOSTNAMES.includes(url.hostname);
-    } catch {
-      // If URL parsing fails, assume it's a relative path (configured)
-      return true;
-    }
-  }, [src]);
-
-  // Optimize Cloudinary URLs with transformations
   const optimizedSrc = useMemo(() => {
-    if (isCloudinary && width) {
+    if (cloudinary && width) {
       return optimizeCloudinaryUrl(src, width, height, quality);
     }
     return src;
-  }, [src, width, height, quality, isCloudinary]);
+  }, [src, width, height, quality, cloudinary]);
 
-  // Use Next.js Image for configured domains or relative paths
-  if (isConfiguredDomain && width && height) {
+  const srcSet = useMemo(() => {
+    if (cloudinary && width) {
+      const doubles = [width, width * 2].filter((w) => w <= 3000);
+      return getCloudinarySrcSet(src, doubles);
+    }
+    return undefined;
+  }, [src, width, cloudinary]);
+
+  // ── Cloudinary images: bypass /_next/image proxy entirely.
+  // Cloudinary already handles f_auto (AVIF/WebP), q_auto, w_, h_ on its CDN.
+  // Routing through /_next/image adds an extra server hop and a very short
+  // cache TTL that causes slow LCP "resource load duration".
+  if (cloudinary && width && height) {
     return (
-      <Image
+      <img
         src={optimizedSrc}
+        srcSet={srcSet}
         alt={alt}
-        {...(title ? { title } : {})}
+        title={title}
         width={width}
         height={height}
         className={className}
-        priority={priority}
-        quality={typeof quality === 'number' ? quality : undefined}
-        sizes={sizes || (width ? `${width}px` : '100vw')}
+        loading={priority ? "eager" : "lazy"}
+        // fetchpriority is lowercase in HTML; React accepts the camelCase prop
+        fetchPriority={priority ? "high" : (fetchPriority ?? "auto")}
+        decoding={priority ? "sync" : "async"}
+        sizes={sizes ?? `${width}px`}
+        style={{ color: "transparent" }}
       />
     );
   }
 
-  // For Cloudinary images without width/height, use optimized img tag
-  if (isCloudinary && width) {
-    const srcSet = sizes 
-      ? getCloudinarySrcSet(src, [width, width * 2, width * 3])
-      : undefined;
-    
+  // ── Cloudinary images without explicit height ───────────────────────────
+  if (cloudinary && width) {
     return (
       <img
         src={optimizedSrc}
@@ -93,18 +88,32 @@ export default function SmartImage({
         title={title}
         className={className}
         loading={priority ? "eager" : "lazy"}
-        fetchPriority={fetchPriority}
-        sizes={sizes || (width ? `${width}px` : '100vw')}
-        style={{ 
-          width: width ? `${width}px` : '100%', 
-          height: height ? `${height}px` : 'auto',
-          ...(width && !height ? { height: 'auto' } : {})
-        }}
+        fetchPriority={priority ? "high" : (fetchPriority ?? "auto")}
+        decoding={priority ? "sync" : "async"}
+        sizes={sizes ?? `${width}px`}
+        style={{ width: "100%", height: "auto", color: "transparent" }}
       />
     );
   }
 
-  // Use regular img tag for unconfigured external domains
+  // ── Non-Cloudinary configured domains: use next/image ──────────────────
+  if (width && height) {
+    return (
+      <Image
+        src={src}
+        alt={alt}
+        {...(title ? { title } : {})}
+        width={width}
+        height={height}
+        className={className}
+        priority={priority}
+        quality={quality}
+        sizes={sizes ?? `${width}px`}
+      />
+    );
+  }
+
+  // ── Fallback: plain img ─────────────────────────────────────────────────
   return (
     <img
       src={src}
@@ -112,13 +121,8 @@ export default function SmartImage({
       title={title}
       className={className}
       loading={priority ? "eager" : "lazy"}
-      fetchPriority={fetchPriority}
-      style={{ 
-        width: width ? `${width}px` : '100%', 
-        height: height ? `${height}px` : 'auto',
-        ...(width && !height ? { height: 'auto' } : {})
-      }}
+      fetchPriority={priority ? "high" : (fetchPriority ?? "auto")}
+      style={{ width: width ? `${width}px` : "100%", height: "auto" }}
     />
   );
 }
-

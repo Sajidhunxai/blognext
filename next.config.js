@@ -58,53 +58,51 @@ const nextConfig = {
         hostname: 'res.cloudinary.com',
         pathname: '/**',
       },
-     
     ],
-    // Optimize images for better LCP
     formats: ['image/avif', 'image/webp'],
-    minimumCacheTTL: 60,
-    // Enable image optimization
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    // Cache processed images for 30 days (was 60 seconds — causing cold-cache on every visit)
+    minimumCacheTTL: 2592000,
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    // Cloudinary images bypass /_next/image (see SmartImage.tsx), so this
+    // only affects non-Cloudinary images that still go through the proxy.
+    dangerouslyAllowSVG: false,
   },
   // Enable compression
   compress: true,
-  // Add headers for better caching
   async headers() {
     return [
       {
         source: '/:path*',
         headers: [
-          {
-            key: 'X-DNS-Prefetch-Control',
-            value: 'on'
-          },
-          {
-            key: 'X-Frame-Options',
-            value: 'SAMEORIGIN'
-          },
+          { key: 'X-DNS-Prefetch-Control', value: 'on' },
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+          // Enable Brotli/gzip negotiation hint for CDNs
+          { key: 'Vary', value: 'Accept-Encoding' },
         ],
       },
+      // Next.js static assets — content-hashed, safe to cache forever
       {
         source: '/_next/static/:path*',
         headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
         ],
       },
+      // next/image proxy responses — cache 30 days on CDN/browser
       {
         source: '/_next/image',
         headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
+          { key: 'Cache-Control', value: 'public, max-age=2592000, stale-while-revalidate=86400' },
+          { key: 'Vary', value: 'Accept' },
         ],
       },
-      // Cache common image formats (Next.js handles most images via Image component)
-      // Static images in public folder will be served with appropriate headers
+      // Public folder static files
+      {
+        source: '/(.*)\\.(png|jpg|jpeg|gif|webp|avif|svg|ico|woff2|woff)',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=2592000, stale-while-revalidate=86400' },
+        ],
+      },
     ];
   },
   // Target modern browsers to reduce polyfills
