@@ -1,6 +1,5 @@
 import { prisma } from '@/lib/prisma';
 import { getSettings } from '@/lib/settings';
-import { locales } from '@/lib/i18n/config';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 7200; // 2 hours
@@ -17,7 +16,6 @@ function toISODate(date: Date | string | null | undefined): string {
   return isNaN(d.getTime()) ? new Date().toISOString().split('T')[0] : d.toISOString().split('T')[0];
 }
 
-/** Escape XML special characters in attribute values / text nodes. */
 function xmlEsc(s: string): string {
   return s
     .replace(/&/g, '&amp;')
@@ -25,20 +23,6 @@ function xmlEsc(s: string): string {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&apos;');
-}
-
-function localeUrl(base: string, path: string, locale: (typeof locales)[number]): string {
-  const prefixed = locale === 'en' ? path : `/${locale}${path}`;
-  return `${base}${prefixed}`;
-}
-
-function hreflangTags(base: string, path: string): string {
-  const lines = locales.map(
-    (l) => `    <xhtml:link rel="alternate" hreflang="${l}" href="${xmlEsc(localeUrl(base, path, l))}"/>`,
-  );
-  // Add x-default pointing to the English URL
-  lines.push(`    <xhtml:link rel="alternate" hreflang="x-default" href="${xmlEsc(localeUrl(base, path, 'en'))}"/>`);
-  return lines.join('\n');
 }
 
 interface ImageEntry {
@@ -52,7 +36,6 @@ function buildUrl(opts: {
   lastmod: string;
   changefreq: string;
   priority: string;
-  hreflang: string;
   images?: ImageEntry[];
 }): string {
   const imageTags =
@@ -71,8 +54,7 @@ function buildUrl(opts: {
     <loc>${xmlEsc(opts.loc)}</loc>
     <lastmod>${opts.lastmod}</lastmod>
     <changefreq>${opts.changefreq}</changefreq>
-    <priority>${opts.priority}</priority>
-${opts.hreflang}${imageTags ? '\n' + imageTags : ''}
+    <priority>${opts.priority}</priority>${imageTags ? '\n' + imageTags : ''}
   </url>`;
 }
 
@@ -87,7 +69,6 @@ export async function GET(): Promise<Response> {
   const base = siteBase(rawBase);
   const today = toISODate(new Date());
 
-  // ── Fetch all data in parallel ──────────────────────────────────────────
   const timeout = <T>(ms: number, fallback: T) =>
     new Promise<T>((res) => setTimeout(() => res(fallback), ms));
 
@@ -102,7 +83,6 @@ export async function GET(): Promise<Response> {
           createdAt: true,
           featuredImage: true,
           metaDescription: true,
-          categoryId: true,
         },
         orderBy: { updatedAt: 'desc' },
       }),
@@ -113,7 +93,7 @@ export async function GET(): Promise<Response> {
       'page' in prisma
         ? (prisma as any).page.findMany({
             where: { published: true },
-            select: { slug: true, title: true, updatedAt: true, createdAt: true },
+            select: { slug: true, updatedAt: true, createdAt: true },
             orderBy: { updatedAt: 'desc' },
           })
         : Promise.resolve([] as any[]),
@@ -125,7 +105,6 @@ export async function GET(): Promise<Response> {
         ? (prisma as any).category.findMany({
             select: {
               slug: true,
-              name: true,
               posts: {
                 where: { published: true },
                 select: { updatedAt: true },
@@ -151,7 +130,7 @@ export async function GET(): Promise<Response> {
 
   await getSettings().catch(() => null);
 
-  // ── Build redirect exclusion set ────────────────────────────────────────
+  // Build redirect exclusion set
   const excluded = new Set<string>();
   for (const { from } of redirectsRaw) {
     const norm = from.startsWith('/') ? from : `/${from}`;
@@ -168,27 +147,23 @@ export async function GET(): Promise<Response> {
 
   const entries: string[] = [];
 
-  // ── 1. Homepage ──────────────────────────────────────────────────────────
+  // 1. Homepage
   if (!isExcluded('/')) {
     entries.push(
       buildUrl({
-        loc: localeUrl(base, '/', 'en'),
+        loc: `${base}/`,
         lastmod: today,
         changefreq: 'daily',
         priority: '1.0',
-        hreflang: hreflangTags(base, '/'),
       }),
     );
   }
 
-  // ── 2. Posts ─────────────────────────────────────────────────────────────
+  // 2. Posts
   for (const post of posts) {
     const path = `/post/${post.slug}`;
     if (isExcluded(path)) continue;
 
-    const lastmod = toISODate(post.updatedAt || post.createdAt);
-
-    // Collect images: featured image first, then og image if different
     const images: ImageEntry[] = [];
     if (post.featuredImage) {
       const imgUrl = post.featuredImage.startsWith('http')
@@ -201,76 +176,52 @@ export async function GET(): Promise<Response> {
       });
     }
 
-    for (const locale of locales) {
-      const localePath = locale === 'en' ? path : `/${locale}${path}`;
-      if (isExcluded(localePath)) continue;
-      entries.push(
-        buildUrl({
-          loc: localeUrl(base, path, locale),
-          lastmod,
-          changefreq: 'weekly',
-          priority: '0.8',
-          hreflang: hreflangTags(base, path),
-          images: locale === 'en' ? images : [], // images only on canonical (en)
-        }),
-      );
-    }
+    entries.push(
+      buildUrl({
+        loc: `${base}${path}`,
+        lastmod: toISODate(post.updatedAt || post.createdAt),
+        changefreq: 'weekly',
+        priority: '0.8',
+        images,
+      }),
+    );
   }
 
-  // ── 3. Categories ────────────────────────────────────────────────────────
+  // 3. Categories
   for (const cat of categoriesRaw) {
-    // Skip categories with no published posts
     if (!cat.posts || cat.posts.length === 0) continue;
-
     const path = `/category/${cat.slug}`;
     if (isExcluded(path)) continue;
 
-    // Use the most recently updated post as category lastmod
-    const lastmod = cat.posts[0]?.updatedAt ? toISODate(cat.posts[0].updatedAt) : today;
-
-    for (const locale of locales) {
-      const localePath = locale === 'en' ? path : `/${locale}${path}`;
-      if (isExcluded(localePath)) continue;
-      entries.push(
-        buildUrl({
-          loc: localeUrl(base, path, locale),
-          lastmod,
-          changefreq: 'weekly',
-          priority: '0.7',
-          hreflang: hreflangTags(base, path),
-        }),
-      );
-    }
+    entries.push(
+      buildUrl({
+        loc: `${base}${path}`,
+        lastmod: cat.posts[0]?.updatedAt ? toISODate(cat.posts[0].updatedAt) : today,
+        changefreq: 'weekly',
+        priority: '0.7',
+      }),
+    );
   }
 
-  // ── 4. Static pages ──────────────────────────────────────────────────────
+  // 4. Static pages
   for (const page of pages) {
     const path = `/pages/${page.slug}`;
     if (isExcluded(path)) continue;
 
-    const lastmod = toISODate(page.updatedAt || page.createdAt);
-
-    for (const locale of locales) {
-      const localePath = locale === 'en' ? path : `/${locale}${path}`;
-      if (isExcluded(localePath)) continue;
-      entries.push(
-        buildUrl({
-          loc: localeUrl(base, path, locale),
-          lastmod,
-          changefreq: 'monthly',
-          priority: '0.5',
-          hreflang: hreflangTags(base, path),
-        }),
-      );
-    }
+    entries.push(
+      buildUrl({
+        loc: `${base}${path}`,
+        lastmod: toISODate(page.updatedAt || page.createdAt),
+        changefreq: 'monthly',
+        priority: '0.5',
+      }),
+    );
   }
 
-  // ── Assemble XML ─────────────────────────────────────────────────────────
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>
 <urlset
   xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-  xmlns:xhtml="http://www.w3.org/1999/xhtml"
   xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
 >
 ${entries.join('\n')}
@@ -280,7 +231,7 @@ ${entries.join('\n')}
     headers: {
       'Content-Type': 'application/xml; charset=utf-8',
       'Cache-Control': 'public, max-age=7200, s-maxage=7200, stale-while-revalidate=3600',
-      'X-Robots-Tag': 'noindex', // sitemap itself should not be indexed
+      'X-Robots-Tag': 'noindex',
     },
   });
 }

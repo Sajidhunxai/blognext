@@ -28,10 +28,6 @@ const ThemeToggle = dynamic(() => import("@/components/ThemeToggle"), {
   ssr: false,
 });
 
-const LanguageSwitcher = dynamic(() => import("@/components/LanguageSwitcher"), {
-  ssr: false,
-});
-
 const Logo = dynamic(() => import("@/components/Logo"), {
   ssr: false,
   loading: () => null,
@@ -124,7 +120,6 @@ export default async function FrontendLayout({ children }: FrontendLayoutProps) 
                   </NavLink>
                 )}
               </nav>
-              <LanguageSwitcher currentLocale={locale} variant="dropdown" />
               <ThemeToggle />
               {/* Mobile Menu */}
               <MobileMenu menuItems={menuItems} showDashboard={!!session} locale={locale} />
