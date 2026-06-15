@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
@@ -92,9 +91,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const settings = await getSettings();
-  const headersList = await headers();
-  const locale = (headersList.get("x-locale") || "en") as "en" | "ur" | "hi";
-  const lang = htmlLang[locale] || "en";
+  const lang = htmlLang.en;
   
   const initialColors = {
     primary: settings.primaryColor || undefined,

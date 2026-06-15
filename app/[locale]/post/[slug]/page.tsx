@@ -60,7 +60,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       url: postUrl,
       siteName: settings?.siteName,
       images: [{ url: ogImage, alt: (post as any).ogImageAlt || (post as any).featuredImageAlt || post.title }],
-      locale: locale === "ur" ? "ur_PK" : locale === "hi" ? "hi_IN" : "en_US",
+      locale: "en_US",
       type: "article",
       publishedTime: (post as any).createdAt?.toISOString?.(),
       modifiedTime: (post as any).updatedAt?.toISOString?.(),

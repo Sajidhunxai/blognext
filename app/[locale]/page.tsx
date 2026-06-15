@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description,
       url: siteUrl + addLocalePrefix("/", locale),
-      locale: locale === "ur" ? "ur_PK" : locale === "hi" ? "hi_IN" : "en_US",
+      locale: "en_US",
       type: "website",
     },
     alternates: {

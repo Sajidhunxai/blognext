@@ -84,7 +84,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       url: buildCanonicalUrl(siteUrl, canonicalPath),
       siteName: settings?.siteName,
       type: "website",
-      locale: locale === "ur" ? "ur_PK" : locale === "hi" ? "hi_IN" : "en_US",
+      locale: "en_US",
       images: settings?.logo ? [{ url: settings.logo }] : [],
     },
     twitter: {
