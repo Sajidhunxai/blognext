@@ -16,10 +16,9 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // ── 301 redirect legacy /ur/* and /hi/* to their English equivalents ──────
-  // These locale prefixes were removed because they served identical English
-  // content, causing duplicate content penalties in Google Search.
-  const localeMatch = pathname.match(/^\/(ur|hi)(\/.*)?$/);
+  // ── 301 redirect all locale-prefixed paths to their English equivalents ───
+  // /ur/post/x → /post/x, /hi/post/x → /post/x, /en/post/x → /post/x
+  const localeMatch = pathname.match(/^\/(en|ur|hi)(\/.*)?$/);
   if (localeMatch) {
     const rest = localeMatch[2] || "/";
     const destination = new URL(rest, request.nextUrl.origin).toString();
