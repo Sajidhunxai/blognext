@@ -21,7 +21,8 @@ import {
   CheckCheckIcon,
   Link2,
   Upload,
-  RefreshCcw
+  RefreshCcw,
+  Send,
 } from "lucide-react";
 
 interface DashboardLayoutProps {
@@ -63,6 +64,7 @@ export default function DashboardLayout({
     { icon: Copy, label: "Scraper", href: "/dashboard/scraper" },
     { icon: InspectionPanel, label: "AI Writer", href: "/dashboard/ai-writer" },
     { icon: Upload, label: "Import/Export", href: "/dashboard/import-export" },
+    { icon: Send, label: "IndexNow", href: "/dashboard/indexnow" },
     { icon: RefreshCcw, label: "Code Updates", href: "/dashboard/code-updates" },
     { icon: Settings, label: "Settings", href: "/dashboard/settings" },
   
