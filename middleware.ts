@@ -4,6 +4,18 @@ import type { NextRequest } from "next/server";
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
+  // ── IndexNow key file: /{INDEXNOW_KEY}.txt ───────────────────────────────
+  const indexNowKey = process.env.INDEXNOW_KEY?.trim();
+  if (indexNowKey && pathname === `/${indexNowKey}.txt`) {
+    return new NextResponse(indexNowKey, {
+      status: 200,
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": "public, max-age=86400",
+      },
+    });
+  }
+
   // ── Skip internals ────────────────────────────────────────────────────────
   if (
     pathname.startsWith("/api") ||

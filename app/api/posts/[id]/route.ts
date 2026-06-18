@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { notifyIndexNowPost } from "@/lib/indexnow";
 
 export async function PUT(
   req: NextRequest,
@@ -49,10 +50,18 @@ export async function PUT(
     }
 
     const existingPost = await prisma.post.findUnique({
+      where: { id: params.id },
+    });
+
+    if (!existingPost) {
+      return NextResponse.json({ error: "Post not found" }, { status: 404 });
+    }
+
+    const slugConflict = await prisma.post.findUnique({
       where: { slug },
     });
 
-    if (existingPost && existingPost.id !== params.id) {
+    if (slugConflict && slugConflict.id !== params.id) {
       return NextResponse.json(
         { error: "A post with this slug already exists" },
         { status: 400 }
@@ -90,6 +99,14 @@ export async function PUT(
         ratingCount: ratingCount !== undefined ? parseInt(ratingCount) : 0,
       },
     });
+
+    if (post.published) {
+      notifyIndexNowPost(post.slug, true);
+      // If slug changed, also ping the old URL so search engines recrawl redirects
+      if (existingPost.slug !== post.slug) {
+        notifyIndexNowPost(existingPost.slug, true);
+      }
+    }
 
     return NextResponse.json(post);
   } catch (error: any) {

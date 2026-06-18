@@ -12,6 +12,7 @@ import {
   type ImportPostData,
 } from "@/lib/post-import-export";
 import { parseString } from "xml2js";
+import { notifyIndexNowPosts } from "@/lib/indexnow";
 
 export const dynamic = 'force-dynamic';
 
@@ -606,6 +607,15 @@ export async function POST(req: NextRequest) {
       results.updated > 0
         ? `Updated ${results.updated} posts`
         : `Imported ${results.success} posts successfully`;
+
+    const indexNowSlugs = results.posts
+      .filter((p) => p.status === "imported" || p.status === "updated")
+      .map((p) => p.slug)
+      .filter(Boolean);
+
+    if (indexNowSlugs.length > 0) {
+      notifyIndexNowPosts(indexNowSlugs);
+    }
 
     return secureResponse({
       success: true,
