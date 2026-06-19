@@ -28,6 +28,13 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // ── 301 /posts/slug → /post/slug (real HTTP redirect, not meta refresh) ───
+  const postsMatch = pathname.match(/^\/posts\/([^/]+)\/?$/);
+  if (postsMatch) {
+    const destination = new URL(`/post/${postsMatch[1]}`, request.url);
+    return NextResponse.redirect(destination, { status: 301 });
+  }
+
   // ── 301 redirect all locale-prefixed paths to their English equivalents ───
   // /ur/post/x → /post/x, /hi/post/x → /post/x, /en/post/x → /post/x
   const localeMatch = pathname.match(/^\/(en|ur|hi)(\/.*)?$/);
@@ -41,7 +48,6 @@ export async function middleware(request: NextRequest) {
   const isContentRoute =
     pathname === "/" ||
     pathname.startsWith("/post/") ||
-    pathname.startsWith("/posts/") ||
     pathname.startsWith("/pages/") ||
     pathname.startsWith("/category/") ||
     pathname.startsWith("/download/");

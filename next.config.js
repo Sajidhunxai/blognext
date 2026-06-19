@@ -16,7 +16,14 @@ const nextConfig = {
       const canonicalDomain = canonicalHost.replace(/^www\./, '');
       const isWww = canonicalHost.startsWith('www.');
       
-      const redirects = [];
+      const redirects = [
+        // /posts/slug → /post/slug (301). Avoids Next.js meta refresh on redirect().
+        {
+          source: '/posts/:slug',
+          destination: '/post/:slug',
+          permanent: true,
+        },
+      ];
 
       if (isWww) {
         redirects.push({

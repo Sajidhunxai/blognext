@@ -1,10 +1,13 @@
-import { redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 
 type Props = {
   params: { slug: string };
 };
 
-export default function PostsRedirectPage({ params }: Props) {
-  // Redirect from /posts/[slug] to /post/[slug]
-  redirect(`/post/${params.slug}`);
+/**
+ * Legacy /posts/[slug] URLs are 301-redirected to /post/[slug] in middleware
+ * and next.config.js (real HTTP redirect — no meta refresh tag).
+ */
+export default function PostsRedirectPage(_props: Props) {
+  notFound();
 }

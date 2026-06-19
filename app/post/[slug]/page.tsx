@@ -323,7 +323,7 @@ export default async function PostPage({ params }: Props) {
 
           <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
             {/* ── Left Sidebar ── */}
-            <aside className="w-full lg:w-80 xl:w-96 flex-shrink-0 order-1 lg:order-1 lg:self-start lg:sticky lg:top-24 space-y-4">
+            <aside className="w-full lg:w-80 xl:w-96 flex-shrink-0 order-1 lg:order-1 lg:self-start lg:sticky lg:top-4 space-y-4">
 
               {/* App Card */}
               <div className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow border border-gray-100 dark:border-gray-700/50">

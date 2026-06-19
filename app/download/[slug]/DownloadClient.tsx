@@ -1,47 +1,31 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useTheme } from "@/contexts/ThemeContext";
 
 interface DownloadClientProps {
-  post: any;
+  post: {
+    title: string;
+    slug: string;
+    downloadLink: string | null;
+    appVersion?: string | null;
+    appSize?: string | null;
+    requirements?: string | null;
+  };
   backHref?: string;
 }
 
-export default function DownloadClient({ post: initialPost, backHref }: DownloadClientProps) {
-  const { colors } = useTheme();
-  const [countdown, setCountdown] = useState(5);
-  const [redirecting, setRedirecting] = useState(false);
-
-  useEffect(() => {
-    if (initialPost?.downloadLink && countdown > 0) {
-      const timer = setTimeout(() => {
-        setCountdown(countdown - 1);
-      }, 1000);
-      return () => clearTimeout(timer);
-    } else if (initialPost?.downloadLink && countdown === 0 && !redirecting) {
-      handleDownload();
-    }
-  }, [countdown, initialPost, redirecting]);
-
-  const handleDownload = () => {
-    if (initialPost?.downloadLink) {
-      setRedirecting(true);
-      window.location.href = initialPost.downloadLink;
-    }
-  };
-
-  if (!initialPost) {
+export default function DownloadClient({ post, backHref }: DownloadClientProps) {
+  if (!post?.downloadLink) {
     return null;
   }
 
+  const appShortName = post.title.split(" ")[0];
+
   return (
     <div className="bg-white dark:bg-gray-950 min-h-screen">
-    <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Back Button */}
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Link
-          href={backHref ?? `/post/${initialPost.slug}`}
+          href={backHref ?? `/post/${post.slug}`}
           className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-lg font-medium transition hover:opacity-90 bg-error"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -50,83 +34,64 @@ export default function DownloadClient({ post: initialPost, backHref }: Download
           BACK
         </Link>
 
-        {/* Title */}
         <div className="flex justify-between align-middle items-center">
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-          {initialPost.title}
-        </h1>
-
-        {/* Verified Badge */}
-        <div className="flex items-center gap-2 mb-8">
-          <div
-            className="w-8 h-8 rounded-full flex items-center justify-center text-theme-text bg-success"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            {post.title}
+          </h1>
+          <div className="flex items-center gap-2 mb-8">
+            <div className="w-8 h-8 rounded-full flex items-center justify-center text-theme-text bg-success">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <span className="text-sm text-gray-600 dark:text-white">Verified</span>
           </div>
-          <span className="text-sm text-gray-600 dark:text-white">Verified</span>
         </div>
 
-        </div>
-        {/* App Details Card */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">App Details</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">Package name:</span>
-              <p className="text-gray-900 dark:text-gray-100 mt-1">{initialPost.title}</p>
+              <p className="text-gray-900 dark:text-gray-100 mt-1">{post.title}</p>
             </div>
-            {initialPost.appVersion && (
+            {post.appVersion && (
               <div>
                 <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">Version:</span>
-                <p className="text-gray-900 dark:text-gray-100 mt-1">{initialPost.appVersion}</p>
+                <p className="text-gray-900 dark:text-gray-100 mt-1">{post.appVersion}</p>
               </div>
             )}
-            {initialPost.appSize && (
+            {post.appSize && (
               <div>
                 <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">Size:</span>
-                <p className="text-gray-900 dark:text-gray-100 mt-1">{initialPost.appSize}</p>
+                <p className="text-gray-900 dark:text-gray-100 mt-1">{post.appSize}</p>
               </div>
             )}
-            {initialPost.requirements && (
+            {post.requirements && (
               <div>
                 <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">Requirements:</span>
-                <p className="text-gray-900 dark:text-gray-100 mt-1">{initialPost.requirements}</p>
+                <p className="text-gray-900 dark:text-gray-100 mt-1">{post.requirements}</p>
               </div>
             )}
           </div>
         </div>
 
-        {/* Download Section */}
         <div className="mb-6">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Download links</h2>
-          
+
           <a
-            href={initialPost.downloadLink}
-            onClick={(e) => {
-              e.preventDefault();
-              handleDownload();
-            }}
+            href={post.downloadLink}
             rel="nofollow noopener noreferrer"
-            className="w-full flex items-center justify-center gap-3 px-6 py-4 rounded-lg text-button font-bold text-lg transition hover:bg-secondary disabled:opacity-50 bg-button"
+            className="w-full flex items-center justify-center gap-3 px-6 py-4 rounded-lg text-button font-bold text-lg transition hover:bg-secondary bg-button"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
             </svg>
-            {redirecting ? "Redirecting..." : `Download ${initialPost.title.split(" ")[0]}`}
+            Download {appShortName}
           </a>
 
-          {countdown > 0 && !redirecting && (
-            <p className="text-center text-sm text-gray-600 dark:text-gray-400 mt-2">
-              Auto-redirecting in {countdown} seconds...
-            </p>
-          )}
-
           <div className="flex items-center gap-2 mt-4 justify-center">
-            <div
-              className="w-6 h-6 rounded-full flex items-center justify-center text-theme-text bg-success"
-            >
+            <div className="w-6 h-6 rounded-full flex items-center justify-center text-theme-text bg-success">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
@@ -135,37 +100,17 @@ export default function DownloadClient({ post: initialPost, backHref }: Download
           </div>
         </div>
 
-        {/* Installation Instructions */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
-            How to install {initialPost.title} APK?
+            How to install {post.title} APK?
           </h2>
           <ol className="list-decimal list-inside space-y-3 text-gray-700 dark:text-gray-300">
-            <li>Tap the downloaded {initialPost.title.split(" ")[0]} APK file.</li>
+            <li>Tap the downloaded {appShortName} APK file.</li>
             <li>Touch install.</li>
             <li>Follow the steps on the screen.</li>
           </ol>
         </div>
-
-        {/* Manual Redirect Link */}
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-            If you are not redirected automatically,{" "}
-            <a
-              href={initialPost.downloadLink}
-              onClick={(e) => {
-                e.preventDefault();
-                handleDownload();
-              }}
-              rel="nofollow noopener noreferrer"
-              className="underline font-medium text-link"
-            >
-              click here to download
-            </a>
-          </p>
-        </div>
-    </div>
+      </div>
     </div>
   );
 }
-
