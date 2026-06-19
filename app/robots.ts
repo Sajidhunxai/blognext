@@ -9,21 +9,10 @@ function getSiteOrigin(): string {
   ).replace(/\/+$/, '');
 }
 
-/** Host directive must be hostname only — no scheme (https://). Google ignores it; Yandex uses it. */
-function getHost(hostname: string): string {
-  try {
-    if (hostname.startsWith('http')) {
-      return new URL(hostname).hostname;
-    }
-    return hostname.split('/')[0];
-  } catch {
-    return hostname;
-  }
-}
+
 
 export default function robots(): MetadataRoute.Robots {
   const siteUrl = getSiteOrigin();
-  const host = getHost(siteUrl);
 
   return {
     rules: [
@@ -44,6 +33,5 @@ export default function robots(): MetadataRoute.Robots {
       },
     ],
     sitemap: `${siteUrl}/sitemap.xml`,
-    host,
   };
 }
