@@ -111,6 +111,9 @@ export default function CustomScripts({
         el.type = "text/javascript";
         if (item.type === "external") {
           el.src = item.src;
+          // async prevents 3rd-party scripts (GTM, analytics) from blocking
+          // the main thread / LCP render path
+          el.async = true;
         } else {
           el.textContent = item.content;
         }
@@ -140,6 +143,7 @@ export default function CustomScripts({
         el.type = "text/javascript";
         if (item.type === "external") {
           el.src = item.src;
+          el.async = true;
         } else {
           el.textContent = item.content;
         }

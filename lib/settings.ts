@@ -108,7 +108,7 @@ const getCachedSettings = unstable_cache(
   },
   ['settings'],
   {
-    revalidate: 300, // Cache for 5 minutes
+    revalidate: 3600, // Cache for 1 hour — settings rarely change; reduces DB round-trips on cold ISR
     tags: ['settings'],
   }
 );

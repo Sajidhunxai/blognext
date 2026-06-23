@@ -57,29 +57,22 @@ export function optimizeCloudinaryUrl(
   
   // Add format optimization
   newTransformations.push('f_auto');
-  
-  // Add DPR for retina displays
-  newTransformations.push('dpr_auto');
+
+  // NOTE: dpr_auto is intentionally omitted. srcset uses `w` descriptors ([1x, 2x]
+  // widths) so the browser picks the correct size without Cloudinary needing to
+  // guess DPR via a client-hint header. dpr_auto also makes URLs non-deterministic,
+  // which breaks the preload cache-hit for the LCP image.
   
   const newTransformationString = newTransformations.join(',');
   
-  // If there are existing transformations, we need to combine them properly
+  // If there are existing transformations, always chain with / separator.
+  // IMPORTANT: do NOT merge size params into an l_ (overlay) group — Cloudinary
+  // would apply w_/h_ to the overlay layer, not the final composed image.
+  // Chaining as a separate step ensures sizing applies after the overlay is applied.
   if (hasExistingTransformations) {
-    // Extract existing transformations (everything before the version or public_id)
     const existingTransformations = pathParts[0];
     const restOfPath = pathParts.slice(1).join('/');
-    
-    // Check if existing transformations contain an overlay (l_ prefix)
-    // If so, we need to combine all transformations in the same string, not chain with /
-    if (existingTransformations.includes('l_')) {
-      // Overlay transformations need to be combined with other transformations in one string
-      // Format: l_...,w_320,h_320,q_90,f_auto,dpr_auto
-      const combinedTransformations = `${existingTransformations},${newTransformationString}`;
-      return `${baseUrl}/upload/${combinedTransformations}/${restOfPath}`;
-    } else {
-      // No overlay, chain transformations with / separator
-      return `${baseUrl}/upload/${existingTransformations}/${newTransformationString}/${restOfPath}`;
-    }
+    return `${baseUrl}/upload/${existingTransformations}/${newTransformationString}/${restOfPath}`;
   }
   
   // No existing transformations, just add ours

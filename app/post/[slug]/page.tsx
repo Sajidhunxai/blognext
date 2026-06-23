@@ -3,7 +3,7 @@ import { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { getSettings } from "@/lib/settings";
 import { buildCanonicalUrl } from "@/lib/url";
-import { optimizeCloudinaryUrl } from "@/lib/cloudinary";
+import { optimizeCloudinaryUrl, getCloudinarySrcSet } from "@/lib/cloudinary";
 import Link from "next/link";
 import StructuredData from "@/components/StructuredData";
 import SmartImage from "@/components/SmartImage";
@@ -233,9 +233,14 @@ export default async function PostPage({ params }: Props) {
 
   // Compute the LCP image URL server-side so React 18 can hoist the
   // <link rel="preload"> into <head> before any JS runs.
-  // This eliminates the 1,800 ms+ "resource load delay" reported by Lighthouse.
+  // URL must match SmartImage exactly (same quality/size) so the preloaded
+  // response is actually used and not re-fetched. imagesrcset/imagesizes let
+  // the browser pick the right srcset entry from the preload cache.
   const lcpImageUrl = post.featuredImage
-    ? optimizeCloudinaryUrl(post.featuredImage, 400, 280, 85)
+    ? optimizeCloudinaryUrl(post.featuredImage, 400, 280, 90)
+    : null;
+  const lcpSrcSet = post.featuredImage
+    ? getCloudinarySrcSet(post.featuredImage, [400, 800])
     : null;
 
   return (
@@ -246,8 +251,10 @@ export default async function PostPage({ params }: Props) {
           rel="preload"
           as="image"
           href={lcpImageUrl}
-          // @ts-ignore — fetchpriority is valid HTML; TypeScript types lag behind
-          fetchpriority="high"
+          // @ts-ignore — imageSrcSet / imageSizes not yet in React's HTMLLinkElement types
+          imageSrcSet={lcpSrcSet ?? undefined}
+          imageSizes="(max-width: 768px) 100vw, 400px"
+          fetchPriority="high"
         />
       )}
       <StructuredData 
