@@ -8,7 +8,7 @@ export async function GET(): Promise<Response> {
 
   return new Response(body, {
     headers: {
-      'Content-Type': 'text/plain; charset=utf-8',
+      'Content-Type': 'text/markdown; charset=utf-8',
       'Cache-Control': 'public, max-age=7200, s-maxage=7200, stale-while-revalidate=3600',
     },
   });
