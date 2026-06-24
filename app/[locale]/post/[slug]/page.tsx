@@ -337,7 +337,7 @@ export default async function LocalePostPage({ params }: Props) {
                           dangerouslySetInnerHTML={{ __html: (post as any).content }}
                         />
                       </div>
-                      <input type="checkbox" id={`expand-desc-${post.slug}`} className="sr-only" aria-hidden />
+                      <input type="checkbox" id={`expand-desc-${post.slug}`} className="sr-only" aria-hidden tabIndex={-1} />
                       <label
                         htmlFor={`expand-desc-${post.slug}`}
                         className="[[data-expandable-desc]:has(input:checked)_&]:hidden mt-3 inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors cursor-pointer"

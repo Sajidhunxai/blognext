@@ -127,10 +127,11 @@ export default function CommentsSection({ postId, allowComments, enableComments 
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-white mb-2">
+          <label htmlFor="comment-content" className="block text-sm font-medium text-gray-700 dark:text-white mb-2">
             Comment *
           </label>
           <textarea
+            id="comment-content"
             rows={6}
             value={content}
             onChange={(e) => setContent(e.target.value)}
@@ -144,10 +145,11 @@ export default function CommentsSection({ postId, allowComments, enableComments 
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-white mb-2">
+            <label htmlFor="comment-name" className="block text-sm font-medium text-gray-700 dark:text-white mb-2">
               Name *
             </label>
             <input
+              id="comment-name"
               type="text"
               value={authorName}
               onChange={(e) => setAuthorName(e.target.value)}
@@ -159,10 +161,11 @@ export default function CommentsSection({ postId, allowComments, enableComments 
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-white mb-2">
+            <label htmlFor="comment-email" className="block text-sm font-medium text-gray-700 dark:text-white mb-2">
               Email *
             </label>
             <input
+              id="comment-email"
               type="email"
               value={authorEmail}
               onChange={(e) => setAuthorEmail(e.target.value)}
@@ -175,10 +178,11 @@ export default function CommentsSection({ postId, allowComments, enableComments 
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-white mb-2">
+          <label htmlFor="comment-website" className="block text-sm font-medium text-gray-700 dark:text-white mb-2">
             Website
           </label>
           <input
+            id="comment-website"
             type="url"
             value={authorWebsite}
             onChange={(e) => setAuthorWebsite(e.target.value)}

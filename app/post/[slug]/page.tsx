@@ -541,9 +541,11 @@ export default async function PostPage({ params }: Props) {
                       { label: "Category", value: post.category?.name, icon: "🗂️" },
                     ].filter(r => r.value).map(({ label, value, icon }) => (
                       <div key={label} className="flex flex-col items-center justify-center p-4 text-center border border-gray-100 dark:border-gray-700/50">
-                        <span className="text-xl mb-1">{icon}</span>
-                        <dd className="font-bold text-gray-900 dark:text-gray-100 text-sm truncate max-w-full">{value}</dd>
-                        <dt className="text-[11px] text-gray-500 dark:text-gray-400 uppercase tracking-wide mt-0.5">{label}</dt>
+                        <dt className="text-[11px] text-gray-500 dark:text-gray-400 uppercase tracking-wide flex flex-col items-center gap-1">
+                          <span className="text-xl" aria-hidden="true">{icon}</span>
+                          {label}
+                        </dt>
+                        <dd className="font-bold text-gray-900 dark:text-gray-100 text-sm truncate max-w-full mt-0.5">{value}</dd>
                       </div>
                     ))}
                   </dl>
@@ -574,7 +576,7 @@ export default async function PostPage({ params }: Props) {
                         dangerouslySetInnerHTML={{ __html: post.content }} />
                     </div>
                     <div className="h-24 -mt-24 relative z-10 pointer-events-none bg-gradient-to-t from-white to-transparent dark:from-gray-800/50 [[data-expandable-desc]:has(input:checked)_&]:hidden" aria-hidden />
-                    <input type="checkbox" id={`expand-desc-${post.slug}`} className="sr-only" aria-hidden />
+                    <input type="checkbox" id={`expand-desc-${post.slug}`} className="sr-only" aria-hidden tabIndex={-1} />
                     <label htmlFor={`expand-desc-${post.slug}`}
                       className="[[data-expandable-desc]:has(input:checked)_&]:hidden mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-primary text-white hover:bg-secondary transition cursor-pointer">
                       Read full description
