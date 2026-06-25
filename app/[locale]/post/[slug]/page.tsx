@@ -45,7 +45,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const siteUrl = process.env.NEXT_PUBLIC_CANONICAL_URL || process.env.NEXTAUTH_URL || "http://localhost:3000";
   const metaTitle = post.metaTitle || post.title;
   const metaDescription = post.metaDescription || String(post.content).substring(0, 160);
-  const ogImage = post.ogImage || post.featuredImage || `${siteUrl}/og-default.jpg`;
+  const ogImage = post.ogImage || post.featuredImage || settings?.logo || `${siteUrl}/og-default.jpg`;
   const postUrl = buildCanonicalUrl(siteUrl, addLocalePrefix(`/post/${post.slug}`, locale));
 
   return {

@@ -75,7 +75,7 @@ export async function GET(): Promise<Response> {
   const [posts, pages, categoriesRaw, redirectsRaw] = await Promise.all([
     Promise.race([
       prisma.post.findMany({
-        where: { published: true },
+        where: { published: true, noIndex: false },
         select: {
           slug: true,
           title: true,

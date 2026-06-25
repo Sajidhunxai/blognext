@@ -92,7 +92,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .replace(/\s+/g, " ")
     .trim();
   const metaDescription = post.metaDescription || plainText.substring(0, 158).trimEnd() + "…";
-  const ogImage = post.ogImage || post.featuredImage || `${siteUrl}/og-default.jpg`;
+  const ogImage = post.ogImage || post.featuredImage || settings.logo || `${siteUrl}/og-default.jpg`;
 
   // Preload LCP image for better performance
   const featuredImageUrl = post.featuredImage || ogImage;

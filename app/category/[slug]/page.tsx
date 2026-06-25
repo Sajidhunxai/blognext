@@ -39,15 +39,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!category) {
     return {
       title: "Category Not Found",
+      robots: { index: false, follow: false },
     };
   }
 
   const settings = await getSettings();
   const siteUrl =
+    process.env.NEXT_PUBLIC_CANONICAL_URL ||
     process.env.NEXTAUTH_URL ||
     process.env.NEXT_PUBLIC_SITE_URL ||
     "http://localhost:3000";
-  const title = `${category.name} - ${settings.siteName}`;
+  const title = category.name;
   const description =
     category.description ||
     `Browse and download the best ${category.name.toLowerCase()} apps and games. Find the latest ${category.name.toLowerCase()} applications with reviews, ratings, and direct download links.`;

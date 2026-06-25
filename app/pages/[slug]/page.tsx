@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const settings = await getSettings();
   const metaTitle = page.metaTitle || page.title;
   const metaDescription = page.metaDescription || page.content.substring(0, 160);
-  const ogImage = page.featuredImage || `${siteUrl}/og-default.jpg`;
+  const ogImage = page.featuredImage || settings.logo || `${siteUrl}/og-default.jpg`;
 
   return {
     metadataBase: new URL(siteUrl),

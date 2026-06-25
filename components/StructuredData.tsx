@@ -97,7 +97,7 @@ export default function StructuredData({
 }: StructuredDataProps) {
   const base = siteUrl.replace(/\/+$/, "");
   const postUrl = `${base}/post/${post.slug}`;
-  const defaultImg = `${base}/og-default.jpg`;
+  const defaultImg = logoUrl || `${base}/og-default.jpg`;
 
   const description =
     post.metaDescription?.trim() || stripHtml(post.content);

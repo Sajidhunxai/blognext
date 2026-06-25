@@ -9,6 +9,7 @@ export async function generateMetadata() {
   return {
     title: "404 - Page Not Found",
     description: `The page you're looking for doesn't exist on ${settings.siteName || "our website"}.`,
+    robots: { index: false, follow: false },
   };
 }
 
@@ -87,7 +88,7 @@ export default async function NotFound() {
               </Link>
               <span className="text-sm text-gray-400 dark:text-gray-600">|</span>
               <Link 
-                href="/posts"
+                href="/"
                 className="text-sm font-medium hover:underline transform hover:scale-110 transition-transform duration-200"
                 style={{ color: colors.link }}
               >

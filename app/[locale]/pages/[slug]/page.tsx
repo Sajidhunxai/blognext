@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const metaTitle = (page as any).metaTitle || page.title;
   const metaDescription =
     (page as any).metaDescription || (page as any).content?.substring(0, 160);
-  const ogImage = (page as any).featuredImage || `${siteUrl}/og-default.jpg`;
+  const ogImage = (page as any).featuredImage || settings?.logo || `${siteUrl}/og-default.jpg`;
   const canonicalPath = addLocalePrefix(`/pages/${page.slug}`, locale);
 
   return {
