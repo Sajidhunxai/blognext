@@ -71,11 +71,11 @@ export async function GET(req: NextRequest) {
           whyChooseSubtitle: "Your trusted platform for app discovery, reviews, and tech insights beyond the Play Store",
           whyChooseFeatures: [],
           enableComments: true,
-          primaryColor: "#5170ff",
-          secondaryColor: "#5c76ef",
+          primaryColor: "#4060f0",
+          secondaryColor: "#4a63e0",
           backgroundColor: "#faf9f9",
           textColor: "#1a1a1a",
-          buttonColor: "#5c76ef",
+          buttonColor: "#4a63e0",
           buttonTextColor: "#ffffff",
           linkColor: "#2341c7",
           successColor: "#16a34a",
@@ -203,11 +203,11 @@ export async function PUT(req: NextRequest) {
           whyChooseSubtitle: data.whyChooseSubtitle || null,
           whyChooseFeatures: data.whyChooseFeatures || [],
           enableComments: data.enableComments !== undefined ? data.enableComments : true,
-      primaryColor: data.primaryColor || "#5170ff",
-      secondaryColor: data.secondaryColor || "#5c76ef",
+      primaryColor: data.primaryColor || "#4060f0",
+      secondaryColor: data.secondaryColor || "#4a63e0",
       backgroundColor: data.backgroundColor || "#faf9f9",
       textColor: data.textColor || "#1a1a1a",
-      buttonColor: data.buttonColor || "#5c76ef",
+      buttonColor: data.buttonColor || "#4a63e0",
       buttonTextColor: data.buttonTextColor || "#ffffff",
       linkColor: data.linkColor || "#2341c7",
       successColor: data.successColor || "#16a34a",
@@ -306,7 +306,7 @@ export async function POST(req: NextRequest) {
           if (setting.metaDescription) score += 1;
           if (setting.whyChooseTitle) score += 1;
           if (setting.whyChooseSubtitle) score += 1;
-          if (setting.primaryColor === '#5170ff') score += 2;
+          if (setting.primaryColor === '#4060f0') score += 2;
           if (setting.backgroundColor === '#faf9f9') score += 2;
           
           if (score > bestScore) {
@@ -355,11 +355,11 @@ export async function POST(req: NextRequest) {
       whyChooseSubtitle: "Your trusted platform for app discovery, reviews, and tech insights beyond the Play Store",
       whyChooseFeatures: [],
       enableComments: true,
-      primaryColor: "#5170ff",
-      secondaryColor: "#5c76ef",
+      primaryColor: "#4060f0",
+      secondaryColor: "#4a63e0",
       backgroundColor: "#faf9f9",
       textColor: "#1a1a1a",
-      buttonColor: "#5c76ef",
+      buttonColor: "#4a63e0",
       buttonTextColor: "#ffffff",
       linkColor: "#2341c7",
       successColor: "#16a34a",
