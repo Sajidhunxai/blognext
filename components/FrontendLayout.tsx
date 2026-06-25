@@ -241,10 +241,10 @@ export default async function FrontendLayout({ children }: FrontendLayoutProps) 
 
           {/* Bottom bar */}
           <div className="border-t border-gray-700/60 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <p className="text-xs text-gray-500 text-center sm:text-left">
+            <p className="text-xs text-gray-400 text-center sm:text-left">
               © {new Date().getFullYear()} {settings.siteName}. {getTranslation(locale, "allRightsReserved")}.
             </p>
-            <p className="text-xs text-gray-600 text-center sm:text-right">
+            <p className="text-xs text-gray-400 text-center sm:text-right">
               APK files are provided for informational and educational purposes only.
             </p>
           </div>

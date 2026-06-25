@@ -454,8 +454,8 @@ export default async function PostPage({ params }: Props) {
               <ColoredAnchor
                 href="#"
                 className="text-sm flex items-center gap-1.5 justify-center py-2"
-                defaultColor="#9ca3af"
-                hoverColor="#6b7280"
+                defaultColor="#6b7280"
+                hoverColor="#4b5563"
               >
                 <span>⚠️</span> Report broken link
               </ColoredAnchor>

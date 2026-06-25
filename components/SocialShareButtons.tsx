@@ -40,7 +40,7 @@ export default function SocialShareButtons({ url, title }: SocialShareButtonsPro
         target="_blank"
         rel="noopener noreferrer"
         className="flex items-center gap-2 px-4 py-2 text-white rounded-lg transition hover:opacity-90"
-        style={{ backgroundColor: "#1877f2" }}
+        style={{ backgroundColor: "#1558b4" }}
         aria-label="Share on Facebook"
       >
         <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -85,7 +85,7 @@ export default function SocialShareButtons({ url, title }: SocialShareButtonsPro
         target="_blank"
         rel="noopener noreferrer"
         className="flex items-center gap-2 px-4 py-2 text-white rounded-lg transition hover:opacity-90"
-        style={{ backgroundColor: "#0088cc" }}
+        style={{ backgroundColor: "#006aad" }}
         aria-label="Share on Telegram"
       >
         <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -100,7 +100,7 @@ export default function SocialShareButtons({ url, title }: SocialShareButtonsPro
         target="_blank"
         rel="noopener noreferrer"
         className="flex items-center gap-2 px-4 py-2 text-white rounded-lg transition hover:opacity-90"
-        style={{ backgroundColor: "#25D366" }}
+        style={{ backgroundColor: "#075E54" }}
         aria-label="Share on WhatsApp"
       >
         <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">

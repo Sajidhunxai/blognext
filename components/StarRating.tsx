@@ -57,7 +57,7 @@ export default function StarRating({
         <span className={`text-gray-600 font-semibold ml-1 ${sizeClasses[size]}`}>
           {clampedRating.toFixed(1)}
           {typeof ratingCount === "number" && ratingCount > 0 && (
-            <span className="text-gray-400 font-normal"> ({ratingCount})</span>
+            <span className="text-gray-500 font-normal"> ({ratingCount})</span>
           )}
         </span>
       )}
