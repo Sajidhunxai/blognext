@@ -1,22 +1,17 @@
 import { ReactNode } from "react";
 import Link from "next/link";
-import { headers } from "next/headers";
 import { getSettings } from "@/lib/settings";
 import { resolveMenuItems } from "@/lib/menu";
-import { getSafeServerSession } from "@/lib/session";
 import { addLocalePrefix, type Locale } from "@/lib/i18n/config";
 import { getTranslation } from "@/lib/i18n/translations";
 import dynamic from "next/dynamic";
+import DashboardNavLink from "@/components/DashboardNavLink";
 
 const NavigationLoader = dynamic(() => import("@/components/NavigationLoader"), {
   ssr: false,
 });
 
 const NavLink = dynamic(() => import("@/components/NavLink"), {
-  ssr: false,
-});
-
-const ColoredLink = dynamic(() => import("@/components/ColoredLink"), {
   ssr: false,
 });
 
@@ -38,10 +33,9 @@ interface FrontendLayoutProps {
 }
 
 export default async function FrontendLayout({ children }: FrontendLayoutProps) {
-  const headersList = await headers();
-  const locale = (headersList.get("x-locale") || "en") as Locale;
+  // Locale prefixes are 301'd to English by middleware — keep layout static (no headers()/cookies).
+  const locale: Locale = "en";
 
-  const session = await getSafeServerSession();
   const settings = await getSettings();
   const headerMenu = Array.isArray(settings.headerMenu) ? settings.headerMenu : (settings.headerMenu ? [settings.headerMenu] : []);
   const resolvedItems = await resolveMenuItems(headerMenu);
@@ -114,15 +108,11 @@ export default async function FrontendLayout({ children }: FrontendLayoutProps) 
                     {item.label}
                   </NavLink>
                 ))}
-                {session && (
-                  <NavLink href="/dashboard">
-                    {getTranslation(locale, "dashboard")}
-                  </NavLink>
-                )}
+                <DashboardNavLink locale={locale} />
               </nav>
               <ThemeToggle />
               {/* Mobile Menu */}
-              <MobileMenu menuItems={menuItems} showDashboard={!!session} locale={locale} />
+              <MobileMenu menuItems={menuItems} locale={locale} />
             </div>
           </div>
         </div>

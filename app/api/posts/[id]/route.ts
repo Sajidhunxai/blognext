@@ -1,8 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { notifyIndexNowPost } from "@/lib/indexnow";
+
+function invalidatePostCache(slug: string, postId?: string) {
+  revalidateTag("posts");
+  revalidateTag(`post-${slug}`);
+  if (postId) revalidateTag(`related-${postId}`);
+  revalidatePath(`/post/${slug}`);
+}
 
 export async function PUT(
   req: NextRequest,
@@ -108,6 +116,11 @@ export async function PUT(
       }
     }
 
+    invalidatePostCache(post.slug, post.id);
+    if (existingPost.slug !== post.slug) {
+      invalidatePostCache(existingPost.slug, existingPost.id);
+    }
+
     return NextResponse.json(post);
   } catch (error: any) {
     return NextResponse.json(
@@ -128,9 +141,18 @@ export async function DELETE(
   }
 
   try {
+    const existing = await prisma.post.findUnique({
+      where: { id: params.id },
+      select: { slug: true, id: true },
+    });
+
     await prisma.post.delete({
       where: { id: params.id },
     });
+
+    if (existing) {
+      invalidatePostCache(existing.slug, existing.id);
+    }
 
     return NextResponse.json({ success: true });
   } catch (error: any) {

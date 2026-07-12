@@ -4,9 +4,9 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "@/contexts/ThemeContext";
-import { X, Home, LayoutDashboard } from "lucide-react";
-import { getTranslation } from "@/lib/i18n/translations";
+import { X, Home } from "lucide-react";
 import { locales, localeNames, getPathWithoutLocale, addLocalePrefix, type Locale } from "@/lib/i18n/config";
+import { DashboardMobileLink } from "@/components/DashboardNavLink";
 
 interface MenuItem {
   label: string;
@@ -15,7 +15,6 @@ interface MenuItem {
 
 interface MobileMenuProps {
   menuItems: MenuItem[];
-  showDashboard?: boolean;
   locale?: Locale;
 }
 
@@ -32,7 +31,7 @@ const defaultColors = {
   info: "#3b82f6",
 };
 
-export default function MobileMenu({ menuItems, showDashboard = false, locale = "en" }: MobileMenuProps) {
+export default function MobileMenu({ menuItems, locale = "en" }: MobileMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
   const pathWithoutLocale = getPathWithoutLocale(pathname || "/");
@@ -157,26 +156,11 @@ export default function MobileMenu({ menuItems, showDashboard = false, locale = 
               </Link>
             ))}
             
-            {showDashboard && (
-              <Link
-                href="/dashboard"
-                className="group flex items-center gap-4 px-6 py-4 rounded-xl transition-all duration-200 transform hover:scale-105 active:scale-95 mt-4"
-                style={{ 
-                  backgroundColor: colors.secondary + '20',
-                  color: colors.text,
-                  border: `1px solid ${colors.secondary + '40'}`
-                }}
-                onClick={() => setIsOpen(false)}
-              >
-                <LayoutDashboard className="w-5 h-5 flex-shrink-0" />
-                <span className="text-lg font-semibold">{getTranslation(locale, "dashboard")}</span>
-                <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </div>
-              </Link>
-            )}
+            <DashboardMobileLink
+              locale={locale}
+              onNavigate={() => setIsOpen(false)}
+              colors={{ secondary: colors.secondary, text: colors.text }}
+            />
           </div>
         </nav>
       </div>

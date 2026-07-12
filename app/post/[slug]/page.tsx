@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
-import { prisma } from "@/lib/prisma";
 import { getSettings } from "@/lib/settings";
+import { getPostBySlug, getRelatedPosts } from "@/lib/posts";
 import { buildCanonicalUrl } from "@/lib/url";
 import { optimizeCloudinaryUrl, getCloudinarySrcSet } from "@/lib/cloudinary";
 import Link from "next/link";
@@ -53,23 +53,7 @@ type Props = {
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const post = await prisma.post.findUnique({
-    where: { slug: params.slug },
-    include: {
-      author: {
-        select: {
-          name: true,
-          email: true,
-        },
-      },
-      category: {
-        select: {
-          name: true,
-          slug: true,
-        },
-      },
-    },
-  });
+  const post = await getPostBySlug(params.slug);
 
   if (!post) {
     return {
@@ -149,38 +133,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function PostPage({ params }: Props) {
-  const post = await prisma.post.findUnique({
-    where: { slug: params.slug },
-    include: {
-      author: {
-        select: {
-          name: true,
-          email: true,
-        },
-      },
-      category: {
-        select: {
-          name: true,
-          slug: true,
-        },
-      },
-      comments: {
-        where: {
-          approved: true,
-        },
-        select: {
-          id: true,
-          content: true,
-          authorName: true,
-          createdAt: true,
-        },
-        orderBy: {
-          createdAt: 'desc',
-        },
-        take: 20, // Limit to most recent 20 comments for schema
-      },
-    },
-  });
+  const post = await getPostBySlug(params.slug);
 
   if (!post || (!post.published && process.env.NODE_ENV === "production")) {
     notFound();
@@ -205,27 +158,7 @@ export default async function PostPage({ params }: Props) {
   };
   const socialMedia = settings.socialMedia as any || {};
 
-  // Related posts: prefer same category for SEO ("More from X"); fill with latest if needed
-  const postsByCategory = post.categoryId
-    ? await prisma.post.findMany({
-        where: { published: true, id: { not: post.id }, categoryId: post.categoryId },
-        take: 6,
-        orderBy: { createdAt: "desc" },
-      })
-    : [];
-  const needMore = 6 - postsByCategory.length;
-  const extraPosts =
-    needMore > 0
-      ? await prisma.post.findMany({
-          where: {
-            published: true,
-            id: { notIn: [post.id, ...postsByCategory.map((p) => p.id)] },
-          },
-          take: needMore,
-          orderBy: { createdAt: "desc" },
-        })
-      : [];
-  const relatedPosts = [...postsByCategory, ...extraPosts].slice(0, 6);
+  const relatedPosts = await getRelatedPosts(post.id, post.categoryId);
   const faqs: { question: string; answer: string }[] =
     Array.isArray(post.faqs) && post.faqs.length > 0
       ? (post.faqs as { question: string; answer: string }[])
@@ -639,7 +572,7 @@ export default async function PostPage({ params }: Props) {
                 <section aria-labelledby="related-heading">
                   <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
                     <h2 id="related-heading" className="section-title text-xl text-gray-900 dark:text-gray-100">
-                      {post.category && postsByCategory.length > 0
+                      {post.category
                         ? `More ${post.category.name} Apps`
                         : "You May Also Like"}
                     </h2>

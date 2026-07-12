@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -157,6 +158,10 @@ export async function POST(req: NextRequest) {
     if (post.published) {
       notifyIndexNowPost(post.slug, true);
     }
+
+    revalidateTag("posts");
+    revalidateTag(`post-${post.slug}`);
+    revalidatePath(`/post/${post.slug}`);
 
     return NextResponse.json(post, { status: 201 });
   } catch (error: any) {
